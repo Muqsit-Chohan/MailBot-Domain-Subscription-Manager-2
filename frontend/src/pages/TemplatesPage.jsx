@@ -1,8 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Star, Copy, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  Plus, Pencil, Trash2, Star,
+  ChevronDown, ChevronUp, Sparkles, Lightbulb
+} from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 import Modal from '../components/Modal';
+import AIGenerateModal from '../components/AIGenerateModal';
+import PromptSuggestions from '../components/PromptSuggestions';
 
 const TYPE_OPTS = ['reminder_30', 'reminder_15', 'reminder_7', 'reminder_1', 'expired', 'custom'];
 const VARS = ['{{domain}}', '{{owner}}', '{{expiryDate}}', '{{days}}', '{{registrar}}'];
@@ -63,18 +68,54 @@ export default function TemplatesPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [seeding, setSeeding] = useState(false);
 
+  // AI related state
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
+  const [selectedPrompt, setSelectedPrompt] = useState('');
+
   const load = useCallback(async () => {
     setLoading(true);
-    try { const { data } = await api.get('/templates'); setTemplates(data); }
-    finally { setLoading(false); }
+    try {
+      const { data } = await api.get('/templates');
+      setTemplates(data);
+    } catch {
+      toast.error('Failed to load templates');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
-  const openCreate = () => { setEditing(null); setForm(EMPTY); setFormOpen(true); };
+  const openCreate = () => {
+    setEditing(null);
+    setForm(EMPTY);
+    setFormOpen(true);
+  };
+
   const openEdit = (tmpl) => {
     setEditing(tmpl);
-    setForm({ name: tmpl.name, type: tmpl.type, subject: tmpl.subject, htmlBody: tmpl.htmlBody, textBody: tmpl.textBody || '', isDefault: tmpl.isDefault });
+    setForm({
+      name: tmpl.name,
+      type: tmpl.type,
+      subject: tmpl.subject,
+      htmlBody: tmpl.htmlBody,
+      textBody: tmpl.textBody || '',
+      isDefault: tmpl.isDefault,
+    });
+    setFormOpen(true);
+  };
+
+  const handleAITemplateGenerated = (generatedTemplate) => {
+    setForm({
+      name: generatedTemplate.name,
+      type: generatedTemplate.type,
+      subject: generatedTemplate.subject,
+      htmlBody: generatedTemplate.htmlBody,
+      textBody: generatedTemplate.textBody,
+      isDefault: false,
+    });
+    setEditing(null);
     setFormOpen(true);
   };
 
@@ -82,16 +123,31 @@ export default function TemplatesPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      if (editing) { await api.put(`/templates/${editing._id}`, form); toast.success('Template updated'); }
-      else { await api.post('/templates', form); toast.success('Template created'); }
-      setFormOpen(false); load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Error saving'); }
-    finally { setSaving(false); }
+      if (editing) {
+        await api.put(`/templates/${editing._id}`, form);
+        toast.success('Template updated');
+      } else {
+        await api.post('/templates', form);
+        toast.success('Template created');
+      }
+      setFormOpen(false);
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error saving');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async () => {
-    try { await api.delete(`/templates/${deleteTarget._id}`); toast.success('Deleted'); setDeleteTarget(null); load(); }
-    catch { toast.error('Delete failed'); }
+    try {
+      await api.delete(`/templates/${deleteTarget._id}`);
+      toast.success('Deleted');
+      setDeleteTarget(null);
+      load();
+    } catch {
+      toast.error('Delete failed');
+    }
   };
 
   const toggleDefault = async (tmpl) => {
@@ -99,7 +155,9 @@ export default function TemplatesPage() {
       await api.put(`/templates/${tmpl._id}`, { ...tmpl, isDefault: !tmpl.isDefault });
       toast.success(tmpl.isDefault ? 'Unset as default' : 'Set as default');
       load();
-    } catch { toast.error('Failed'); }
+    } catch {
+      toast.error('Failed');
+    }
   };
 
   const insertVar = (v) => setForm(f => ({ ...f, htmlBody: f.htmlBody + v }));
@@ -108,30 +166,65 @@ export default function TemplatesPage() {
     setSeeding(true);
     try {
       const { data } = await api.post('/templates/seed-defaults');
-      toast.success(data.message); load();
-    } catch { toast.error('Seed failed'); }
-    finally { setSeeding(false); }
+      toast.success(data.message);
+      load();
+    } catch {
+      toast.error('Seed failed');
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  // When user picks a prompt from the suggestions modal
+  const handlePromptSelect = (promptText) => {
+    setSelectedPrompt(promptText);
+    setIsPromptModalOpen(false);      // close ideas modal
+    setIsAIModalOpen(true);          // open AI modal with pre‑filled prompt
   };
 
   return (
     <div className="space-y-5 animate-[fadeIn_0.3s_ease-out]">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="page-title">Email Templates</h1>
-          <p className="text-sm text-[#6b7280] dark:text-[#8b92b3] mt-0.5">{templates.length} template{templates.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-[#6b7280] dark:text-[#8b92b3] mt-0.5">
+            {templates.length} template{templates.length !== 1 ? 's' : ''}
+          </p>
         </div>
         <div className="flex gap-2">
           <button onClick={seedDefaults} disabled={seeding} className="btn-secondary flex items-center gap-2">
             {seeding ? 'Seeding…' : '⚡ Seed Defaults'}
           </button>
+
+          {/* 💡 Prompt Ideas button */}
+          <button
+            onClick={() => setIsPromptModalOpen(true)}
+            className="btn-secondary flex items-center gap-2"
+            title="Prompt ideas"
+          >
+            <Lightbulb size={15} /> Ideas
+          </button>
+
+          {/* Generate with AI button – always clears old prompt */}
+          <button
+            onClick={() => { setSelectedPrompt(''); setIsAIModalOpen(true); }}
+            className="btn-primary flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-md"
+          >
+            <Sparkles size={15} /> Generate with AI
+          </button>
+
           <button onClick={openCreate} className="btn-primary flex items-center gap-2">
             <Plus size={15} /> New Template
           </button>
         </div>
       </div>
 
+      {/* Loading / Empty / List */}
       {loading ? (
-        <div className="flex justify-center py-16"><div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" /></div>
+        <div className="flex justify-center py-16">
+          <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        </div>
       ) : templates.length === 0 ? (
         <div className="card p-12 text-center">
           <p className="text-[#6b7280] dark:text-[#8b92b3] mb-4">No templates yet. Seed defaults or create your own.</p>
@@ -145,7 +238,7 @@ export default function TemplatesPage() {
         </div>
       )}
 
-      {/* Form Modal */}
+      {/* Create/Edit Template Modal */}
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title={editing ? 'Edit Template' : 'New Template'} size="xl">
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -197,19 +290,38 @@ export default function TemplatesPage() {
 
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={() => setFormOpen(false)} className="btn-secondary">Cancel</button>
-            <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Saving…' : editing ? 'Save Changes' : 'Create Template'}</button>
+            <button type="submit" disabled={saving} className="btn-primary">
+              {saving ? 'Saving…' : editing ? 'Save Changes' : 'Create Template'}
+            </button>
           </div>
         </form>
       </Modal>
 
-      {/* Delete confirm */}
+      {/* Delete Confirmation Modal */}
       <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete Template" size="sm">
-        <p className="text-sm text-[#6b7280] dark:text-[#8b92b3]">Delete <strong className="text-[#0f1523] dark:text-[#eef0f8]">{deleteTarget?.name}</strong>?</p>
+        <p className="text-sm text-[#6b7280] dark:text-[#8b92b3]">
+          Delete <strong className="text-[#0f1523] dark:text-[#eef0f8]">{deleteTarget?.name}</strong>?
+        </p>
         <div className="flex justify-end gap-2 mt-5">
           <button onClick={() => setDeleteTarget(null)} className="btn-secondary">Cancel</button>
           <button onClick={handleDelete} className="btn-danger">Delete</button>
         </div>
       </Modal>
+
+      {/* AI Generate Modal */}
+      <AIGenerateModal
+        open={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        onTemplateGenerated={handleAITemplateGenerated}
+        initialPrompt={selectedPrompt}
+      />
+
+      {/* Prompt Suggestions Modal */}
+      <PromptSuggestions
+        open={isPromptModalOpen}
+        onClose={() => setIsPromptModalOpen(false)}
+        onSelectPrompt={handlePromptSelect}
+      />
     </div>
   );
 }
