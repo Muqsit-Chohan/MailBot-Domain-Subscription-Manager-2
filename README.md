@@ -178,3 +178,4 @@ VITE_API_URL=http://localhost:5000/api
 2. Build command: `npm run build`
 3. Output directory: `dist`
 # MailBot-Domain-Subscription-Manager
+# MailBot-Domain-Subscription-Manager-2
