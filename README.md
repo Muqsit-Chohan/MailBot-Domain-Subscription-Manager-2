@@ -155,29 +155,6 @@ VITE_API_URL=http://localhost:5000/api
 
 ---
 
-## API Reference
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | Login, returns JWT |
-| GET  | `/api/auth/me` | Get current user |
-| GET  | `/api/subscriptions` | List subscriptions |
-| GET  | `/api/subscriptions/stats` | Dashboard stats |
-| POST | `/api/subscriptions` | Create subscription |
-| PUT  | `/api/subscriptions/:id` | Update subscription |
-| DELETE | `/api/subscriptions/:id` | Delete subscription |
-| POST | `/api/subscriptions/:id/send-test` | Send test reminder |
-| GET  | `/api/templates` | List templates |
-| POST | `/api/templates` | Create template |
-| POST | `/api/templates/seed-defaults` | Seed 4 default templates |
-| GET  | `/api/logs` | List email logs |
-| GET  | `/api/logs/stats` | Log statistics |
-| POST | `/api/settings/test-email` | Test SMTP connection |
-| POST | `/api/settings/run-cron` | Manually run reminder check (admin) |
-
----
-
 ## Deployment
 
 ### Backend (e.g. Railway, Render, Fly.io)
@@ -189,5 +166,5 @@ VITE_API_URL=http://localhost:5000/api
 1. Set `VITE_API_URL` to your deployed backend URL
 2. Build command: `npm run build`
 3. Output directory: `dist`
-# MailBot-Domain-Subscription-Manager
+
 # MailBot-Domain-Subscription-Manager-2
