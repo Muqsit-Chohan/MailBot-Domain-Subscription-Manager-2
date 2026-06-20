@@ -1,4 +1,4 @@
-# 📧 MailBot – Domain Subscription Manager
+# 📧 MailBot – Subscription Manager
 
 MailBot is a full-stack web application for managing domain and service subscriptions, tracking expiry dates, and sending automated email reminders.
 
