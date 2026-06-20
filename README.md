@@ -1,80 +1,92 @@
-# MailBot — Domain Subscription Manager
+# 📧 MailBot – Domain Subscription Manager
 
-A full-stack web app for managing domain subscriptions with automated email reminders.
+MailBot is a full-stack web application for managing domain and service subscriptions, tracking expiry dates, and sending automated email reminders.
 
-## Stack
+## 🚀 Features
 
-| Layer | Tech |
-|---|---|
-| Frontend | React 18, Vite, Tailwind CSS |
-| Backend | Node.js, Express |
-| Database | MongoDB (Mongoose) |
-| Email | Nodemailer |
-| Auth | JWT + bcrypt |
-| Scheduling | node-cron (daily @ 8 AM UTC) |
+- AI-powered email template generation
+- Automated subscription reminder emails
+- Email verification & JWT authentication
+- Multiple recipient support
+- SMTP configuration management
+- Dashboard with analytics and charts
+- Subscription categories and renewal cycles
+- Responsive modern UI
 
----
+## 🛠 Tech Stack
 
-## Project Structure
+### Frontend
+- React.js
+- Tailwind CSS
+- React Router
+- Axios
+- Recharts
 
-```
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT Authentication
+- Nodemailer
+- Node Cron
+
+### AI Integration
+- Google Gemini API
+
+## 📂 Project Structure
+
+```bash
 mailbot/
 ├── backend/
-│   ├── models/          # Mongoose schemas
-│   ├── routes/          # Express route handlers
-│   ├── services/        # emailService, cronService
-│   ├── middleware/       # JWT auth guard
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── middleware/
 │   └── server.js
-└── frontend/
-    └── src/
-        ├── components/  # Layout, Modal, SubscriptionForm
-        ├── context/     # AuthContext, ThemeContext
-        ├── lib/         # Axios instance
-        └── pages/       # Dashboard, Subscriptions, Templates, Logs, Settings
+│
+├── frontend/
+│   ├── src/
+│   ├── components/
+│   ├── pages/
+│   └── App.jsx
+│
+└── README.md
 ```
 
----
+## ⚙️ Installation
 
-## Quick Start
+### Clone Repository
 
-### 1. MongoDB
-Make sure MongoDB is running locally, or use a cloud URI (MongoDB Atlas).
+```bash
+git clone https://github.com/yourusername/mailbot.git
+cd mailbot
+```
 
-### 2. Backend
+### Backend Setup
 
 ```bash
 cd backend
-cp .env.example .env
-# Edit .env with your MongoDB URI and SMTP credentials
 npm install
-npm run dev
-# Runs on http://localhost:5000
+npm start
 ```
 
-### 3. Frontend
+### Frontend Setup
 
 ```bash
 cd frontend
-cp .env.example .env
-# VITE_API_URL=http://localhost:5000/api
 npm install
 npm run dev
-# Runs on http://localhost:5173
 ```
 
----
+## 🔧 Environment Variables
 
-## Environment Variables
-
-### Backend `.env`
+Create a `.env` file inside the backend folder.
 
 ```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/mailbot
-JWT_SECRET=change_this_to_a_long_random_string
-JWT_EXPIRES_IN=7d
+MONGODB_URI=your_mongodb_uri
+JWT_SECRET=your_jwt_secret
 
-# SMTP (Gmail example)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_SECURE=false
@@ -140,6 +152,29 @@ VITE_API_URL=http://localhost:5000/api
 - Auto-detects system preference
 - Toggle via sidebar button
 - Persisted in localStorage
+
+---
+
+## API Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/login` | Login, returns JWT |
+| GET  | `/api/auth/me` | Get current user |
+| GET  | `/api/subscriptions` | List subscriptions |
+| GET  | `/api/subscriptions/stats` | Dashboard stats |
+| POST | `/api/subscriptions` | Create subscription |
+| PUT  | `/api/subscriptions/:id` | Update subscription |
+| DELETE | `/api/subscriptions/:id` | Delete subscription |
+| POST | `/api/subscriptions/:id/send-test` | Send test reminder |
+| GET  | `/api/templates` | List templates |
+| POST | `/api/templates` | Create template |
+| POST | `/api/templates/seed-defaults` | Seed 4 default templates |
+| GET  | `/api/logs` | List email logs |
+| GET  | `/api/logs/stats` | Log statistics |
+| POST | `/api/settings/test-email` | Test SMTP connection |
+| POST | `/api/settings/run-cron` | Manually run reminder check (admin) |
 
 ---
 
