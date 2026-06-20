@@ -47,10 +47,10 @@
   .page-title { @apply text-xl font-bold text-[#0f1523] dark:text-[#eef0f8] tracking-tight; }
   .table-wrapper { @apply overflow-x-auto rounded-2xl card; }
 
-  .table-wrapper table { @apply w-full text-sm text-left; }
+  .table-wrapper table { @apply w-full min-w-full text-sm text-left; }
   .table-wrapper thead { @apply bg-[#f8f9fc] dark:bg-[#0d0f1a] border-b border-[#e2e6f0] dark:border-[#2a2f48]; }
   .table-wrapper th { @apply px-5 py-3 text-[11px] font-semibold text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wider whitespace-nowrap; }
-  .table-wrapper td { @apply px-5 py-3.5 text-sm text-[#0f1523] dark:text-[#eef0f8] whitespace-nowrap; }
+  .table-wrapper td { @apply px-5 py-3.5 text-sm text-[#0f1523] dark:text-[#eef0f8] whitespace-normal break-words; }
   .table-wrapper tbody tr { @apply border-b border-[#f1f3f9] dark:border-[#1e2235] last:border-0 hover:bg-[#f8f9fc]/60 dark:hover:bg-[#1e2235]/40 transition-colors; }
 }
 

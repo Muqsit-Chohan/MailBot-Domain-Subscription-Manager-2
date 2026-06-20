@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MailBot – Complete Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        details summary {
+            cursor: pointer;
+            list-style: none;
+        }
+        details summary::-webkit-details-marker { display: none; }
+        details summary .icon-close { display: none; }
+        details[open] summary .icon-open { display: none; }
+        details[open] summary .icon-close { display: block; }
+        .prose p { margin-bottom: 0.75rem; }
+        .prose ul, .prose ol { margin-bottom: 0.75rem; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.25rem; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2"/>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+                <h1 class="text-xl font-bold text-gray-900">MailBot Docs</h1>
+            </div>
+            <nav class="hidden sm:flex gap-4 text-sm font-medium">
+                <a href="#overview" class="hover:text-indigo-600">Overview</a>
+                <a href="#comparison" class="hover:text-indigo-600">Comparison</a>
+                <a href="#features" class="hover:text-indigo-600">Features</a>
+                <a href="#tools" class="hover:text-indigo-600">Tools</a>
+                <a href="#structure" class="hover:text-indigo-600">Files</a>
+                <a href="#dataflow" class="hover:text-indigo-600">Data Flow</a>
+                <a href="#usage" class="hover:text-indigo-600">Usage</a>
+                <a href="#deployment" class="hover:text-indigo-600">Deploy</a>
+                <a href="#faq" class="hover:text-indigo-600">FAQ</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+
+        <!-- Hero Section -->
+        <section id="overview" class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-2xl p-6 sm:p-8 shadow-lg">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-3">📧 MailBot – Domain Subscription Manager</h2>
+            <p class="text-indigo-100 text-sm sm:text-base leading-relaxed">
+                MailBot is a full‑stack web application that helps businesses track domain and service subscriptions, 
+                automatically send personalised email reminders, and generate professional email templates using AI. 
+                It replaces manual spreadsheets and expensive SaaS tools, offering a self‑hosted, zero‑cost solution.
+            </p>
+            <p class="text-indigo-200 text-xs sm:text-sm mt-3">
+                Perfect for web hosting companies, domain registrars, IT agencies, freelancers, and anyone who wants to stay on top of renewals.
+            </p>
+        </section>
+
+        <!-- Collapsible Sections with Full Detail -->
+        <div class="space-y-4 prose max-w-none">
+
+            <!-- Comparison Section -->
+            <details id="comparison" class="bg-white rounded-xl shadow-sm border border-gray-200 group" open>
+                <summary class="flex items-center justify-between p-4 sm:p-5 font-semibold text-lg select-none">
+                    <span>📊 Old MailBot vs New MailBot – What changed?</span>
+                    <span class="text-gray-400">
+                        <svg class="w-5 h-5 icon-open group-open:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        <svg class="w-5 h-5 icon-close hidden group-open:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                    </span>
+                </summary>
+                <div class="px-4 pb-4 sm:px-5 sm:pb-5 overflow-x-auto">
+                    <p class="text-sm mb-3">The original MailBot (as found on GitHub) was a basic subscription tracker. We transformed it into a production‑ready system with AI, dynamic SMTP, multi‑recipient support, and a polished dashboard. The table below highlights every major change.</p>
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="p-2 border-b">Feature</th>
+                                <th class="p-2 border-b">Original</th>
+                                <th class="p-2 border-b">Enhanced (Current)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-2 border-b font-medium">AI Template Generator</td>
+                                <td class="p-2 border-b">❌</td>
+                                <td class="p-2 border-b">✅ Write a simple sentence (e.g., "Remind 7 days before expiry") and Gemini AI creates a complete HTML email template with subject, body, and variables.</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border-b font-medium">Email Verification</td>
+                                <td class="p-2 border-b">❌</td>
+                                <td class="p-2 border-b">✅ New users must verify their email address before logging in. A unique token is sent; clicking the link activates the account.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border-b font-medium">Multiple Client Emails</td>
+                                <td class="p-2 border-b">❌ (only one email)</td>
+                                <td class="p-2 border-b">✅ Dynamically add or remove email fields per subscription. The first email is used as primary, but all are stored and can be used for future features.</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border-b font-medium">Subscription Type & Renewal Cycle</td>
+                                <td class="p-2 border-b">❌</td>
+                                <td class="p-2 border-b">✅ Dropdowns for Type (Domain, Hosting, SSL, Custom) and Renewal Cycle (Monthly, Quarterly, Yearly, Custom) to better organise subscriptions.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border-b font-medium">SMTP Configuration UI</td>
+                                <td class="p-2 border-b">❌ (only .env)</td>
+                                <td class="p-2 border-b">✅ A dedicated page where users can enter their own SMTP credentials, save them, and test the connection. The system falls back to .env if no custom settings are saved.</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border-b font-medium">Dashboard Charts</td>
+                                <td class="p-2 border-b">Simple numbers</td>
+                                <td class="p-2 border-b">✅ Rich visualisations using Recharts: upcoming expiries bar chart, subscription type donut chart, renewal cycle horizontal bar chart, and status breakdown.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border-b font-medium">Prompt Ideas Library</td>
+                                <td class="p-2 border-b">❌</td>
+                                <td class="p-2 border-b">✅ A "💡 Ideas" button opens a grid of ready‑made prompts. Click one to copy it or send it directly to the AI generator, saving time for non‑technical users.</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border-b font-medium">Manual Cron Trigger</td>
+                                <td class="p-2 border-b">❌</td>
+                                <td class="p-2 border-b">✅ Admin users can click "Run Reminder Check Now" on the Settings page to instantly execute the expiry check and send all pending reminders.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border-b font-medium">Subscription Form UX</td>
+                                <td class="p-2 border-b">Overflow issues</td>
+                                <td class="p-2 border-b">✅ The modal now has a scrollable body and a fixed footer, so all fields remain accessible even on smaller screens.</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border-b font-medium">Authentication Gate</td>
+                                <td class="p-2 border-b">JWT only</td>
+                                <td class="p-2 border-b">✅ Middleware checks <code>isVerified</code> flag; unverified users cannot access protected pages.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border-b font-medium">AI Provider Flexibility</td>
+                                <td class="p-2 border-b">None</td>
+                                <td class="p-2 border-b">✅ The AI service is pluggable – Gemini, Groq, OpenAI, or Mistral can be used by changing a few lines in <code>aiTemplateService.js</code>. We already resolved quota and leak issues with Gemini.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- Features -->
+            <details id="features" class="bg-white rounded-xl shadow-sm border border-gray-200 group">
+                <summary class="flex items-center justify-between p-4 sm:p-5 font-semibold text-lg select-none">
+                    <span>✨ All Key Features Explained</span>
+                    <span class="text-gray-400">
+                        <svg class="w-5 h-5 icon-open group-open:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        <svg class="w-5 h-5 icon-close hidden group-open:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                    </span>
+                </summary>
+                <div class="px-4 pb-4 sm:px-5 sm:pb-5">
+                    <ul class="space-y-4">
+                        <li class="flex gap-2">
+                            <span class="text-green-500 text-lg mt-1">✅</span>
+                            <div>
+                                <strong>AI Template Generator:</strong> The star feature. Instead of manually writing HTML, you type a natural language prompt like <em>"Send a friendly reminder 7 days before domain expiry with a special discount"</em>. The AI (Gemini, or any compatible model) returns a structured JSON object containing the template name, subject, HTML body, plain text body, and the correct reminder type (e.g., <code>reminder_7</code>). The output is immediately pre‑filled in the creation form, ready to save.
+                            </div>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-green-500 text-lg mt-1">✅</span>
+                            <div>
+                                <strong>Email Verification at Registration:</strong> When a new user signs up, a random verification token is generated and a link is emailed. The account remains inactive (<code>isVerified: false</code>) until the link is clicked. This prevents spam accounts and ensures only valid email addresses are used.
+                            </div>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-green-500 text-lg mt-1">✅</span>
+                            <div>
+                                <strong>Multiple Recipients per Subscription:</strong> Each subscription can have several client emails. The form lets you add extra email fields on the fly. The first valid email becomes <code>ownerEmail</code> (primary) for test sends and cron reminders, while all emails are stored in <code>ownerEmails</code> array for future bulk sending.
+                            </div>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-green-500 text-lg mt-1">✅</span>
+                            <div>
+                                <strong>Subscription Categories:</strong> Two new dropdowns help organise your portfolio: <strong>Subscription Type</strong> (Domain, Hosting, SSL, Custom) and <strong>Renewal Cycle</strong> (Monthly, Quarterly, Yearly, Custom). These are stored in the database and used in the dashboard charts.
+                            </div>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-green-500 text-lg mt-1">✅</span>
+                            <div>
+                                <strong>Dynamic SMTP Configuration:</strong> You can save your own email server settings (host, port, username, password, sender name/email) directly from the UI. These settings are stored in the <code>smtpsettings</code> collection. When sending a test email or manual cron trigger, the system first checks for saved settings; if none exist, it falls back to the environment variables (<code>.env</code>). This means you can change email providers without touching server files.
+                            </div>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-green-500 text-lg mt-1">✅</span>
+                            <div>
+                                <strong>Interactive Dashboard:</strong> Powered by Recharts, the dashboard includes:
+                                <ul class="list-disc ml-5 mt-1 text-sm">
+                                    <li><strong>Upcoming Expiries</strong> – a bar chart showing domain counts per month for the next 6 months.</li>
+                                    <li><strong>By Subscription Type</strong> – a donut chart showing the distribution across Domain, Hosting, SSL, Custom.</li>
+                                    <li><strong>By Renewal Cycle</strong> – a horizontal bar chart.</li>
+                                    <li><strong>Status Distribution</strong> – a simple list showing Active, Expiring Soon, Expired counts.</li>
+                                    <li><strong>Recent Subscriptions</strong> – a list of domains expiring soon with days left and a "View All" link.</li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-green-500 text-lg mt-1">✅</span>
+                            <div>
+                                <strong>Prompt Ideas Library:</strong> The "💡 Ideas" button opens a modal with 12 pre‑written prompts like <em>"30‑day reminder"</em>, <em>"Expired notice"</em>, <em>"Black Friday promo"</em>. Each card has a copy button and a Sparkle button that fills the AI prompt box and opens the generator instantly – ideal for non‑technical users who don't want to type.
+                            </div>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-green-500 text-lg mt-1">✅</span>
+                            <div>
+                                <strong>Manual Cron Trigger:</strong> The daily cron job runs at 8:00 AM UTC. However, an admin can manually trigger the same process from the Settings page by clicking "Run Reminder Check Now". This is useful for testing or for sending reminders outside the normal schedule.
+                            </div>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-green-500 text-lg mt-1">✅</span>
+                            <div>
+                                <strong>Test Emails from Subscriptions Table:</strong> Next to each subscription row, a paper plane icon sends a test reminder email to the primary owner email. The backend dynamically creates a Nodemailer transporter using your saved SMTP settings (or .env fallback) and fires off a test message.
+                            </div>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-green-500 text-lg mt-1">✅</span>
+                            <div>
+                                <strong>Dark Mode & Responsive Design:</strong> Built with Tailwind CSS, the entire interface supports dark mode and adapts from mobile to large desktop screens.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- Tools & Libraries -->
+            <details id="tools" class="bg-white rounded-xl shadow-sm border border-gray-200 group">
+                <summary class="flex items-center justify-between p-4 sm:p-5 font-semibold text-lg select-none">
+                    <span>🛠️ Tools & Libraries – Why we chose them</span>
+                    <span class="text-gray-400">
+                        <svg class="w-5 h-5 icon-open group-open:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        <svg class="w-5 h-5 icon-close hidden group-open:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                    </span>
+                </summary>
+                <div class="px-4 pb-4 sm:px-5 sm:pb-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <h3 class="font-bold mb-2 text-indigo-700">Frontend</h3>
+                        <ul class="space-y-1">
+                            <li><strong>React (Vite):</strong> Fast development and optimal builds. Vite provides hot module replacement and quick startup.</li>
+                            <li><strong>Tailwind CSS:</strong> Utility‑first CSS framework for rapid, responsive UI with dark mode support.</li>
+                            <li><strong>Lucide React:</strong> Clean icon set (Sparkles, Lightbulb, etc.) used throughout the app.</li>
+                            <li><strong>Recharts:</strong> Composable charting library built on D3. Used for dashboard charts – easy to customise and responsive.</li>
+                            <li><strong>React Router DOM:</strong> Client‑side routing for pages (Dashboard, Subscriptions, Templates, Settings, etc.).</li>
+                            <li><strong>React Hot Toast:</strong> Lightweight, animated toast notifications for success/error feedback.</li>
+                            <li><strong>date‑fns:</strong> Modern date utility library for formatting expiry dates and calculating days left.</li>
+                            <li><strong>Axios:</strong> Promise‑based HTTP client for API calls with automatic token injection.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2 text-indigo-700">Backend</h3>
+                        <ul class="space-y-1">
+                            <li><strong>Node.js + Express:</strong> Minimalist server framework, easy routing and middleware.</li>
+                            <li><strong>Mongoose:</strong> MongoDB ODM for schema definitions, validation, and query building.</li>
+                            <li><strong>jsonwebtoken:</strong> JWT generation and verification for secure authentication.</li>
+                            <li><strong>bcryptjs:</strong> Password hashing with salt (12 rounds).</li>
+                            <li><strong>Nodemailer:</strong> SMTP client for sending all emails – verification, reminders, tests. Supports custom transporters.</li>
+                            <li><strong>node‑cron:</strong> Scheduler for running the daily reminder check at 8:00 AM UTC.</li>
+                            <li><strong>express‑validator:</strong> Request body validation middleware.</li>
+                            <li><strong>crypto (built‑in):</strong> Random token generation for email verification.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2 text-indigo-700">AI / External APIs</h3>
+                        <ul class="space-y-1">
+                            <li><strong>@google/generative‑ai:</strong> Official Gemini SDK for AI template generation.</li>
+                            <li><strong>groq‑sdk (optional):</strong> Alternative AI provider (Llama 3).</li>
+                            <li><strong>openai (optional):</strong> OpenAI GPT models.</li>
+                            <li><strong>axios</strong> is also used to call Mistral or other custom endpoints if needed.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2 text-indigo-700">Database & Dev Tools</h3>
+                        <ul class="space-y-1">
+                            <li><strong>MongoDB:</strong> NoSQL database for flexible document storage. Can be used locally or with MongoDB Atlas (free tier).</li>
+                            <li><strong>VS Code:</strong> Code editor.</li>
+                            <li><strong>Postman:</strong> API testing during development.</li>
+                            <li><strong>Git & GitHub:</strong> Version control and collaboration.</li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Project Structure -->
+            <details id="structure" class="bg-white rounded-xl shadow-sm border border-gray-200 group">
+                <summary class="flex items-center justify-between p-4 sm:p-5 font-semibold text-lg select-none">
+                    <span>📁 Project Structure – Every file explained</span>
+                    <span class="text-gray-400">
+                        <svg class="w-5 h-5 icon-open group-open:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        <svg class="w-5 h-5 icon-close hidden group-open:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                    </span>
+                </summary>
+                <div class="px-4 pb-4 sm:px-5 sm:pb-5">
+                    <div class="bg-gray-100 p-3 rounded-lg overflow-auto text-xs sm:text-sm font-mono mb-3">
+                        <pre>
+mailbot/
+├── backend/
+│   ├── models/
+│   │   ├── <strong>User.js</strong>              # User schema (name, email, hashed password, role, isVerified, verificationToken)
+│   │   ├── <strong>Subscription.js</strong>      # Subscription schema (domain, owner, ownerEmail, ownerEmails[], subscriptionType, renewalCycle, expiryDate, reminderIntervals, status, notes, notificationsEnabled)
+│   │   ├── <strong>EmailTemplate.js</strong>     # Email template (type, subject, htmlBody, textBody, isDefault, user)
+│   │   ├── <strong>EmailLog.js</strong>          # Log of every email sent (to, status, messageId, error)
+│   │   └── <strong>SmtpSettings.js</strong>      # User’s custom SMTP credentials (host, port, username, password, senderEmail, senderName, secure)
+│   ├── routes/
+│   │   ├── <strong>auth.js</strong>              # POST /register, GET /verify-email, POST /login
+│   │   ├── <strong>subscriptions.js</strong>     # CRUD + stats + POST /:id/send-test (dynamic SMTP)
+│   │   ├── <strong>templates.js</strong>         # CRUD + POST /seed-defaults + POST /generate (AI)
+│   │   └── <strong>settings.js</strong>          # GET/PUT /smtp, POST /test-email, POST /run-cron
+│   ├── services/
+│   │   ├── <strong>aiTemplateService.js</strong> # Interacts with Gemini (or any AI) – sends system prompt + user prompt, parses JSON
+│   │   ├── <strong>emailService.js</strong>     # Nodemailer transporter, sendEmail(), sendReminderEmail(), sendVerificationEmail(), renderTemplate()
+│   │   └── <strong>scheduler.js</strong>         # node‑cron daily job + processReminders() function
+│   ├── middleware/
+│   │   └── <strong>auth.js</strong>              # JWT verification + isVerified check + adminOnly
+│   ├── <strong>server.js</strong>                # Express app setup, MongoDB connection, route registration, cron start
+│   └── <strong>.env</strong>                     # Environment variables (MONGODB_URI, JWT_SECRET, SMTP_*, GEMINI_API_KEY, CLIENT_URL)
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── <strong>Modal.jsx</strong>               # Reusable popup with title, size, open/close
+│   │   │   ├── <strong>AIGenerateModal.jsx</strong>    # AI prompt textarea with quick‑idea buttons, sends /templates/generate
+│   │   │   ├── <strong>PromptSuggestions.jsx</strong>  # Grid of 12 ready‑made prompts, copy/use buttons
+│   │   │   └── <strong>SubscriptionForm.jsx</strong>   # Add/Edit form with multiple emails, type/cycle, intervals (scrollable)
+│   │   ├── pages/
+│   │   │   ├── <strong>DashboardPage.jsx</strong>      # Stat cards + Recharts charts + recent subscriptions
+│   │   │   ├── <strong>SubscriptionsPage.jsx</strong>  # Table with search, filter, actions (send test, edit, delete)
+│   │   │   ├── <strong>TemplatesPage.jsx</strong>      # Templates list, manual create/edit, AI Generate button, Ideas button
+│   │   │   ├── <strong>SettingsPage.jsx</strong>       # SMTP test, manual cron trigger (admin), account info, about
+│   │   │   ├── <strong>EmailSettings.jsx</strong>      # Dedicated SMTP configuration form (save, test, Gmail instructions)
+│   │   │   └── <strong>VerifyEmail.jsx</strong>        # Handles token from verification link, auto‑login, redirect
+│   │   ├── context/
+│   │   │   └── <strong>AuthContext.jsx</strong>         # React context for user state and token management
+│   │   ├── lib/
+│   │   │   └── <strong>api.js</strong>                 # Axios instance with baseURL and Authorization header
+│   │   ├── <strong>App.jsx</strong>                    # Router setup (all page routes)
+│   │   └── <strong>main.jsx</strong>                   # React entry point
+│   └── package.json
+└── README.md
+                        </pre>
+                    </div>
+                    <p class="text-sm">Every file has a single responsibility. The backend follows a <strong>MVC‑services</strong> pattern: Models handle data, Routes handle HTTP, Services contain business logic. The frontend is organised into reusable components and full pages.</p>
+                </div>
+            </details>
+
+            <!-- Data Flow -->
+            <details id="dataflow" class="bg-white rounded-xl shadow-sm border border-gray-200 group">
+                <summary class="flex items-center justify-between p-4 sm:p-5 font-semibold text-lg select-none">
+                    <span>⚡ Step‑by‑Step Data Flow</span>
+                    <span class="text-gray-400">
+                        <svg class="w-5 h-5 icon-open group-open:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        <svg class="w-5 h-5 icon-close hidden group-open:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                    </span>
+                </summary>
+                <div class="px-4 pb-4 sm:px-5 sm:pb-5 space-y-4 text-sm">
+                    <div class="p-3 bg-indigo-50 rounded-lg">
+                        <h3 class="font-bold mb-1">🔐 User Registration & Verification</h3>
+                        <ol class="list-decimal ml-5 space-y-1">
+                            <li>User fills the register form → <code>POST /api/auth/register</code> (auth.js).</li>
+                            <li>Backend creates a user with <code>isVerified: false</code> and a random crypto token.</li>
+                            <li><code>sendVerificationEmail(to, token)</code> (emailService.js) sends an email with a link containing <code>?token=xxx</code>.</li>
+                            <li>User clicks the link → <code>VerifyEmail.jsx</code> loads and calls <code>GET /api/auth/verify-email?token=xxx</code>.</li>
+                            <li>Backend marks user as verified, clears the token, returns a JWT.</li>
+                            <li>Frontend stores the JWT and redirects to dashboard.</li>
+                        </ol>
+                    </div>
+                    <div class="p-3 bg-emerald-50 rounded-lg">
+                        <h3 class="font-bold mb-1">📧 Adding Subscription & Sending Test Email</h3>
+                        <ol class="list-decimal ml-5 space-y-1">
+                            <li>User fills <code>SubscriptionForm</code> (multiple emails, type, cycle, intervals) and submits.</li>
+                            <li>Frontend sends <code>POST /api/subscriptions</code> with payload.</li>
+                            <li>Route (subscriptions.js) validates input, creates <code>Subscription</code> document. The pre‑save hook auto‑sets status.</li>
+                            <li>To test, user clicks the send icon → <code>POST /api/subscriptions/:id/send-test</code>.</li>
+                            <li>Backend loads <code>SmtpSettings</code> for the user (or .env fallback), creates a dynamic Nodemailer transporter, sends to <code>ownerEmail</code>.</li>
+                            <li>Result is returned to frontend; a toast shows success/failure.</li>
+                        </ol>
+                    </div>
+                    <div class="p-3 bg-amber-50 rounded-lg">
+                        <h3 class="font-bold mb-1">⏰ Automatic Cron Reminder</h3>
+                        <ol class="list-decimal ml-5 space-y-1">
+                            <li>node‑cron (scheduler.js) fires <code>processReminders()</code> every day at 8:00 AM UTC.</li>
+                            <li>The function queries <code>Subscription</code> where <code>notificationsEnabled: true</code> and <code>expiryDate > now</code>.</li>
+                            <li>For each sub, calculates <code>daysUntilExpiry</code>.</li>
+                            <li>If <code>daysUntilExpiry</code> matches any of the <code>reminderIntervals</code> and no reminder has been sent today for that interval:</li>
+                            <li>Calls <code>sendReminderEmail(sub, interval)</code> (emailService.js).</li>
+                            <li>The service loads the default template of the matching type (e.g., reminder_30), replaces placeholders (<code>{{domain}}</code>, <code>{{days}}</code>, etc.), and sends via Nodemailer.</li>
+                            <li>Email log is recorded. The subscription’s <code>remindersSent</code> array is updated to prevent duplicates.</li>
+                        </ol>
+                    </div>
+                    <div class="p-3 bg-purple-50 rounded-lg">
+                        <h3 class="font-bold mb-1">🤖 AI Template Generation</h3>
+                        <ol class="list-decimal ml-5 space-y-1">
+                            <li>User enters prompt (or picks from Ideas) → clicks “Create Email”.</li>
+                            <li>Frontend calls <code>POST /api/templates/generate</code> with <code>{ prompt }</code>.</li>
+                            <li>Route calls <code>generateTemplateFromPrompt(prompt)</code> (aiTemplateService.js).</li>
+                            <li>The AI service sends a system prompt + user prompt to Gemini.</li>
+                            <li>Gemini returns a JSON object with <code>name, subject, htmlBody, textBody, type</code>.</li>
+                            <li>Backend validates the JSON and returns it to frontend.</li>
+                            <li>Frontend’s <code>handleAITemplateGenerated</code> pre‑fills the “New Template” form with the data.</li>
+                            <li>User reviews (can edit) and clicks “Create Template” → saved to database.</li>
+                        </ol>
+                    </div>
+                </div>
+            </details>
+
+            <!-- How to Use -->
+            <details id="usage" class="bg-white rounded-xl shadow-sm border border-gray-200 group">
+                <summary class="flex items-center justify-between p-4 sm:p-5 font-semibold text-lg select-none">
+                    <span>🧭 Complete User Guide (Step by Step)</span>
+                    <span class="text-gray-400">
+                        <svg class="w-5 h-5 icon-open group-open:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        <svg class="w-5 h-5 icon-close hidden group-open:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                    </span>
+                </summary>
+                <div class="px-4 pb-4 sm:px-5 sm:pb-5 text-sm space-y-4">
+                    <div>
+                        <h3 class="font-bold text-base">1. Sign Up and Verify Your Email</h3>
+                        <p>Open the app, click “Register”. Fill in your name, email, and password. After submission, check your inbox (and spam) for a verification email. Click the link inside – you’ll be automatically logged in and redirected to the dashboard.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base">2. Set Up Your SMTP (Email Server)</h3>
+                        <p>Go to <strong>Email Settings</strong> in the sidebar. Enter your SMTP host (e.g., smtp.gmail.com), port (587 for Gmail), your email username, and the App Password (for Gmail). Fill in the sender email and name. Click <strong>Save Configuration</strong>, then <strong>Send Test Email</strong> to verify it works. If you’re using Gmail, follow the in‑page instructions to enable 2‑Step Verification and generate an App Password.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base">3. Add Your First Subscription</h3>
+                        <p>Navigate to <strong>Subscriptions</strong> and click <strong>Add Domain</strong>. In the form:
+                        <ul class="list-disc ml-5 mt-1">
+                            <li>Enter the domain name (e.g., example.com).</li>
+                            <li>Type the client’s name.</li>
+                            <li>Add one or more client emails (click “+ Add Another Email” to add more).</li>
+                            <li>Choose the <strong>Subscription Type</strong> (Domain, Hosting, etc.) and <strong>Renewal Cycle</strong> (Yearly, Monthly, etc.).</li>
+                            <li>Pick the <strong>Expiry Date</strong>.</li>
+                            <li>Select the reminder intervals by clicking the buttons (30d, 15d, 7d, 1d, etc.). At least one must be selected.</li>
+                            <li>Add any notes if needed, then click <strong>Create</strong>.</li>
+                        </ul>
+                        The subscription will appear in the table with its status and days left.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base">4. Send a Test Reminder</h3>
+                        <p>In the subscriptions table, find the row of the domain you want to test. Click the paper plane icon (<strong>Send test email</strong>). A test email will be sent to the primary owner email using your saved SMTP settings. You’ll see a success or error toast.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base">5. Manage Email Templates</h3>
+                        <p>Go to <strong>Templates</strong>. You’ll see a list of existing templates. You can:
+                        <ul class="list-disc ml-5 mt-1">
+                            <li><strong>Seed Defaults</strong> – click this button to automatically create four pre‑designed templates (30‑day, 7‑day, 1‑day, expired).</li>
+                            <li><strong>Create a Template Manually</strong> – click “New Template”, fill in the name, type, subject, HTML body, and plain text body. Use the variable buttons ({{domain}}, {{owner}}, etc.) to insert placeholders.</li>
+                            <li><strong>Generate with AI</strong> – click the sparkle button, type a simple description (e.g., “Remind the customer 7 days before expiry with a friendly tone”), and hit “Create Email”. The AI will produce a complete template that opens in the creation form. Review it, make any changes, and save.</li>
+                            <li>Use the <strong>💡 Ideas</strong> button to pick a pre‑written prompt – click the sparkle on any card to send it directly to the AI.</li>
+                        </ul>
+                        Templates that are marked as “Default” will be used automatically by the cron job for matching reminder types.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base">6. Automatic Reminders</h3>
+                        <p>No manual action is needed. The cron job runs every day at 8:00 AM UTC and scans all active subscriptions. It sends reminder emails for any domain whose days‑until‑expiry matches one of its selected intervals. You can also trigger it manually from the <strong>Settings</strong> page (admin only) by clicking “Run Reminder Check Now”.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base">7. View Dashboard Insights</h3>
+                        <p>The <strong>Dashboard</strong> gives you a visual overview: total subscriptions, active/expiring soon/expired counts, a bar chart of upcoming expiries in the next 6 months, a donut chart of subscription types, a renewal cycle chart, and a list of recent subscriptions about to expire. Use this to plan your client communications.</p>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Deployment -->
+            <details id="deployment" class="bg-white rounded-xl shadow-sm border border-gray-200 group">
+                <summary class="flex items-center justify-between p-4 sm:p-5 font-semibold text-lg select-none">
+                    <span>☁️ Free Deployment (No Credit Card)</span>
+                    <span class="text-gray-400">
+                        <svg class="w-5 h-5 icon-open group-open:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        <svg class="w-5 h-5 icon-close hidden group-open:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                    </span>
+                </summary>
+                <div class="px-4 pb-4 sm:px-5 sm:pb-5 text-sm space-y-4">
+                    <p>You can host the entire project for free using the following combination:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="p-3 border rounded-lg">
+                            <h3 class="font-bold">Backend (Node.js)</h3>
+                            <p class="mb-1"><strong>Serv00.com</strong> – free 3 GB, Node.js, cron, SSH. Sign up, upload your code, set up a Node.js website.</p>
+                            <p class="text-blue-600"><a href="https://serv00.com" target="_blank">Guide available in earlier conversations</a></p>
+                        </div>
+                        <div class="p-3 border rounded-lg">
+                            <h3 class="font-bold">Frontend (React)</h3>
+                            <p class="mb-1"><strong>Vercel</strong> – free static hosting. Connect your GitHub repo, set build command <code>npm run build</code>, output directory <code>dist</code>.</p>
+                            <p>Or use <strong>Cloudflare Pages</strong>.</p>
+                        </div>
+                        <div class="p-3 border rounded-lg">
+                            <h3 class="font-bold">Database</h3>
+                            <p><strong>MongoDB Atlas</strong> – free 512 MB cluster. No credit card needed. Allow IP access from anywhere (0.0.0.0/0).</p>
+                        </div>
+                        <div class="p-3 border rounded-lg">
+                            <h3 class="font-bold">Keep Backend Awake</h3>
+                            <p>Free services often sleep after inactivity. Use <strong>cron-job.org</strong> to ping your backend URL every 5 minutes.</p>
+                        </div>
+                    </div>
+                    <p>After deployment, update the frontend’s API base URL in <code>api.js</code> to point to your hosted backend. Set environment variables (MONGODB_URI, JWT_SECRET, SMTP, AI keys) in the hosting dashboard.</p>
+                </div>
+            </details>
+
+            <!-- FAQ -->
+            <details id="faq" class="bg-white rounded-xl shadow-sm border border-gray-200 group">
+                <summary class="flex items-center justify-between p-4 sm:p-5 font-semibold text-lg select-none">
+                    <span>❓ Frequently Asked Questions</span>
+                    <span class="text-gray-400">
+                        <svg class="w-5 h-5 icon-open group-open:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        <svg class="w-5 h-5 icon-close hidden group-open:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                    </span>
+                </summary>
+                <div class="px-4 pb-4 sm:px-5 sm:pb-5 text-sm space-y-4">
+                    <div>
+                        <h3 class="font-semibold">Q: AI generation says “Failed to generate template”. What should I do?</h3>
+                        <p>Check the backend terminal for the actual error. Common reasons: expired or leaked Gemini API key, quota exceeded (free tier limits), or incorrect model name. Generate a new key in a new Google Cloud project, add it to <code>.env</code>, and restart the server. If you need an alternative, you can switch to OpenAI or Mistral by modifying <code>aiTemplateService.js</code>.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">Q: Test emails from subscriptions work, but automatic (cron) reminders don’t arrive.</h3>
+                        <p>Check that the backend server is running at 8:00 AM UTC. If you’re using a free hosting service that sleeps, the cron job won’t trigger unless the server is awake. Use <strong>cron-job.org</strong> to call your manual cron endpoint (<code>POST /api/settings/run-cron</code>) at your desired time. Also verify that default templates exist – use “Seed Defaults” if not.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">Q: How do I update the SMTP password?</h3>
+                        <p>If you’ve saved SMTP settings via the UI, simply edit them on the <strong>Email Settings</strong> page and click “Save Configuration”. If you’re using the <code>.env</code> fallback, update the <code>SMTP_PASS</code> variable in the <code>.env</code> file and restart the backend.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">Q: Can I use a different email provider (not Gmail)?</h3>
+                        <p>Yes. Any SMTP server works. Just enter the correct host, port, and credentials in the Email Settings page. For example, SendGrid, Mailgun, or your own cPanel email.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">Q: How do I add more reminder intervals (e.g., 60 days)?</h3>
+                        <p>Edit the <code>COMMON_INTERVALS</code> array in <code>SubscriptionForm.jsx</code> (frontend) and add the number. The backend already accepts any positive integer, so no other changes are needed.</p>
+                    </div>
+                </div>
+            </details>
+        </div>
+
+        <!-- Conclusion -->
+        <section class="bg-white rounded-xl shadow-sm p-6 text-center border border-gray-200">
+            <h2 class="text-xl font-bold mb-2">✅ Conclusion</h2>
+            <p class="text-sm sm:text-base">MailBot transforms a basic subscription tracker into a professional, AI‑powered management tool. It automates client communication, simplifies email creation, and runs 100% free. Whether you manage 5 domains or 500, MailBot keeps you on time, every time.</p>
+        </section>
+
+        <footer class="text-center text-xs text-gray-400 mt-8">
+            MailBot Documentation – Built with 💻 by the MailBot Team. For questions or customisation, refer to the project repository.
+        </footer>
+    </main>
+</body>
+</html>

@@ -10,6 +10,11 @@ const auth = async (req, res, next) => {
     const user = await User.findById(decoded.id).select('-password');
     if (!user || !user.isActive) return res.status(401).json({ message: 'Invalid token.' });
 
+    // 🔐 Naya check: kya user ka email verify hua hai?
+    if (!user.isVerified) {
+      return res.status(403).json({ message: 'Email not verified. Please verify your email first.' });
+    }
+
     req.user = user;
     next();
   } catch (err) {

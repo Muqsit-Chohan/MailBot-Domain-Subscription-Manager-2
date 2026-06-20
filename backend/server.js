@@ -21,6 +21,7 @@ app.use('/api/templates', require('./routes/templates'));
 app.use('/api/logs', require('./routes/logs'));
 app.use('/api/settings', require('./routes/settings'));
 
+
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() }));
 

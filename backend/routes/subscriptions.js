@@ -3,6 +3,8 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const Subscription = require('../models/Subscription');
 const { auth } = require('../middleware/auth');
+const SmtpSettings = require('../models/SmtpSettings'); // 👈 import model
+const { sendEmail } = require('../services/emailService');
 
 // GET /api/subscriptions
 router.get('/', auth, async (req, res) => {
@@ -112,18 +114,59 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
-// POST /api/subscriptions/:id/send-test
+// POST /api/subscriptions/:id/send-test (DYNAMIC SMTP)
 router.post('/:id/send-test', auth, async (req, res) => {
   try {
     const sub = await Subscription.findById(req.params.id);
     if (!sub) return res.status(404).json({ message: 'Subscription not found' });
 
-    const { sendReminderEmail } = require('../services/emailService');
-    const daysUntilExpiry = Math.ceil((new Date(sub.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
-    const result = await sendReminderEmail(sub, Math.max(daysUntilExpiry, 1));
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    // 1. Load user's saved SMTP settings (if any)
+    const saved = await SmtpSettings.findOne({ user: req.user._id });
+
+    // 2. Use saved values or fallback to .env
+    const host = saved?.host || process.env.SMTP_HOST;
+    const port = saved?.port || parseInt(process.env.SMTP_PORT) || 587;
+    const secure = saved?.secure || process.env.SMTP_SECURE === 'true';
+    const user = saved?.username || process.env.SMTP_USER;
+    const pass = saved?.password || process.env.SMTP_PASS;
+    const fromEmail = saved?.senderEmail || process.env.SMTP_FROM_EMAIL;
+    const fromName = saved?.senderName || process.env.SMTP_FROM_NAME || 'MailBot';
+
+    // 3. Create transporter
+    const daysUntil = Math.ceil((new Date(sub.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+    const html = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>MailBot Test Email</h2>
+          <p>This is a test email for your domain <strong>${sub.domain}</strong>.</p>
+          <p>It will expire in <strong>${daysUntil} day(s)</strong> on ${new Date(sub.expiryDate).toLocaleDateString()}.</p>
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+          <p style="color: #6b7280; font-size: 12px;">Sent by MailBot Domain Manager</p>
+        </div>`;
+
+    const response = await sendEmail({
+      to: sub.ownerEmail,
+      from: `"${fromName}" <${fromEmail}>`,
+      subject: `Test reminder for ${sub.domain}`,
+      html,
+      text: `Test email for ${sub.domain}. Expires in ${daysUntil} day(s).`,
+      subscription: sub,
+      triggeredBy: 'test',
+      transportOptions: {
+        host,
+        port,
+        secure,
+        auth: { user, pass },
+      },
+    });
+
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to send test email');
+    }
+
+    res.json({ success: true, message: 'Test email sent!' });
+  } catch (error) {
+    console.error('Send test error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

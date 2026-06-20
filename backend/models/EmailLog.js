@@ -11,7 +11,7 @@ const emailLogSchema = new mongoose.Schema({
   messageId: { type: String },
   domain: { type: String },
   sentAt: { type: Date },
-  triggeredBy: { type: String, enum: ['cron', 'manual', 'test'], default: 'cron' },
+  triggeredBy: { type: String, enum: ['cron', 'manual', 'test', 'verification'], default: 'cron' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('EmailLog', emailLogSchema);

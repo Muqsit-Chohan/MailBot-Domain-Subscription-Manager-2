@@ -33,100 +33,100 @@ const renderTemplate = (template, variables) => {
   return { subject, html, text };
 };
 
-const sendEmail = async ({ to, subject, html, text, subscription, template, reminderInterval, triggeredBy = 'cron' }) => {
-  const log = await EmailLog.create({
+const sendEmail = async ({ to, from, subject, html, text, subscription, template, reminderInterval, triggeredBy = 'cron', transportOptions }) => {
+  console.log('[EmailService] sendEmail ->', { to, from, subject, triggeredBy });
+  // Create initial log
+  const log = new EmailLog({
     subscription: subscription?._id,
     template: template?._id,
     to,
     subject,
     status: 'pending',
     reminderInterval,
-    domain: subscription?.domain,
     triggeredBy,
+    domain: subscription?.domain,
   });
+  await log.save();
 
   try {
-    const info = await getTransporter().sendMail({
-      from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
+    const transporter = transportOptions ? nodemailer.createTransport(transportOptions) : getTransporter();
+    const info = await transporter.sendMail({
+      from: from || `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
       to,
       subject,
       html,
       text,
     });
 
-    await EmailLog.findByIdAndUpdate(log._id, {
-      status: 'sent',
-      messageId: info.messageId,
-      sentAt: new Date(),
-    });
-
-    return { success: true, messageId: info.messageId };
+    log.status = 'sent';
+    log.messageId = info.messageId || info.response || null;
+    log.sentAt = new Date();
+    await log.save();
+    return { success: true, info, log };
   } catch (error) {
-    await EmailLog.findByIdAndUpdate(log._id, {
-      status: 'failed',
-      errorMessage: error.message,
-    });
-    return { success: false, error: error.message };
+    // Persist full error for inspection (include SMTP response if present)
+    const errMsg = error && (error.response || error.message || JSON.stringify(error));
+    log.status = 'failed';
+    log.errorMessage = typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg);
+    log.sentAt = new Date();
+    await log.save();
+    console.error('Email send failed:', errMsg);
+    return { success: false, error: errMsg, log };
   }
 };
 
 const sendReminderEmail = async (subscription, daysUntilExpiry) => {
-  const typeMap = { 30: 'reminder_30', 15: 'reminder_15', 7: 'reminder_7', 1: 'reminder_1' };
-  const templateType = typeMap[daysUntilExpiry] || 'custom';
+  try {
+    // Choose template by interval or default
+    const template = await EmailTemplate.findOne({ type: `reminder_${daysUntilExpiry}` }) || await EmailTemplate.findOne({ isDefault: true });
+    if (!template) throw new Error('No email template configured');
 
-  let template = await EmailTemplate.findOne({ type: templateType, isDefault: true });
-  if (!template) {
-    template = await EmailTemplate.findOne({ isDefault: true });
+    const vars = { domain: subscription.domain, days: String(daysUntilExpiry) };
+    const { subject, html, text } = renderTemplate(template, vars);
+
+    const res = await sendEmail({
+      to: subscription.email,
+      subject,
+      html,
+      text,
+      subscription,
+      template,
+      reminderInterval: daysUntilExpiry,
+      triggeredBy: 'cron',
+    });
+
+    return res;
+  } catch (error) {
+    console.error('sendReminderEmail error:', error);
+    return { success: false, error: error.message || String(error) };
   }
-
-  let subject, html, text;
-
-  if (template) {
-    const vars = {
-      domain: subscription.domain,
-      days: daysUntilExpiry,
-      expiryDate: new Date(subscription.expiryDate).toLocaleDateString(),
-      owner: subscription.owner || 'Domain Owner',
-      registrar: subscription.registrar || 'N/A',
-    };
-    ({ subject, html, text } = renderTemplate(template, vars));
-  } else {
-    subject = `⚠️ Domain ${subscription.domain} expires in ${daysUntilExpiry} day(s)`;
-    html = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #e11d48;">Domain Expiry Reminder</h2>
-        <p>Hello ${subscription.owner || 'Domain Owner'},</p>
-        <p>Your domain <strong>${subscription.domain}</strong> is expiring in <strong>${daysUntilExpiry} day(s)</strong>.</p>
-        <table style="border-collapse: collapse; width: 100%; margin: 20px 0;">
-          <tr><td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>Domain</strong></td><td style="padding: 8px; border: 1px solid #e5e7eb;">${subscription.domain}</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>Expiry Date</strong></td><td style="padding: 8px; border: 1px solid #e5e7eb;">${new Date(subscription.expiryDate).toLocaleDateString()}</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>Registrar</strong></td><td style="padding: 8px; border: 1px solid #e5e7eb;">${subscription.registrar || 'N/A'}</td></tr>
-        </table>
-        <p>Please renew your domain to avoid service interruption.</p>
-        <p style="color: #6b7280; font-size: 12px;">This is an automated reminder from MailBot.</p>
-      </div>`;
-    text = `Domain ${subscription.domain} expires in ${daysUntilExpiry} day(s) on ${new Date(subscription.expiryDate).toLocaleDateString()}.`;
-  }
-
-  return sendEmail({
-    to: subscription.ownerEmail,
-    subject,
-    html,
-    text,
-    subscription,
-    template,
-    reminderInterval: daysUntilExpiry,
-    triggeredBy: 'cron',
-  });
 };
 
 const verifyConnection = async () => {
-  try {
-    await getTransporter().verify();
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
+  // ... (aapka existing code same rahega)
 };
 
-module.exports = { sendEmail, sendReminderEmail, verifyConnection, renderTemplate };
+// ========== NEW FUNCTION FOR VERIFICATION EMAIL ==========
+const sendVerificationEmail = async (to, token) => {
+  const verificationUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/verify-email?token=${token}`;
+  console.log('[EmailService] sendVerificationEmail ->', { to, token });
+
+  const subject = 'Verify your email - MailBot';
+  const html = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Welcome to MailBot!</h2>
+          <p>Click the button below to verify your email address:</p>
+          <a href="${verificationUrl}" style="display: inline-block; padding: 12px 24px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 6px;">Verify Email</a>
+          <p style="margin-top: 20px; color: #6b7280;">Or use this link: ${verificationUrl}</p>
+          <p>This link will expire in 1 hour.</p>
+        </div>`;
+  const text = `Verify your email by visiting: ${verificationUrl}`;
+
+  const res = await sendEmail({ to, subject, html, text, triggeredBy: 'verification' });
+  if (res.success) return { success: true, messageId: res.info?.messageId, log: res.log };
+  // forward the error so calling code can react
+  throw new Error(res.error || 'Failed to send verification email');
+};
+// ==========================================================
+
+module.exports = { sendEmail, sendReminderEmail, verifyConnection, renderTemplate, sendVerificationEmail };

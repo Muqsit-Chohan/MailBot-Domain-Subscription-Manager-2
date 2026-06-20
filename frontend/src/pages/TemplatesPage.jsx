@@ -19,10 +19,10 @@ function TemplateCard({ tmpl, onEdit, onDelete, onToggleDefault }) {
 
   return (
     <div className="card p-0 overflow-hidden">
-      <div className="flex items-start justify-between p-4">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between p-4 gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-medium text-[#0f1523] dark:text-[#eef0f8] text-sm">{tmpl.name}</h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="font-medium text-[#0f1523] dark:text-[#eef0f8] text-sm truncate">{tmpl.name}</h3>
             <span className="badge bg-[#f1f3f9] dark:bg-[#1e2235] text-[#6b7280] dark:text-[#8b92b3] font-mono text-[10px]">
               {tmpl.type}
             </span>
@@ -30,7 +30,7 @@ function TemplateCard({ tmpl, onEdit, onDelete, onToggleDefault }) {
           </div>
           <p className="text-xs text-[#6b7280] dark:text-[#8b92b3] mt-1 truncate">{tmpl.subject}</p>
         </div>
-        <div className="flex items-center gap-1 ml-2">
+        <div className="flex flex-wrap items-center gap-1 ml-0 sm:ml-2">
           <button onClick={() => onToggleDefault(tmpl)} title="Set as default"
             className={`p-1.5 rounded-lg transition-colors ${tmpl.isDefault ? 'text-amber-500' : 'text-[#9ca3af] hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20'}`}>
             <Star size={14} fill={tmpl.isDefault ? 'currentColor' : 'none'} />
@@ -192,12 +192,11 @@ export default function TemplatesPage() {
             {templates.length} template{templates.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 justify-end">
           <button onClick={seedDefaults} disabled={seeding} className="btn-secondary flex items-center gap-2">
             {seeding ? 'Seeding…' : '⚡ Seed Defaults'}
           </button>
 
-          {/* 💡 Prompt Ideas button */}
           <button
             onClick={() => setIsPromptModalOpen(true)}
             className="btn-secondary flex items-center gap-2"
@@ -206,7 +205,6 @@ export default function TemplatesPage() {
             <Lightbulb size={15} /> Ideas
           </button>
 
-          {/* Generate with AI button – always clears old prompt */}
           <button
             onClick={() => { setSelectedPrompt(''); setIsAIModalOpen(true); }}
             className="btn-primary flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0 shadow-md"

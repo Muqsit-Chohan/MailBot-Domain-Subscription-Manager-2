@@ -12,15 +12,8 @@ const navItems = [
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
-export default function Layout({ children }) {
-  const { user, logout } = useAuth();
-  const { dark, toggle } = useTheme();
-  const navigate = useNavigate();
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const handleLogout = () => { logout(); navigate('/login'); };
-
-  const Sidebar = ({ mobile = false }) => (
+function Sidebar({ mobile = false, onClose, user, dark, toggle, logout }) {
+  return (
     <aside className={`${mobile ? 'flex' : 'hidden lg:flex'} flex-col w-[250px] h-full bg-white dark:bg-[#151829] border-r border-[#e2e6f0] dark:border-[#2a2f48]`}>
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 h-16 border-b border-[#e2e6f0] dark:border-[#2a2f48]">
@@ -29,31 +22,34 @@ export default function Layout({ children }) {
         </div>
         <div>
           <span className="font-bold text-[#0f1523] dark:text-[#eef0f8] tracking-tight text-[15px]">MailBot</span>
-          <p className="text-[10px] text-[#9ca3af] dark:text-[#6b7280] leading-none -mt-0.5">Domain Manager</p>
+          <p className="text-[10px] text-[#9ca3af] dark:text-[#6b7280] leading-none -mt-0.5">Subscription Manager</p>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <p className="text-[10px] font-semibold text-[#9ca3af] dark:text-[#5b6280] uppercase tracking-widest px-3 mb-2">Menu</p>
-        {navItems.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            onClick={() => setMobileOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
-                isActive
-                  ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 shadow-sm shadow-indigo-500/5'
-                  : 'text-[#6b7280] dark:text-[#8b92b3] hover:bg-[#f1f3f9] dark:hover:bg-[#1e2235] hover:text-[#0f1523] dark:hover:text-[#eef0f8]'
-              }`
-            }
-          >
-            <Icon size={17} />
-            {label}
-          </NavLink>
-        ))}
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === '/'}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
+                  isActive
+                    ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 shadow-sm shadow-indigo-500/5'
+                    : 'text-[#6b7280] dark:text-[#8b92b3] hover:bg-[#f1f3f9] dark:hover:bg-[#1e2235] hover:text-[#0f1523] dark:hover:text-[#eef0f8]'
+                }`
+              }
+            >
+              <Icon size={17} />
+              {item.label}
+            </NavLink>
+          );
+        })}
       </nav>
 
       {/* Footer */}
@@ -74,7 +70,7 @@ export default function Layout({ children }) {
             {dark ? <Sun size={14} /> : <Moon size={14} />}
             {dark ? 'Light' : 'Dark'}
           </button>
-          <button onClick={handleLogout} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+          <button onClick={logout} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
             <LogOut size={14} />
             Logout
           </button>
@@ -82,17 +78,26 @@ export default function Layout({ children }) {
       </div>
     </aside>
   );
+}
+
+export default function Layout({ children }) {
+  const { user, logout } = useAuth();
+  const { dark, toggle } = useTheme();
+  const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
     <div className="flex h-screen bg-[#f8f9fc] dark:bg-[#0d0f1a] overflow-hidden">
-      <Sidebar />
+      <Sidebar user={user} dark={dark} toggle={toggle} logout={handleLogout} />
 
       {/* Mobile overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in" onClick={() => setMobileOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-[250px] z-50 animate-slide-in">
-            <Sidebar mobile />
+            <Sidebar mobile onClose={() => setMobileOpen(false)} user={user} dark={dark} toggle={toggle} logout={handleLogout} />
           </div>
         </div>
       )}
@@ -105,7 +110,10 @@ export default function Layout({ children }) {
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-sm">
               <Zap size={15} className="text-white" />
             </div>
-            <span className="font-bold text-sm text-[#0f1523] dark:text-[#eef0f8]">MailBot</span>
+            <div>
+              <span className="font-bold text-sm text-[#0f1523] dark:text-[#eef0f8]">MailBot</span>
+              <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] leading-none -mt-0.5">Domain Manager</p>
+            </div>
           </div>
           <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-xl hover:bg-[#f1f3f9] dark:hover:bg-[#1e2235] transition-colors">
             {mobileOpen ? <X size={18} className="text-[#6b7280]" /> : <Menu size={18} className="text-[#6b7280]" />}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, RefreshCw, Trash2, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Search, RefreshCw, Trash2, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -23,6 +23,7 @@ export default function LogsPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [detailTarget, setDetailTarget] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -97,49 +98,122 @@ export default function LogsPage() {
         ) : logs.length === 0 ? (
           <div className="py-16 text-center"><p className="text-[#6b7280] dark:text-[#8b92b3]">No logs found</p></div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Status</th>
-                <th>To</th>
-                <th>Subject</th>
-                <th>Domain</th>
-                <th>Interval</th>
-                <th>Triggered</th>
-                <th>Date</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map(log => (
-                <tr key={log._id}>
-                  <td>
-                    <div className="flex items-center gap-1.5">
-                      <StatusIcon status={log.status} />
-                      <span className={`badge-${log.status}`}>{log.status}</span>
-                    </div>
-                  </td>
-                  <td><span className="font-mono text-xs">{log.to}</span></td>
-                  <td><span className="truncate max-w-[200px] block">{log.subject}</span></td>
-                  <td>{log.domain || log.subscription?.domain || '—'}</td>
-                  <td>{log.reminderInterval ? <span className="badge bg-[#f1f3f9] dark:bg-[#1e2235] text-[#6b7280] dark:text-[#8b92b3]">{log.reminderInterval}d</span> : '—'}</td>
-                  <td><span className="badge bg-[#f1f3f9] dark:bg-[#1e2235] text-[#6b7280] dark:text-[#8b92b3]">{log.triggeredBy}</span></td>
-                  <td>
-                    <span className="text-xs">
-                      {log.sentAt ? format(new Date(log.sentAt), 'MMM d, HH:mm') : format(new Date(log.createdAt), 'MMM d, HH:mm')}
-                    </span>
-                  </td>
-                  <td>
-                    <button onClick={() => setDeleteTarget(log)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors">
-                      <Trash2 size={13} />
-                    </button>
-                  </td>
+          <div className="hidden sm:block">
+            <table>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>To</th>
+                  <th>Subject</th>
+                  <th>Domain</th>
+                  <th>Interval</th>
+                  <th>Triggered</th>
+                  <th>Date</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {logs.map(log => (
+                  <tr key={log._id}>
+                    <td>
+                      <div className="flex items-center gap-1.5">
+                        <StatusIcon status={log.status} />
+                        <span className={`badge-${log.status}`}>{log.status}</span>
+                      </div>
+                    </td>
+                    <td><span className="font-mono text-xs">{log.to}</span></td>
+                    <td className="max-w-[220px]">
+                      <div className="truncate max-w-[220px] block font-medium">{log.subject}</div>
+                      {log.status === 'failed' && log.errorMessage && (
+                        <p className="text-[11px] text-red-600 dark:text-red-300 mt-1 overflow-hidden text-ellipsis">{log.errorMessage}</p>
+                      )}
+                    </td>
+                    <td>{log.domain || log.subscription?.domain || '—'}</td>
+                    <td>{log.reminderInterval ? <span className="badge bg-[#f1f3f9] dark:bg-[#1e2235] text-[#6b7280] dark:text-[#8b92b3]">{log.reminderInterval}d</span> : '—'}</td>
+                    <td><span className="badge bg-[#f1f3f9] dark:bg-[#1e2235] text-[#6b7280] dark:text-[#8b92b3]">{log.triggeredBy}</span></td>
+                    <td>
+                      <span className="text-xs">
+                        {log.sentAt ? format(new Date(log.sentAt), 'MMM d, HH:mm') : format(new Date(log.createdAt), 'MMM d, HH:mm')}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        {log.status === 'failed' && (
+                          <button onClick={() => setDetailTarget(log)} title="View error" className="p-1.5 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 text-yellow-600 transition-colors">
+                            <AlertTriangle size={14} />
+                          </button>
+                        )}
+                        <button onClick={() => setDeleteTarget(log)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors">
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
+
+      {!loading && logs.length > 0 && (
+        <div className="space-y-3 sm:hidden">
+          {logs.map(log => (
+            <div key={log._id} className="card p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <StatusIcon status={log.status} />
+                  <span className={`badge-${log.status}`}>{log.status}</span>
+                </div>
+                <button onClick={() => setDeleteTarget(log)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors">
+                  <Trash2 size={14} />
+                </button>
+              </div>
+              <div className="mt-3 text-sm space-y-2">
+                <div>
+                  <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">To</p>
+                  <p className="font-mono text-xs break-words">{log.to}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Subject</p>
+                  <p className="break-words">{log.subject}</p>
+                  {log.status === 'failed' && log.errorMessage && (
+                    <p className="text-[11px] text-red-600 dark:text-red-300 mt-1">{log.errorMessage}</p>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Domain</p>
+                    <p>{log.domain || log.subscription?.domain || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Interval</p>
+                    <p>{log.reminderInterval ? `${log.reminderInterval}d` : '—'}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Triggered</p>
+                    <p>{log.triggeredBy}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Date</p>
+                    <p>{log.sentAt ? format(new Date(log.sentAt), 'MMM d, HH:mm') : format(new Date(log.createdAt), 'MMM d, HH:mm')}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Modal open={!!detailTarget} onClose={() => setDetailTarget(null)} title="Error details" size="lg">
+        <div className="text-sm text-[#0f1523] dark:text-[#eef0f8]">
+          <p className="text-xs text-[#6b7280] dark:text-[#8b92b3] mb-2">To: <span className="font-mono">{detailTarget?.to}</span></p>
+          <p className="font-semibold mb-2">Subject: {detailTarget?.subject}</p>
+          <pre className="whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-3 rounded text-xs max-h-80 overflow-auto">{detailTarget?.errorMessage || 'No error message available.'}</pre>
+        </div>
+      </Modal>
 
       {/* Error details tooltips via title on failed rows */}
       {pages > 1 && (

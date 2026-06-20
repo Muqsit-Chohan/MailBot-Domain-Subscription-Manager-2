@@ -9,6 +9,9 @@ import SubscriptionsPage from './pages/SubscriptionsPage';
 import TemplatesPage from './pages/TemplatesPage';
 import LogsPage from './pages/LogsPage';
 import SettingsPage from './pages/SettingsPage';
+import VerifyEmail from './pages/VerifyEmail';
+import EmailSettings from './pages/EmailSettings';
+
 
 
 function ProtectedRoute({ children }) {
@@ -32,11 +35,13 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <AuthPage />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/subscriptions" element={<ProtectedRoute><SubscriptionsPage /></ProtectedRoute>} />
       <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
       <Route path="/logs" element={<ProtectedRoute><LogsPage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+      <Route path="/email-settings" element={<EmailSettings />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

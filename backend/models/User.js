@@ -7,10 +7,16 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true, minlength: 6 },
   role: { type: String, enum: ['admin', 'user'], default: 'user' },
   isActive: { type: Boolean, default: true },
+  // ===== NEW FIELDS FOR EMAIL VERIFICATION =====
+  isVerified: { type: Boolean, default: false },
+  verificationToken: String,
+  verificationTokenExpiry: Date,
+  // ============================================
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
+  if (/^\$2[aby]\$/.test(this.password)) return;
   this.password = await bcrypt.hash(this.password, 12);
 });
 

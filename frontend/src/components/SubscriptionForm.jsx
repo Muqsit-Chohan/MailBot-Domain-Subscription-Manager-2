@@ -1,134 +1,263 @@
 import { useState, useEffect } from 'react';
+import { X, Plus } from 'lucide-react';
 import Modal from './Modal';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
-import { format } from 'date-fns';
 
-const DEFAULTS = {
-  domain: '', registrar: '', owner: '', ownerEmail: '',
-  expiryDate: '', reminderIntervals: [30, 15, 7, 1],
-  notes: '', autoRenew: false, notificationsEnabled: true,
-};
-
-const INTERVALS = [1, 3, 7, 14, 15, 30, 60, 90];
+const SUBSCRIPTION_TYPES = ['Domain', 'Hosting', 'SSL', 'Custom'];
+const RENEWAL_CYCLES = ['Monthly', 'Quarterly', 'Yearly', 'Custom'];
+const COMMON_INTERVALS = [30, 15, 14, 7, 3, 1];   // predefined reminder options
 
 export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
-  const [form, setForm] = useState(DEFAULTS);
-  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    domain: '',
+    clientName: '',
+    clientEmails: [''],
+    subscriptionType: 'Domain',
+    renewalCycle: 'Yearly',
+    expiryDate: '',
+    reminderIntervals: [30, 15, 7, 1],   // default intervals (as before)
+    notes: '',
+  });
+  const [saving, setSaving] = useState(false);
 
+  // Populate form when editing
   useEffect(() => {
     if (editing) {
       setForm({
-        ...editing,
-        expiryDate: editing.expiryDate ? format(new Date(editing.expiryDate), 'yyyy-MM-dd') : '',
-        reminderIntervals: editing.reminderIntervals || [30, 15, 7, 1],
+        domain: editing.domain || '',
+        clientName: editing.owner || '',
+        clientEmails: editing.ownerEmails?.length ? editing.ownerEmails : [editing.ownerEmail || ''],
+        subscriptionType: editing.subscriptionType || 'Domain',
+        renewalCycle: editing.renewalCycle || 'Yearly',
+        expiryDate: editing.expiryDate ? new Date(editing.expiryDate).toISOString().split('T')[0] : '',
+        reminderIntervals: editing.reminderIntervals?.length ? editing.reminderIntervals : [30, 15, 7, 1],
+        notes: editing.notes || '',
       });
     } else {
-      setForm(DEFAULTS);
+      setForm({
+        domain: '',
+        clientName: '',
+        clientEmails: [''],
+        subscriptionType: 'Domain',
+        renewalCycle: 'Yearly',
+        expiryDate: '',
+        reminderIntervals: [30, 15, 7, 1],   // default again
+        notes: '',
+      });
     }
   }, [editing, open]);
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  // Handle basic input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
 
-  const toggleInterval = (n) => {
-    set('reminderIntervals', form.reminderIntervals.includes(n)
-      ? form.reminderIntervals.filter(i => i !== n)
-      : [...form.reminderIntervals, n].sort((a, b) => b - a));
+  // Email array handlers
+  const handleEmailChange = (index, value) => {
+    const updated = [...form.clientEmails];
+    updated[index] = value;
+    setForm(prev => ({ ...prev, clientEmails: updated }));
+  };
+  const addEmailField = () => setForm(prev => ({ ...prev, clientEmails: [...prev.clientEmails, ''] }));
+  const removeEmailField = (index) => {
+    if (form.clientEmails.length <= 1) return;
+    const updated = form.clientEmails.filter((_, i) => i !== index);
+    setForm(prev => ({ ...prev, clientEmails: updated }));
+  };
+  const isEmailsValid = () => form.clientEmails.some(email => email.trim() !== '');
+
+  // Toggle a reminder interval on/off
+  const toggleInterval = (day) => {
+    setForm(prev => {
+      const already = prev.reminderIntervals.includes(day);
+      if (already) {
+        // Don't allow removing the last interval
+        if (prev.reminderIntervals.length <= 1) return prev;
+        return { ...prev, reminderIntervals: prev.reminderIntervals.filter(d => d !== day) };
+      } else {
+        return { ...prev, reminderIntervals: [...prev.reminderIntervals, day].sort((a,b) => b - a) };
+      }
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    if (!form.domain || !form.clientName || !isEmailsValid() || !form.expiryDate || form.reminderIntervals.length === 0) {
+      toast.error('Please fill all required fields and select at least one reminder interval.');
+      return;
+    }
+    setSaving(true);
+
+    const payload = {
+      domain: form.domain.trim(),
+      owner: form.clientName.trim(),
+      ownerEmail: form.clientEmails.find(e => e.trim() !== '') || '',
+      ownerEmails: form.clientEmails.filter(e => e.trim() !== ''),
+      subscriptionType: form.subscriptionType,
+      renewalCycle: form.renewalCycle,
+      expiryDate: form.expiryDate,
+      reminderIntervals: form.reminderIntervals,   // <-- yahan intervals bhej rahe hain
+      notes: form.notes,
+    };
+
     try {
       if (editing) {
-        await api.put(`/subscriptions/${editing._id}`, form);
+        await api.put(`/subscriptions/${editing._id}`, payload);
         toast.success('Subscription updated');
       } else {
-        await api.post('/subscriptions', form);
-        toast.success('Subscription added');
+        await api.post('/subscriptions', payload);
+        toast.success('Subscription created');
       }
       onSaved();
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.message || err.response?.data?.errors?.[0]?.msg || 'Error saving');
+      toast.error(err.response?.data?.message || 'Error saving subscription');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={editing ? 'Edit Subscription' : 'Add Subscription'} size="lg">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-2 sm:col-span-1">
-            <label className="label">Domain *</label>
-            <input className="input" placeholder="example.com" value={form.domain}
-              onChange={e => set('domain', e.target.value)} required />
-          </div>
-          <div className="col-span-2 sm:col-span-1">
-            <label className="label">Registrar</label>
-            <input className="input" placeholder="GoDaddy, Namecheap…" value={form.registrar}
-              onChange={e => set('registrar', e.target.value)} />
-          </div>
-          <div className="col-span-2 sm:col-span-1">
-            <label className="label">Owner Name</label>
-            <input className="input" placeholder="John Doe" value={form.owner}
-              onChange={e => set('owner', e.target.value)} />
-          </div>
-          <div className="col-span-2 sm:col-span-1">
-            <label className="label">Owner Email *</label>
-            <input className="input" type="email" placeholder="owner@email.com" value={form.ownerEmail}
-              onChange={e => set('ownerEmail', e.target.value)} required />
-          </div>
-          <div className="col-span-2 sm:col-span-1">
-            <label className="label">Expiry Date *</label>
-            <input className="input" type="date" value={form.expiryDate}
-              onChange={e => set('expiryDate', e.target.value)} required />
-          </div>
-          <div className="col-span-2 sm:col-span-1">
-            <label className="label">Notes</label>
-            <input className="input" placeholder="Optional notes…" value={form.notes}
-              onChange={e => set('notes', e.target.value)} />
-          </div>
-        </div>
+     <Modal open={open} onClose={onClose} title={editing ? 'Edit Subscription' : 'Create Subscription'} size="lg">
+      <form onSubmit={handleSubmit} className="space-y-5 flex flex-col" style={{ maxHeight: '80vh' }}>
+        
+        {/* ===== Scrollable section (contains all form fields) ===== */}
+        <div className="overflow-y-auto pr-2 space-y-5 flex-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {editing ? 'Update subscription details' : 'Add a new subscription to track'}
+          </p>
 
-        {/* Reminder intervals */}
-        <div>
-          <label className="label">Reminder Intervals (days before expiry)</label>
-          <div className="flex flex-wrap gap-2 mt-1">
-            {INTERVALS.map(n => (
-              <button key={n} type="button" onClick={() => toggleInterval(n)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  form.reminderIntervals.includes(n)
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-[#f1f3f9] dark:bg-[#1e2235] text-[#6b7280] dark:text-[#8b92b3] hover:bg-[#e2e6f0] dark:hover:bg-[#2a2f48]'
-                }`}>
-                {n}d
-              </button>
-            ))}
+          {/* Subscription Name */}
+          <div>
+            <label className="label">Subscription Name *</label>
+            <input
+              name="domain"
+              className="input"
+              placeholder="e.g. example.com or Acme Hosting"
+              value={form.domain}
+              onChange={handleChange}
+              required
+            />
           </div>
-        </div>
 
-        {/* Toggles */}
-        <div className="flex gap-6">
-          {[
-            { key: 'notificationsEnabled', label: 'Notifications Enabled' },
-            { key: 'autoRenew', label: 'Auto-Renew' },
-          ].map(({ key, label }) => (
-            <label key={key} className="flex items-center gap-2 cursor-pointer">
-              <div className={`w-9 h-5 rounded-full transition-colors relative ${form[key] ? 'bg-indigo-600' : 'bg-[#d1d5db] dark:bg-[#2a2f48]'}`}
-                onClick={() => set(key, !form[key])}>
-                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${form[key] ? 'translate-x-4' : 'translate-x-0.5'}`} />
+          {/* Client Name */}
+          <div>
+            <label className="label">Client Name *</label>
+            <input
+              name="clientName"
+              className="input"
+              placeholder="John Doe"
+              value={form.clientName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* Client Emails (multiple) */}
+          <div>
+            <label className="label">Client Emails *</label>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">(Add multiple email addresses)</p>
+            {form.clientEmails.map((email, index) => (
+              <div key={index} className="flex items-center gap-2 mb-2">
+                <input
+                  type="email"
+                  className="input flex-1"
+                  placeholder="client@example.com"
+                  value={email}
+                  onChange={e => handleEmailChange(index, e.target.value)}
+                  required={index === 0}
+                />
+                {form.clientEmails.length > 1 && (
+                  <button type="button" onClick={() => removeEmailField(index)} className="text-red-500 p-1 hover:bg-red-50 rounded">
+                    <X size={16} />
+                  </button>
+                )}
               </div>
-              <span className="text-sm text-[#6b7280] dark:text-[#8b92b3]">{label}</span>
-            </label>
-          ))}
-        </div>
+            ))}
+            <button type="button" onClick={addEmailField} className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1 mt-2">
+              <Plus size={14} /> Add Another Email
+            </button>
+            {!isEmailsValid() && (
+              <p className="text-xs text-red-500 mt-1">At least one email address is required</p>
+            )}
+          </div>
 
-        <div className="flex justify-end gap-2 pt-2">
+          {/* Subscription Type & Renewal Cycle */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label">Subscription Type *</label>
+              <select name="subscriptionType" className="input" value={form.subscriptionType} onChange={handleChange}>
+                {SUBSCRIPTION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="label">Renewal Cycle *</label>
+              <select name="renewalCycle" className="input" value={form.renewalCycle} onChange={handleChange}>
+                {RENEWAL_CYCLES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Expiry Date */}
+          <div>
+            <label className="label">Expiry Date *</label>
+            <input
+              type="date"
+              name="expiryDate"
+              className="input"
+              value={form.expiryDate}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* Reminder Intervals */}
+          <div>
+            <label className="label">Reminder Intervals *</label>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Select the days before expiry to send reminders</p>
+            <div className="flex flex-wrap gap-2">
+              {COMMON_INTERVALS.map(day => (
+                <button
+                  key={day}
+                  type="button"
+                  onClick={() => toggleInterval(day)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    form.reminderIntervals.includes(day)
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  {day}d
+                </button>
+              ))}
+            </div>
+            {form.reminderIntervals.length === 0 && (
+              <p className="text-xs text-red-500 mt-1">Please select at least one reminder interval.</p>
+            )}
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label className="label">Notes</label>
+            <textarea
+              name="notes"
+              className="input"
+              rows={3}
+              placeholder="Additional notes..."
+              value={form.notes}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+        {/* ===== End of scrollable section ===== */}
+
+        {/* Fixed footer with buttons */}
+        <div className="flex justify-end gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
           <button type="button" onClick={onClose} className="btn-secondary">Cancel</button>
-          <button type="submit" disabled={loading} className="btn-primary">
-            {loading ? 'Saving…' : editing ? 'Save Changes' : 'Add Subscription'}
+          <button type="submit" disabled={saving} className="btn-primary">
+            {saving ? 'Saving...' : editing ? 'Save Changes' : 'Create'}
           </button>
         </div>
       </form>
