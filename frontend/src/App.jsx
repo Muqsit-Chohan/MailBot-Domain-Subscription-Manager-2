@@ -13,6 +13,7 @@ import SettingsPage from './pages/SettingsPage';
 import VerifyEmail from './pages/VerifyEmail';
 import ResetPassword from './pages/ResetPassword';
 import EmailSettings from './pages/EmailSettings';
+import LegalPage from './pages/LegalPage';
 
 
 
@@ -40,6 +41,8 @@ function AppRoutes() {
       <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/privacy-policy" element={<LegalPage type="privacy" />} />
+      <Route path="/terms-and-conditions" element={<LegalPage type="terms" />} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/subscriptions" element={<ProtectedRoute><SubscriptionsPage /></ProtectedRoute>} />
       <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />

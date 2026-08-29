@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Zap, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function AuthPage() {
@@ -83,9 +83,9 @@ export default function AuthPage() {
       <div className="relative w-full max-w-sm z-10">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-xl shadow-indigo-600/30 mb-4">
-            <Zap size={22} className="text-white" />
-          </div>
+          <Link to="/" aria-label="MailBot home">
+            <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-16 h-16 object-contain mb-2" />
+          </Link>
           <h1 className="text-2xl font-extrabold text-[#111827] dark:text-[#f5f5f5] tracking-tight">MailBot</h1>
           <p className="text-xs text-[#6b7280] dark:text-[#a1a1aa] mt-1">Domain, Hosting & Subscription Manager</p>
         </div>

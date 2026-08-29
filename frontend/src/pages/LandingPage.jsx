@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { useTheme } from '../context/ThemeContext';
 import {
-  Zap, Globe, Server, Shield, Mail, Layers, BarChart3,
+  Globe, Server, Shield, Mail, Layers, BarChart3,
   Clock, CheckCircle, ArrowRight, Star, ChevronDown,
   Activity, Lock, RefreshCw, Sparkles, Users, TrendingUp,
   Cpu, HardDrive, BellRing, Database, Sun, Moon
@@ -127,15 +127,35 @@ const colorMap = {
 
 function Navbar() {
   const { dark, toggle } = useTheme();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 24);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 dark:bg-[#0a0a0a]/90 border-b border-[#dde1e9] dark:border-white/[0.06] transition-colors duration-200">
+    <motion.nav
+      animate={{
+        top: scrolled ? 12 : 0,
+        width: scrolled ? 'min(92vw, 80rem)' : '100%',
+        borderRadius: scrolled ? 16 : 0,
+      }}
+      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      className={`fixed left-1/2 -translate-x-1/2 z-50 border transition-[background-color,box-shadow,border-color,backdrop-filter] duration-700 ease-out will-change-[top,width,border-radius] ${
+        scrolled
+          ? 'bg-white/85 dark:bg-[#0a0a0a]/90 border-[#dde1e9] dark:border-white/[0.12] shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/40'
+          : 'bg-transparent border-transparent shadow-none backdrop-blur-0'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
-          className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/30">
-            <Zap size={17} className="text-white" />
-          </div>
+          className="flex items-center gap-1">
+          <Link to="/" aria-label="MailBot home">
+            <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-9 h-9 object-contain" />
+          </Link>
           <span className="font-bold text-[#111827] dark:text-white text-[17px] tracking-tight">MailBot</span>
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }}
@@ -162,7 +182,7 @@ function Navbar() {
           </Link>
         </motion.div>
       </div>
-    </nav>
+    </motion.nav>
   );
 }
 
@@ -539,13 +559,21 @@ export default function LandingPage() {
       <footer className="border-t border-[#dde1e9] dark:border-white/[0.06] py-10 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[#6b7280] dark:text-white/30">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <Zap size={13} className="text-white" />
-            </div>
+            <Link to="/" aria-label="MailBot home">
+              <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-7 h-7 object-contain" />
+            </Link>
             <span className="font-bold text-[#111827] dark:text-white/60">MailBot</span>
             <span>— Domain, Hosting & Subscription Asset Manager</span>
           </div>
           <p>© {new Date().getFullYear()} MailBot. Built with care for web professionals.</p>
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-2 md:mt-0">
+            <Link to="/privacy-policy" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/terms-and-conditions" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+              Terms &amp; Conditions
+            </Link>
+          </div>
         </div>
       </footer>
     </div>

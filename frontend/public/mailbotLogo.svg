@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bolt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#20E7FF"/>
+      <stop offset="0.48" stop-color="#087CFF"/>
+      <stop offset="1" stop-color="#1237D6"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#B9D4F2"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#27E8FF"/>
+      <stop offset="1" stop-color="#006BFF"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="soft">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+
+  <!-- Electric flash -->
+  <path d="M640 45 L170 515 L430 515 L300 965 L850 390 L575 390 Z"
+        fill="url(#bolt)" stroke="#24E7FF" stroke-width="7" stroke-linejoin="round"
+        filter="url(#glow)"/>
+  <path d="M625 78 L215 490 L455 490 L350 855 L795 415 L545 415 Z"
+        fill="none" stroke="#7CF7FF" stroke-width="5" opacity=".65"/>
+
+  <!-- Robot antenna -->
+  <circle cx="512" cy="245" r="38" fill="url(#body)" stroke="#DDF4FF" stroke-width="8"/>
+  <circle cx="512" cy="245" r="18" fill="url(#blue)"/>
+  <rect x="500" y="275" width="24" height="58" rx="12" fill="url(#body)"/>
+
+  <!-- Robot ears -->
+  <rect x="290" y="435" width="72" height="150" rx="35" fill="url(#blue)" stroke="#DFF8FF" stroke-width="8"/>
+  <rect x="662" y="435" width="72" height="150" rx="35" fill="url(#blue)" stroke="#DFF8FF" stroke-width="8"/>
+
+  <!-- Robot head -->
+  <rect x="315" y="320" width="394" height="405" rx="112"
+        fill="url(#body)" stroke="#FFFFFF" stroke-width="9"/>
+  <rect x="355" y="370" width="314" height="238" rx="78"
+        fill="#07152F" stroke="#2A86FF" stroke-width="9"/>
+
+  <!-- Eyes -->
+  <ellipse cx="445" cy="487" rx="32" ry="45" fill="#16E6FF" filter="url(#glow)"/>
+  <ellipse cx="579" cy="487" rx="32" ry="45" fill="#16E6FF" filter="url(#glow)"/>
+  <ellipse cx="435" cy="474" rx="9" ry="13" fill="#FFFFFF"/>
+  <ellipse cx="569" cy="474" rx="9" ry="13" fill="#FFFFFF"/>
+
+  <!-- Envelope/body -->
+  <rect x="355" y="575" width="314" height="250" rx="38"
+        fill="url(#body)" stroke="#FFFFFF" stroke-width="8"/>
+  <path d="M365 610 L512 720 L659 610 L659 775 Q659 815 619 815 H405 Q365 815 365 775 Z"
+        fill="#EEF8FF" stroke="#137BFF" stroke-width="9" stroke-linejoin="round"/>
+  <path d="M365 610 L512 720 L659 610" fill="none" stroke="#086FFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M372 790 L475 698 M652 790 L549 698"
+        fill="none" stroke="#27CFFF" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Hands -->
+  <circle cx="352" cy="735" r="48" fill="url(#body)" stroke="#DDF4FF" stroke-width="8"/>
+  <circle cx="672" cy="735" r="48" fill="url(#body)" stroke="#DDF4FF" stroke-width="8"/>
+  <circle cx="352" cy="740" r="24" fill="url(#blue)"/>
+  <circle cx="672" cy="740" r="24" fill="url(#blue)"/>
+</svg>

@@ -1,5 +1,5 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Globe, Mail, FileText, Settings, LogOut, Moon, Sun, Menu, X, Zap } from 'lucide-react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Globe, Mail, FileText, Settings, LogOut, Moon, Sun, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -16,10 +16,10 @@ function Sidebar({ mobile = false, onClose, user, dark, toggle, logout }) {
   return (
     <aside className={`${mobile ? 'flex' : 'hidden lg:flex'} flex-col w-[250px] h-full bg-white dark:bg-[#141414] border-r border-[#dde1e9] dark:border-[#272727]`}>
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 h-16 border-b border-[#dde1e9] dark:border-[#272727]">
-        <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-600/20">
-          <Zap size={17} className="text-white" />
-        </div>
+      <div className="flex items-center gap-1 px-5 h-16 border-b border-[#dde1e9] dark:border-[#272727]">
+        <Link to="/dashboard" aria-label="MailBot dashboard">
+          <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-9 h-9 object-contain" />
+        </Link>
         <div>
           <span className="font-bold text-[#111827] dark:text-[#f5f5f5] tracking-tight text-[15px]">MailBot</span>
           <p className="text-[10px] text-[#6b7280] dark:text-[#a1a1aa] leading-none -mt-0.5">Subscription Manager</p>
@@ -107,9 +107,9 @@ export default function Layout({ children }) {
         {/* Mobile topbar */}
         <div className="lg:hidden flex items-center justify-between px-4 h-14 bg-white dark:bg-[#141414] border-b border-[#dde1e9] dark:border-[#272727]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-sm">
-              <Zap size={15} className="text-white" />
-            </div>
+            <Link to="/dashboard" aria-label="MailBot dashboard">
+              <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-8 h-8 object-contain" />
+            </Link>
             <div>
               <span className="font-bold text-sm text-[#111827] dark:text-[#f5f5f5]">MailBot</span>
               <p className="text-[10px] text-[#6b7280] dark:text-[#a1a1aa] leading-none -mt-0.5">Domain Manager</p>
