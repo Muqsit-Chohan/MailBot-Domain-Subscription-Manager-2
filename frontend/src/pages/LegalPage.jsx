@@ -32,14 +32,14 @@ export default function LegalPage({ type }) {
   const page = content[type] || content.privacy;
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] dark:bg-[#0a0a0a] text-[#111827] dark:text-white transition-colors duration-300">
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#f0f2f5] dark:bg-[#0a0a0a] text-[#111827] dark:text-white transition-colors duration-300">
       <header className="border-b border-[#dde1e9] dark:border-white/[0.06] bg-white/80 dark:bg-[#0a0a0a]/90 backdrop-blur-md">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 min-h-16 flex flex-col sm:flex-row items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2.5" aria-label="MailBot home">
             <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-9 h-9 object-contain" />
             <span className="font-bold text-[17px] tracking-tight">MailBot</span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-end">
             <Link
               to="/privacy-policy"
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
@@ -60,16 +60,16 @@ export default function LegalPage({ type }) {
             >
               Terms
             </Link>
-            <Link to="/" className="ml-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline">Back to home</Link>
+            <Link to="/" className="ml-1 sm:ml-2 text-xs sm:text-sm text-indigo-600 dark:text-indigo-400 hover:underline whitespace-nowrap">Back to home</Link>
           </div>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 py-16">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16 break-words">
         <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 mb-3">MailBot</p>
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-5">{page.title}</h1>
-        <p className="text-lg text-[#4b5563] dark:text-white/55 leading-relaxed mb-12">{page.intro}</p>
-        <div className="space-y-8">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-5">{page.title}</h1>
+        <p className="text-base sm:text-lg text-[#4b5563] dark:text-white/55 leading-relaxed mb-10 sm:mb-12">{page.intro}</p>
+        <div className="space-y-7 sm:space-y-8">
           {page.sections.map(([heading, text]) => (
             <section key={heading}>
               <h2 className="text-xl font-bold mb-2">{heading}</h2>

@@ -150,7 +150,7 @@ function Navbar() {
           : 'bg-transparent border-transparent shadow-none backdrop-blur-0'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
           className="flex items-center gap-1">
           <Link to="/" aria-label="MailBot home">
@@ -159,13 +159,13 @@ function Navbar() {
           <span className="font-bold text-[#111827] dark:text-white text-[17px] tracking-tight">MailBot</span>
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }}
-          className="hidden md:flex items-center gap-7 text-sm text-[#4b5563] dark:text-white/55 font-medium">
+          className="hidden lg:flex items-center gap-7 text-sm text-[#4b5563] dark:text-white/55 font-medium">
           {[['What We Track', '#tracking'], ['Features', '#features'], ['How It Works', '#how'], ['Stats', '#stats']].map(([l, h]) => (
             <a key={l} href={h} className="hover:text-[#111827] dark:hover:text-white transition-colors duration-200">{l}</a>
           ))}
         </motion.div>
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
-          className="flex items-center gap-3">
+          className="flex items-center gap-1.5 sm:gap-3">
           {/* Theme Toggle Button */}
           <button
             onClick={toggle}
@@ -174,10 +174,10 @@ function Navbar() {
           >
             {dark ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} className="text-indigo-600" />}
           </button>
-          <Link to="/login" className="text-sm text-[#4b5563] dark:text-white/60 hover:text-[#111827] dark:hover:text-white transition-colors px-3 py-2 font-medium">
+          <Link to="/login" className="hidden sm:inline-flex text-sm text-[#4b5563] dark:text-white/60 hover:text-[#111827] dark:hover:text-white transition-colors px-2 sm:px-3 py-2 font-medium">
             Sign In
           </Link>
-          <Link to="/login" className="text-sm bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl font-semibold transition-all shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/40 hover:scale-[1.02]">
+          <Link to="/login" className="text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-4 py-2 rounded-xl font-semibold transition-all shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/40 hover:scale-[1.02]">
             Get Started
           </Link>
         </motion.div>
@@ -213,19 +213,19 @@ function HeroCard() {
   return (
     <motion.div initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="relative mx-auto max-w-xl mt-14">
+      className="relative mx-auto w-full max-w-xl mt-10 sm:mt-14 min-w-0">
       <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
         className="bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/10 rounded-2xl overflow-hidden shadow-2xl shadow-black/5 dark:shadow-black/80">
         
         {/* Top bar with live status lights */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#dde1e9] dark:border-white/[0.07] bg-[#f8f9fb] dark:bg-[#0f0f0f]">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-[#dde1e9] dark:border-white/[0.07] bg-[#f8f9fb] dark:bg-[#0f0f0f]">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 overflow-hidden">
             <div className="w-3 h-3 rounded-full bg-red-500/80" />
             <div className="w-3 h-3 rounded-full bg-amber-500/80" />
             <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-            <span className="ml-2 text-xs text-[#6b7280] dark:text-white/40 font-mono">mailbot — live asset monitor</span>
+            <span className="ml-1 sm:ml-2 min-w-0 truncate text-[10px] sm:text-xs text-[#6b7280] dark:text-white/40 font-mono">mailbot — live asset monitor</span>
           </div>
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-[10px] text-emerald-700 dark:text-emerald-400 font-medium">
+          <div className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-[10px] text-emerald-700 dark:text-emerald-400 font-medium whitespace-nowrap">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
             Live Sync
           </div>
@@ -233,7 +233,7 @@ function HeroCard() {
 
         {/* Dashboard summary stats */}
         <div className="p-5 space-y-3.5">
-          <div className="grid grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {[
               { label: 'Domains', val: '24', color: 'text-indigo-600 dark:text-indigo-400' },
               { label: 'Hosting', val: '8', color: 'text-sky-600 dark:text-sky-400' },
@@ -256,20 +256,20 @@ function HeroCard() {
               return (
                 <motion.div key={row.name} initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1 + i * 0.1 }}
-                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#f8f9fb] dark:bg-white/[0.025] border border-[#dde1e9] dark:border-white/[0.05] hover:bg-[#f0f2f5] dark:hover:bg-white/[0.05] transition-colors">
-                  <div className="flex items-center gap-3">
+                  className="flex items-center justify-between gap-2 px-2.5 sm:px-3.5 py-2.5 rounded-xl bg-[#f8f9fb] dark:bg-white/[0.025] border border-[#dde1e9] dark:border-white/[0.05] hover:bg-[#f0f2f5] dark:hover:bg-white/[0.05] transition-colors">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
                     <div className={`w-8 h-8 rounded-lg ${row.bg} flex items-center justify-center flex-shrink-0`}>
                       <Icon size={14} className={row.color} />
                     </div>
-                    <div className="text-left">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-semibold text-[#111827] dark:text-white/90">{row.name}</p>
-                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-gray-200 dark:bg-white/5 text-[#4b5563] dark:text-white/50 border border-gray-300 dark:border-white/5 font-mono">{row.type}</span>
+                    <div className="text-left min-w-0">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <p className="text-xs font-semibold text-[#111827] dark:text-white/90 truncate">{row.name}</p>
+                        <span className="hidden sm:inline text-[9px] px-1.5 py-0.2 rounded bg-gray-200 dark:bg-white/5 text-[#4b5563] dark:text-white/50 border border-gray-300 dark:border-white/5 font-mono whitespace-nowrap">{row.type}</span>
                       </div>
                       <p className="text-[10px] text-[#6b7280] dark:text-white/40">{row.provider} • <span className="text-[#374151] dark:text-white/60">{row.ssl}</span></p>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex-shrink-0">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                       row.status === 'Active' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20' :
                       'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20'}`}>{row.days}</span>
@@ -341,9 +341,9 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ════════════ HERO ════════════ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-16">
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-20 sm:pt-24 pb-12 sm:pb-16">
         <Orbs />
-        <div className="relative z-10 text-center max-w-4xl mx-auto">
+        <div className="relative z-10 text-center w-full max-w-4xl mx-auto min-w-0">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/25 text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-6 shadow-sm">
             <Sparkles size={12} /> All-in-One Asset & Subscription Manager
@@ -351,13 +351,13 @@ export default function LandingPage() {
 
           <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="text-4xl sm:text-6xl md:text-7xl font-extrabold leading-[1.1] tracking-tight mb-6 text-[#111827] dark:text-white">
+            className="text-3xl sm:text-6xl md:text-7xl font-extrabold leading-[1.1] tracking-tight mb-5 sm:mb-6 text-[#111827] dark:text-white break-words">
             Track <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-sky-600 dark:from-indigo-400 dark:via-violet-400 dark:to-sky-400 bg-clip-text text-transparent">Domains</span>, Hosting, SSL & Subscriptions
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
-            className="text-lg md:text-xl text-[#4b5563] dark:text-white/50 max-w-2xl mx-auto mb-8 leading-relaxed">
+            className="text-base sm:text-lg md:text-xl text-[#4b5563] dark:text-white/50 max-w-2xl mx-auto mb-7 sm:mb-8 leading-relaxed">
             MailBot is the ultimate control center for developers and agencies. Track domain expiries, web hosting renewals, SSL certificates, business email, and SaaS licenses — with automated reminders before anything goes offline.
           </motion.p>
 
@@ -394,8 +394,8 @@ export default function LandingPage() {
 
       {/* ════════════ STATS ════════════ */}
       <section id="stats" className="relative py-20 border-y border-[#dde1e9] dark:border-white/[0.05] bg-white/60 dark:bg-white/[0.015]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="stats-row grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="stats-row grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
             {stats.map((s) => (
               <div key={s.label} className="stat-item text-center">
                 <p className="text-4xl md:text-5xl font-extrabold text-[#111827] dark:text-white mb-2">
@@ -409,13 +409,13 @@ export default function LandingPage() {
       </section>
 
       {/* ════════════ WHAT WE TRACK ════════════ */}
-      <section id="tracking" className="relative py-28 px-6">
+      <section id="tracking" className="relative py-20 md:py-28 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           <FadeIn className="text-center mb-16">
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-5">
               <Globe size={11} /> Unified Digital Inventory
             </span>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-[#111827] dark:text-white">Everything Your Digital Stack Depends On</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-[#111827] dark:text-white">Everything Your Digital Stack Depends On</h2>
             <p className="text-[#4b5563] dark:text-white/45 text-lg max-w-2xl mx-auto">
               Mainly engineered for <strong>domain portfolios</strong>, plus full coverage for your hosting servers, SSL security certificates, and recurring software subscriptions.
             </p>
@@ -426,7 +426,7 @@ export default function LandingPage() {
               const Icon = c.icon;
               const clr = colorMap[c.color];
               return (
-                <div key={c.title} className="category-card group bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-6 hover:border-indigo-300 dark:hover:border-white/20 transition-all duration-300 shadow-sm dark:shadow-none relative overflow-hidden">
+                <div key={c.title} className="category-card group bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-4 sm:p-6 hover:border-indigo-300 dark:hover:border-white/20 transition-all duration-300 shadow-sm dark:shadow-none relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4">
                     <div className={`w-11 h-11 rounded-xl ${clr.bg} border ${clr.border} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                       <Icon size={20} className={clr.text} />
@@ -447,13 +447,13 @@ export default function LandingPage() {
       </section>
 
       {/* ════════════ FEATURES ════════════ */}
-      <section id="features" className="relative py-28 px-6 bg-white/60 dark:bg-white/[0.012] border-y border-[#dde1e9] dark:border-white/[0.05]">
+      <section id="features" className="relative py-20 md:py-28 px-4 sm:px-6 bg-white/60 dark:bg-white/[0.012] border-y border-[#dde1e9] dark:border-white/[0.05]">
         <div className="max-w-7xl mx-auto">
           <FadeIn className="text-center mb-16">
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 text-violet-700 dark:text-violet-300 text-xs font-semibold mb-5">
               <Sparkles size={11} /> Powerful Automation
             </span>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-[#111827] dark:text-white">Built For Agencies, IT Teams & Creators</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-[#111827] dark:text-white">Built For Agencies, IT Teams & Creators</h2>
             <p className="text-[#4b5563] dark:text-white/45 text-lg max-w-xl mx-auto">From auto-fetching SSL certificates to multi-tier automated email notifications, everything works seamlessly.</p>
           </FadeIn>
 
@@ -462,7 +462,7 @@ export default function LandingPage() {
               const Icon = f.icon;
               const c = colorMap[f.color];
               return (
-                <div key={f.title} className="feature-card group bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-6 hover:border-indigo-300 dark:hover:border-white/15 transition-all duration-300 shadow-sm dark:shadow-none cursor-default">
+                <div key={f.title} className="feature-card group bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-4 sm:p-6 hover:border-indigo-300 dark:hover:border-white/15 transition-all duration-300 shadow-sm dark:shadow-none cursor-default">
                   <div className={`w-11 h-11 rounded-xl ${c.bg} border ${c.border} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     <Icon size={20} className={c.text} />
                   </div>
@@ -476,25 +476,25 @@ export default function LandingPage() {
       </section>
 
       {/* ════════════ HOW IT WORKS ════════════ */}
-      <section id="how" className="relative py-28 px-6">
+      <section id="how" className="relative py-20 md:py-28 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <FadeIn className="text-center mb-20">
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 text-sky-700 dark:text-sky-300 text-xs font-semibold mb-5">
               <RefreshCw size={11} /> Quick 3-Minute Setup
             </span>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-[#111827] dark:text-white">How MailBot Works</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-[#111827] dark:text-white">How MailBot Works</h2>
             <p className="text-[#4b5563] dark:text-white/45 text-lg">Three straightforward steps to complete peace of mind.</p>
           </FadeIn>
           <div className="space-y-10">
             {steps.map((s, i) => (
-              <div key={s.step} className={`step-card flex items-start gap-7 ${i % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}>
+              <div key={s.step} className={`step-card flex items-start gap-4 sm:gap-7 ${i % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}>
                 <div className="flex-shrink-0">
-                  <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-600/10 border border-indigo-200 dark:border-indigo-500/25 flex items-center justify-center shadow-sm">
-                    <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400">{s.step}</span>
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-600/10 border border-indigo-200 dark:border-indigo-500/25 flex items-center justify-center shadow-sm">
+                    <span className="text-lg sm:text-2xl font-black text-indigo-600 dark:text-indigo-400">{s.step}</span>
                   </div>
                 </div>
-                <div className={`flex-1 bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-6 shadow-sm dark:shadow-none ${i % 2 !== 0 ? 'md:text-right' : ''}`}>
-                  <h3 className="text-xl font-bold text-[#111827] dark:text-white mb-2">{s.title}</h3>
+                <div className={`min-w-0 flex-1 bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-4 sm:p-6 shadow-sm dark:shadow-none ${i % 2 !== 0 ? 'md:text-right' : ''}`}>
+                  <h3 className="text-lg sm:text-xl font-bold text-[#111827] dark:text-white mb-2">{s.title}</h3>
                   <p className="text-[#4b5563] dark:text-white/45 leading-relaxed">{s.desc}</p>
                 </div>
               </div>
@@ -504,7 +504,7 @@ export default function LandingPage() {
       </section>
 
       {/* ════════════ TRUST / SECURITY ════════════ */}
-      <section className="py-24 px-6 bg-white/60 dark:bg-white/[0.012] border-y border-[#dde1e9] dark:border-white/[0.05]">
+      <section className="py-20 md:py-24 px-4 sm:px-6 bg-white/60 dark:bg-white/[0.012] border-y border-[#dde1e9] dark:border-white/[0.05]">
         <div className="max-w-5xl mx-auto">
           <FadeIn className="text-center mb-12">
             <p className="text-gray-400 dark:text-white/30 text-xs font-bold uppercase tracking-widest mb-3">Enterprise Grade Reliability</p>
@@ -535,7 +535,7 @@ export default function LandingPage() {
       </section>
 
       {/* ════════════ CTA ════════════ */}
-      <section className="relative py-28 px-6 overflow-hidden">
+      <section className="relative py-20 md:py-28 px-4 sm:px-6 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-violet-500/5 dark:from-indigo-600/8 dark:to-violet-600/8" />
           <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.25, 0.4, 0.25] }}
@@ -546,7 +546,7 @@ export default function LandingPage() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/25 text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-6">
             <Star size={12} className="fill-indigo-500 dark:fill-indigo-400 text-indigo-500 dark:text-indigo-400" /> Never lose a client site again
           </div>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-[#111827] dark:text-white">Protect Your Complete Digital Stack</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-[#111827] dark:text-white">Protect Your Complete Digital Stack</h2>
           <p className="text-[#4b5563] dark:text-white/45 text-lg mb-10">Start tracking your domains, hosting servers, SSL certificates, and subscriptions today.</p>
           <Link to="/login"
             className="group inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-bold text-base transition-all shadow-2xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-[1.02]">
@@ -556,9 +556,9 @@ export default function LandingPage() {
       </section>
 
       {/* ════════════ FOOTER ════════════ */}
-      <footer className="border-t border-[#dde1e9] dark:border-white/[0.06] py-10 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[#6b7280] dark:text-white/30">
-          <div className="flex items-center gap-2.5">
+      <footer className="border-t border-[#dde1e9] dark:border-white/[0.06] py-10 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4 text-sm text-[#6b7280] dark:text-white/30 text-center lg:text-left">
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
             <Link to="/" aria-label="MailBot home">
               <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-7 h-7 object-contain" />
             </Link>
