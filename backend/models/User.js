@@ -11,6 +11,12 @@ const userSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   verificationToken: String,
   verificationTokenExpiry: Date,
+  // ===== PASSWORD RESET =====
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
+  // ===== WEBHOOK NOTIFICATIONS =====
+  webhookUrl: { type: String, trim: true },
+  webhookEnabled: { type: Boolean, default: false },
   // ============================================
 }, { timestamps: true });
 

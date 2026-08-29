@@ -22,34 +22,34 @@ function TemplateCard({ tmpl, onEdit, onDelete, onToggleDefault }) {
       <div className="flex flex-col sm:flex-row sm:items-start justify-between p-4 gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-medium text-[#0f1523] dark:text-[#eef0f8] text-sm truncate">{tmpl.name}</h3>
-            <span className="badge bg-[#f1f3f9] dark:bg-[#1e2235] text-[#6b7280] dark:text-[#8b92b3] font-mono text-[10px]">
+            <h3 className="font-bold text-[#111827] dark:text-[#f5f5f5] text-sm truncate">{tmpl.name}</h3>
+            <span className="badge bg-[#f0f2f5] dark:bg-[#1c1c1c] text-[#6b7280] dark:text-[#a1a1aa] font-mono text-[10px] border border-[#dde1e9] dark:border-[#272727]">
               {tmpl.type}
             </span>
-            {tmpl.isDefault && <span className="badge bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">Default</span>}
+            {tmpl.isDefault && <span className="badge bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/20">Default</span>}
           </div>
-          <p className="text-xs text-[#6b7280] dark:text-[#8b92b3] mt-1 truncate">{tmpl.subject}</p>
+          <p className="text-xs text-[#6b7280] dark:text-[#a1a1aa] mt-1 truncate">{tmpl.subject}</p>
         </div>
         <div className="flex flex-wrap items-center gap-1 ml-0 sm:ml-2">
           <button onClick={() => onToggleDefault(tmpl)} title="Set as default"
-            className={`p-1.5 rounded-lg transition-colors ${tmpl.isDefault ? 'text-amber-500' : 'text-[#9ca3af] hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20'}`}>
+            className={`p-1.5 rounded-lg transition-colors ${tmpl.isDefault ? 'text-amber-500' : 'text-[#9ca3af] hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10'}`}>
             <Star size={14} fill={tmpl.isDefault ? 'currentColor' : 'none'} />
           </button>
-          <button onClick={() => onEdit(tmpl)} className="p-1.5 rounded-lg hover:bg-[#f1f3f9] dark:hover:bg-[#1e2235] text-[#6b7280] transition-colors">
+          <button onClick={() => onEdit(tmpl)} className="p-1.5 rounded-lg hover:bg-[#f0f2f5] dark:hover:bg-[#1c1c1c] text-[#6b7280] dark:text-[#a1a1aa] transition-colors">
             <Pencil size={14} />
           </button>
-          <button onClick={() => onDelete(tmpl)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors">
+          <button onClick={() => onDelete(tmpl)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 transition-colors">
             <Trash2 size={14} />
           </button>
-          <button onClick={() => setExpanded(e => !e)} className="p-1.5 rounded-lg hover:bg-[#f1f3f9] dark:hover:bg-[#1e2235] text-[#6b7280] transition-colors">
+          <button onClick={() => setExpanded(e => !e)} className="p-1.5 rounded-lg hover:bg-[#f0f2f5] dark:hover:bg-[#1c1c1c] text-[#6b7280] dark:text-[#a1a1aa] transition-colors">
             {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
         </div>
       </div>
       {expanded && (
-        <div className="border-t border-[#e2e6f0] dark:border-[#2a2f48] p-4 bg-[#f8f9fc] dark:bg-[#0d0f1a]">
-          <p className="text-xs text-[#6b7280] dark:text-[#8b92b3] font-mono mb-2 uppercase tracking-wide">HTML Body Preview</p>
-          <div className="text-xs bg-white dark:bg-[#151829] border border-[#e2e6f0] dark:border-[#2a2f48] rounded-lg p-3 font-mono overflow-x-auto max-h-48 overflow-y-auto whitespace-pre-wrap text-[#0f1523] dark:text-[#eef0f8]">
+        <div className="border-t border-[#dde1e9] dark:border-[#272727] p-4 bg-[#f8f9fb] dark:bg-[#0f0f0f]">
+          <p className="text-xs text-[#6b7280] dark:text-[#a1a1aa] font-mono mb-2 uppercase tracking-wide">HTML Body Preview</p>
+          <div className="text-xs bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-[#272727] rounded-xl p-3 font-mono overflow-x-auto max-h-48 overflow-y-auto whitespace-pre-wrap text-[#111827] dark:text-[#f5f5f5]">
             {tmpl.htmlBody}
           </div>
         </div>

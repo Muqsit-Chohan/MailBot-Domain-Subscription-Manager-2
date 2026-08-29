@@ -34,6 +34,26 @@ const processReminders = async () => {
               sub.lastReminderSent = now;
               await sub.save();
               sent++;
+
+              // Webhook notification if enabled on owner user
+              try {
+                if (sub.createdBy) {
+                  const User = require('../models/User');
+                  const user = await User.findById(sub.createdBy);
+                  if (user?.webhookEnabled && user?.webhookUrl) {
+                    const { sendWebhookNotification } = require('./webhookService');
+                    await sendWebhookNotification(user.webhookUrl, {
+                      title: `⏰ Renewal Reminder: ${sub.domain}`,
+                      message: `Domain **${sub.domain}** is expiring in **${daysUntilExpiry} days** on ${new Date(sub.expiryDate).toLocaleDateString()}.`,
+                      domain: sub.domain,
+                      daysUntilExpiry,
+                      expiryDate: sub.expiryDate,
+                    });
+                  }
+                }
+              } catch (webhookErr) {
+                console.error('[Cron] Webhook trigger error:', webhookErr.message);
+              }
             } else {
               failed++;
             }

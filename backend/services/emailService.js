@@ -4,19 +4,48 @@ const EmailTemplate = require('../models/EmailTemplate');
 
 let transporter = null;
 
-const getTransporter = () => {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
+const getTransporter = async (userId = null) => {
+  try {
+    const SmtpSettings = require('../models/SmtpSettings');
+    let saved = null;
+    if (userId) {
+      saved = await SmtpSettings.findOne({ user: userId });
+    }
+    if (!saved) {
+      saved = await SmtpSettings.findOne().sort('-updatedAt');
+    }
+
+    if (saved && saved.host && saved.username && saved.password) {
+      return {
+        transporter: nodemailer.createTransport({
+          host: saved.host,
+          port: parseInt(saved.port) || 587,
+          secure: !!saved.secure,
+          auth: {
+            user: saved.username,
+            pass: saved.password,
+          },
+        }),
+        from: `"${saved.senderName || 'MailBot'}" <${saved.senderEmail || saved.username}>`,
+      };
+    }
+  } catch (err) {
+    console.error('Error fetching DB SMTP settings:', err.message);
+  }
+
+  // Fallback to .env
+  return {
+    transporter: nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT) || 587,
       secure: process.env.SMTP_SECURE === 'true',
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-    });
-  }
-  return transporter;
+    }),
+    from: `"${process.env.SMTP_FROM_NAME || 'MailBot'}" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
+  };
 };
 
 const renderTemplate = (template, variables) => {
@@ -33,7 +62,7 @@ const renderTemplate = (template, variables) => {
   return { subject, html, text };
 };
 
-const sendEmail = async ({ to, from, subject, html, text, subscription, template, reminderInterval, triggeredBy = 'cron', transportOptions }) => {
+const sendEmail = async ({ to, from, subject, html, text, subscription, template, reminderInterval, triggeredBy = 'cron', transportOptions, userId = null }) => {
   console.log('[EmailService] sendEmail ->', { to, from, subject, triggeredBy });
   // Create initial log
   const log = new EmailLog({
@@ -49,9 +78,20 @@ const sendEmail = async ({ to, from, subject, html, text, subscription, template
   await log.save();
 
   try {
-    const transporter = transportOptions ? nodemailer.createTransport(transportOptions) : getTransporter();
-    const info = await transporter.sendMail({
-      from: from || `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
+    let mailTransporter;
+    let defaultFrom;
+
+    if (transportOptions) {
+      mailTransporter = nodemailer.createTransport(transportOptions);
+      defaultFrom = from;
+    } else {
+      const resolved = await getTransporter(userId);
+      mailTransporter = resolved.transporter;
+      defaultFrom = resolved.from;
+    }
+
+    const info = await mailTransporter.sendMail({
+      from: from || defaultFrom,
       to,
       subject,
       html,
@@ -127,6 +167,29 @@ const sendVerificationEmail = async (to, token) => {
   // forward the error so calling code can react
   throw new Error(res.error || 'Failed to send verification email');
 };
+// ========== NEW FUNCTION FOR PASSWORD RESET EMAIL ==========
+const sendPasswordResetEmail = async (to, token) => {
+  const baseUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173';
+  const resetUrl = `${baseUrl}/reset-password?token=${token}`;
+  console.log('[EmailService] sendPasswordResetEmail ->', { to, token });
+
+  const subject = 'Password Reset Request - MailBot';
+  const html = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+          <h2 style="color: #4f46e5;">Reset Your MailBot Password</h2>
+          <p>We received a request to reset your password.</p>
+          <div style="margin: 25px 0;">
+            <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">Reset Password</a>
+          </div>
+          <p style="color: #6b7280; font-size: 14px;">Or copy and paste this link in your browser:<br/><a href="${resetUrl}" style="color: #4f46e5;">${resetUrl}</a></p>
+          <p style="color: #9ca3af; font-size: 12px; margin-top: 20px;">This link will expire in 1 hour. If you did not request this, please ignore this email.</p>
+        </div>`;
+  const text = `Reset your password by visiting: ${resetUrl}`;
+
+  const res = await sendEmail({ to, subject, html, text, triggeredBy: 'manual' });
+  if (res.success) return { success: true, messageId: res.info?.messageId, log: res.log };
+  throw new Error(res.error || 'Failed to send password reset email');
+};
 // ==========================================================
 
-module.exports = { sendEmail, sendReminderEmail, verifyConnection, renderTemplate, sendVerificationEmail };
+module.exports = { sendEmail, sendReminderEmail, verifyConnection, renderTemplate, sendVerificationEmail, sendPasswordResetEmail };

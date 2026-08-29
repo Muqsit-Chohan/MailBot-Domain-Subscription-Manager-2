@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout';
+import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
 import SubscriptionsPage from './pages/SubscriptionsPage';
@@ -10,6 +11,7 @@ import TemplatesPage from './pages/TemplatesPage';
 import LogsPage from './pages/LogsPage';
 import SettingsPage from './pages/SettingsPage';
 import VerifyEmail from './pages/VerifyEmail';
+import ResetPassword from './pages/ResetPassword';
 import EmailSettings from './pages/EmailSettings';
 
 
@@ -17,7 +19,7 @@ import EmailSettings from './pages/EmailSettings';
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8f9fc] dark:bg-[#0d0f1a]">
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
       <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
     </div>
   );
@@ -28,15 +30,17 @@ function ProtectedRoute({ children }) {
 function AppRoutes() {
   const { user, loading } = useAuth();
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8f9fc] dark:bg-[#0d0f1a]">
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
       <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
     </div>
   );
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/" replace /> : <AuthPage />} />
+      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+      <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
-      <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/subscriptions" element={<ProtectedRoute><SubscriptionsPage /></ProtectedRoute>} />
       <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
       <Route path="/logs" element={<ProtectedRoute><LogsPage /></ProtectedRoute>} />

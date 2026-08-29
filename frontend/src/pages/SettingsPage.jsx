@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   Mail, Play, CheckCircle, XCircle, Info, Server,
-  Save, Send
+  Save, Send, Eye, EyeOff
 } from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
@@ -34,6 +34,7 @@ export default function SettingsPage() {
     senderName: '',
     secure: false,
   });
+  const [showSmtpPass, setShowSmtpPass] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
@@ -42,7 +43,13 @@ export default function SettingsPage() {
   const [cronResult, setCronResult] = useState(null);
   const [runningCron, setRunningCron] = useState(false);
 
-  // Load saved SMTP config on mount
+  // Webhook state
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookEnabled, setWebhookEnabled] = useState(false);
+  const [testingWebhook, setTestingWebhook] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  // Load saved SMTP & Profile on mount
   useEffect(() => {
     const loadConfig = async () => {
       try {
@@ -58,12 +65,46 @@ export default function SettingsPage() {
             secure: data.secure || false,
           });
         }
-      } catch (err) {
-        // no saved config – keep defaults
-      }
+      } catch (err) {}
+
+      try {
+        const { data: profile } = await api.get('/auth/me');
+        if (profile) {
+          setWebhookUrl(profile.webhookUrl || '');
+          setWebhookEnabled(!!profile.webhookEnabled);
+        }
+      } catch (err) {}
     };
     loadConfig();
   }, []);
+
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    try {
+      await api.put('/auth/profile', { webhookUrl, webhookEnabled });
+      toast.success('Webhook settings updated!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update settings');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleTestWebhook = async () => {
+    if (!webhookUrl) {
+      toast.error('Please enter a Webhook URL');
+      return;
+    }
+    setTestingWebhook(true);
+    try {
+      const { data } = await api.post('/settings/test-webhook', { webhookUrl });
+      toast.success(data.message || 'Test webhook delivered successfully!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to trigger webhook');
+    } finally {
+      setTestingWebhook(false);
+    }
+  };
 
   const handleSmtpChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -188,16 +229,34 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="label">SMTP Password *</label>
-              <input
-                className="input"
-                name="password"
-                type="password"
-                value={smtpForm.password}
-                onChange={handleSmtpChange}
-                placeholder="••••••••"
-                required
-              />
+              <div className="flex items-center justify-between">
+                <label className="label">SMTP Password *</label>
+                <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                  Enter without spacing
+                </span>
+              </div>
+              <div className="relative">
+                <input
+                  className="input pr-10"
+                  name="password"
+                  type={showSmtpPass ? 'text' : 'password'}
+                  value={smtpForm.password}
+                  onChange={handleSmtpChange}
+                  placeholder="16-character app password (e.g. abcdefghijklmnop)"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSmtpPass(s => !s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#6b7280] dark:hover:text-[#eef0f8] transition-colors"
+                  title={showSmtpPass ? 'Hide password' : 'Show password'}
+                >
+                  {showSmtpPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] mt-1">
+                Paste your 16-character Google App Password without any spaces.
+              </p>
             </div>
             <div>
               <label className="label">Sender Email *</label>
@@ -328,6 +387,58 @@ export default function SettingsPage() {
         )}
       </Section>
 
+      {/* Webhook Notifications Section */}
+      <Section title="Multi-Channel Webhooks (Discord / Slack)" icon={Server}>
+        <div className="space-y-4">
+          <p className="text-sm text-[#6b7280] dark:text-[#8b92b3]">
+            Receive instant renewal alerts directly in your Discord channel, Slack channel, or custom server.
+          </p>
+
+          <div>
+            <label className="label">Webhook URL</label>
+            <input
+              className="input"
+              placeholder="https://discord.com/api/webhooks/... or https://hooks.slack.com/..."
+              value={webhookUrl}
+              onChange={(e) => setWebhookUrl(e.target.value)}
+            />
+          </div>
+
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={webhookEnabled}
+              onChange={(e) => setWebhookEnabled(e.target.checked)}
+              className="rounded"
+            />
+            <span className="text-sm text-[#0f1523] dark:text-[#eef0f8] font-medium">
+              Enable Webhook Notifications for renewal reminders
+            </span>
+          </label>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleTestWebhook}
+              disabled={testingWebhook || !webhookUrl}
+              className="btn-secondary flex items-center gap-2"
+            >
+              <Send size={14} />
+              {testingWebhook ? 'Sending...' : 'Test Webhook Alert'}
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveProfile}
+              disabled={savingProfile}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Save size={14} />
+              {savingProfile ? 'Saving...' : 'Save Webhook Settings'}
+            </button>
+          </div>
+        </div>
+      </Section>
+
       {/* Account info */}
       <Section title="Account" icon={Info}>
         <div className="space-y-3">
@@ -335,6 +446,7 @@ export default function SettingsPage() {
             { label: 'Name', value: user?.name },
             { label: 'Email', value: user?.email },
             { label: 'Role', value: user?.role },
+            { label: 'Webhook Status', value: webhookEnabled ? 'Enabled' : 'Disabled' },
           ].map(({ label, value }) => (
             <div key={label} className="flex items-center justify-between py-2 border-b border-[#f1f3f9] dark:border-[#1e2235] last:border-0">
               <span className="text-xs font-medium text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">{label}</span>

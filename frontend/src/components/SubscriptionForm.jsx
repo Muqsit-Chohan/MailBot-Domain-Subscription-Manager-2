@@ -1,50 +1,73 @@
 import { useState, useEffect } from 'react';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Sparkles, Loader2, ShieldCheck, ShieldAlert } from 'lucide-react';
 import Modal from './Modal';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 
 const SUBSCRIPTION_TYPES = ['Domain', 'Hosting', 'SSL', 'Custom'];
 const RENEWAL_CYCLES = ['Monthly', 'Quarterly', 'Yearly', 'Custom'];
+const CURRENCIES = ['USD', 'EUR', 'GBP', 'PKR', 'INR', 'AED', 'CAD', 'AUD'];
 const COMMON_INTERVALS = [30, 15, 14, 7, 3, 1];   // predefined reminder options
 
 export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
   const [form, setForm] = useState({
     domain: '',
+    registrar: '',
     clientName: '',
     clientEmails: [''],
     subscriptionType: 'Domain',
     renewalCycle: 'Yearly',
     expiryDate: '',
-    reminderIntervals: [30, 15, 7, 1],   // default intervals (as before)
+    cost: 0,
+    currency: 'USD',
+    sslExpiryDate: '',
+    sslIssuer: '',
+    sslValid: null,
+    reminderIntervals: [30, 15, 7, 1],   // default intervals
     notes: '',
   });
   const [saving, setSaving] = useState(false);
+  const [fetchingWhois, setFetchingWhois] = useState(false);
+  const [whoisFetched, setWhoisFetched] = useState(false);
 
   // Populate form when editing
   useEffect(() => {
     if (editing) {
       setForm({
         domain: editing.domain || '',
+        registrar: editing.registrar || '',
         clientName: editing.owner || '',
         clientEmails: editing.ownerEmails?.length ? editing.ownerEmails : [editing.ownerEmail || ''],
         subscriptionType: editing.subscriptionType || 'Domain',
         renewalCycle: editing.renewalCycle || 'Yearly',
         expiryDate: editing.expiryDate ? new Date(editing.expiryDate).toISOString().split('T')[0] : '',
+        cost: editing.cost || 0,
+        currency: editing.currency || 'USD',
+        sslExpiryDate: editing.sslExpiryDate ? new Date(editing.sslExpiryDate).toISOString().split('T')[0] : '',
+        sslIssuer: editing.sslIssuer || '',
+        sslValid: typeof editing.sslValid === 'boolean' ? editing.sslValid : null,
         reminderIntervals: editing.reminderIntervals?.length ? editing.reminderIntervals : [30, 15, 7, 1],
         notes: editing.notes || '',
       });
+      setWhoisFetched(false);
     } else {
       setForm({
         domain: '',
+        registrar: '',
         clientName: '',
         clientEmails: [''],
         subscriptionType: 'Domain',
         renewalCycle: 'Yearly',
         expiryDate: '',
-        reminderIntervals: [30, 15, 7, 1],   // default again
+        cost: 0,
+        currency: 'USD',
+        sslExpiryDate: '',
+        sslIssuer: '',
+        sslValid: null,
+        reminderIntervals: [30, 15, 7, 1],
         notes: '',
       });
+      setWhoisFetched(false);
     }
   }, [editing, open]);
 
@@ -52,6 +75,40 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Auto-fetch domain WHOIS / RDAP and SSL
+  const handleAutoFetch = async () => {
+    if (!form.domain) {
+      toast.error('Please enter a domain name first');
+      return;
+    }
+
+    setFetchingWhois(true);
+    try {
+      const { data } = await api.post('/subscriptions/lookup', { domain: form.domain });
+      
+      const updates = {};
+      if (data.registrar) updates.registrar = data.registrar;
+      if (data.expiryDate) {
+        updates.expiryDate = new Date(data.expiryDate).toISOString().split('T')[0];
+      }
+      if (data.ssl) {
+        updates.sslValid = data.ssl.valid;
+        if (data.ssl.validTo) {
+          updates.sslExpiryDate = new Date(data.ssl.validTo).toISOString().split('T')[0];
+        }
+        if (data.ssl.issuer) updates.sslIssuer = data.ssl.issuer;
+      }
+
+      setForm(prev => ({ ...prev, ...updates }));
+      setWhoisFetched(true);
+      toast.success('Domain & SSL details fetched!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Could not auto-fetch domain details');
+    } finally {
+      setFetchingWhois(false);
+    }
   };
 
   // Email array handlers
@@ -73,7 +130,6 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
     setForm(prev => {
       const already = prev.reminderIntervals.includes(day);
       if (already) {
-        // Don't allow removing the last interval
         if (prev.reminderIntervals.length <= 1) return prev;
         return { ...prev, reminderIntervals: prev.reminderIntervals.filter(d => d !== day) };
       } else {
@@ -92,13 +148,19 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
 
     const payload = {
       domain: form.domain.trim(),
+      registrar: form.registrar?.trim() || '',
       owner: form.clientName.trim(),
       ownerEmail: form.clientEmails.find(e => e.trim() !== '') || '',
       ownerEmails: form.clientEmails.filter(e => e.trim() !== ''),
       subscriptionType: form.subscriptionType,
       renewalCycle: form.renewalCycle,
       expiryDate: form.expiryDate,
-      reminderIntervals: form.reminderIntervals,   // <-- yahan intervals bhej rahe hain
+      cost: parseFloat(form.cost) || 0,
+      currency: form.currency || 'USD',
+      sslExpiryDate: form.sslExpiryDate || undefined,
+      sslIssuer: form.sslIssuer || undefined,
+      sslValid: form.sslValid,
+      reminderIntervals: form.reminderIntervals,
       notes: form.notes,
     };
 
@@ -129,9 +191,20 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
             {editing ? 'Update subscription details' : 'Add a new subscription to track'}
           </p>
 
-          {/* Subscription Name */}
+          {/* Domain Name + Auto-fetch Button */}
           <div>
-            <label className="label">Subscription Name *</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="label mb-0">Domain / Subscription Name *</label>
+              <button
+                type="button"
+                onClick={handleAutoFetch}
+                disabled={fetchingWhois || !form.domain}
+                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 disabled:opacity-50 transition"
+              >
+                {fetchingWhois ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+                {fetchingWhois ? 'Fetching WHOIS...' : 'Auto-Fetch Details'}
+              </button>
+            </div>
             <input
               name="domain"
               className="input"
@@ -139,6 +212,18 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
               value={form.domain}
               onChange={handleChange}
               required
+            />
+          </div>
+
+          {/* Registrar */}
+          <div>
+            <label className="label">Registrar / Provider</label>
+            <input
+              name="registrar"
+              className="input"
+              placeholder="e.g. GoDaddy, Namecheap, Cloudflare, AWS"
+              value={form.registrar}
+              onChange={handleChange}
             />
           </div>
 
@@ -200,6 +285,29 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
             </div>
           </div>
 
+          {/* Cost & Currency */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label">Renewal Cost</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                name="cost"
+                className="input"
+                placeholder="0.00"
+                value={form.cost}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label className="label">Currency</label>
+              <select name="currency" className="input" value={form.currency} onChange={handleChange}>
+                {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+
           {/* Expiry Date */}
           <div>
             <label className="label">Expiry Date *</label>
@@ -212,6 +320,25 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
               required
             />
           </div>
+
+          {/* SSL Status (if available or detected) */}
+          {(form.sslExpiryDate || form.sslValid !== null) && (
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1">
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                {form.sslValid ? (
+                  <ShieldCheck size={16} className="text-emerald-500" />
+                ) : (
+                  <ShieldAlert size={16} className="text-amber-500" />
+                )}
+                <span>SSL Certificate Info</span>
+                {form.sslValid && <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-bold">VALID</span>}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 grid grid-cols-1 sm:grid-cols-2 gap-1 pt-1">
+                <div>Issuer: <span className="font-medium text-gray-700 dark:text-gray-300">{form.sslIssuer || 'Unknown'}</span></div>
+                <div>SSL Expiry: <span className="font-medium text-gray-700 dark:text-gray-300">{form.sslExpiryDate || 'N/A'}</span></div>
+              </div>
+            </div>
+          )}
 
           {/* Reminder Intervals */}
           <div>

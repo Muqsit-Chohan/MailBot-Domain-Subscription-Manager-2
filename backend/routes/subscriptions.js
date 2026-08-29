@@ -33,29 +33,167 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// POST /api/subscriptions/lookup (WHOIS/RDAP & SSL Inspection)
+router.post('/lookup', auth, async (req, res) => {
+  try {
+    const { domain } = req.body;
+    if (!domain) return res.status(400).json({ message: 'Domain name is required' });
+
+    const { lookupDomain } = require('../services/whoisService');
+    const result = await lookupDomain(domain);
+    res.json(result);
+  } catch (err) {
+    console.error('Lookup error:', err.message);
+    res.status(500).json({ message: err.message || 'Failed to lookup domain' });
+  }
+});
+
+// GET /api/subscriptions/export-csv
+router.get('/export-csv', auth, async (req, res) => {
+  try {
+    const subscriptions = await Subscription.find().sort('-createdAt');
+    
+    // Build CSV
+    const headers = ['Domain', 'Registrar', 'Owner', 'Owner Email', 'Subscription Type', 'Renewal Cycle', 'Expiry Date', 'Cost', 'Currency', 'SSL Valid', 'SSL Expiry', 'Status', 'Auto Renew'];
+    const rows = subscriptions.map(sub => [
+      `"${sub.domain || ''}"`,
+      `"${sub.registrar || ''}"`,
+      `"${sub.owner || ''}"`,
+      `"${sub.ownerEmail || ''}"`,
+      `"${sub.subscriptionType || 'Domain'}"`,
+      `"${sub.renewalCycle || 'Yearly'}"`,
+      `"${sub.expiryDate ? new Date(sub.expiryDate).toISOString().split('T')[0] : ''}"`,
+      sub.cost || 0,
+      `"${sub.currency || 'USD'}"`,
+      sub.sslValid ? 'Yes' : 'No',
+      `"${sub.sslExpiryDate ? new Date(sub.sslExpiryDate).toISOString().split('T')[0] : ''}"`,
+      `"${sub.status || 'active'}"`,
+      sub.autoRenew ? 'Yes' : 'No',
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=subscriptions-${new Date().toISOString().split('T')[0]}.csv`);
+    res.status(200).send(csvContent);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to export CSV: ' + err.message });
+  }
+});
+
+// POST /api/subscriptions/import-csv
+router.post('/import-csv', auth, async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: 'Valid array of items is required' });
+    }
+
+    let createdCount = 0;
+    let skippedCount = 0;
+    const errors = [];
+
+    for (const item of items) {
+      if (!item.domain || !item.ownerEmail || !item.expiryDate) {
+        skippedCount++;
+        errors.push(`Row missing required fields (domain, ownerEmail, expiryDate): ${JSON.stringify(item.domain || 'unknown')}`);
+        continue;
+      }
+
+      try {
+        await Subscription.create({
+          domain: item.domain.trim().toLowerCase(),
+          registrar: item.registrar?.trim() || '',
+          owner: item.owner?.trim() || '',
+          ownerEmail: item.ownerEmail.trim().toLowerCase(),
+          ownerEmails: item.ownerEmails || [],
+          subscriptionType: item.subscriptionType || 'Domain',
+          renewalCycle: item.renewalCycle || 'Yearly',
+          expiryDate: new Date(item.expiryDate),
+          cost: parseFloat(item.cost) || 0,
+          currency: item.currency ? item.currency.toUpperCase() : 'USD',
+          reminderIntervals: item.reminderIntervals || [30, 15, 7, 1],
+          notes: item.notes || '',
+          autoRenew: item.autoRenew === true || item.autoRenew === 'true' || item.autoRenew === 'Yes',
+          createdBy: req.user._id,
+        });
+        createdCount++;
+      } catch (insertErr) {
+        skippedCount++;
+        errors.push(`${item.domain}: ${insertErr.message}`);
+      }
+    }
+
+    res.json({
+      message: `Import completed. ${createdCount} created, ${skippedCount} skipped.`,
+      createdCount,
+      skippedCount,
+      errors,
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Import failed: ' + err.message });
+  }
+});
+
 // GET /api/subscriptions/stats
 router.get('/stats', auth, async (req, res) => {
   try {
     const now = new Date();
     const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const in15Days = new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000);
 
-    const [total, active, expired, expiringSoon] = await Promise.all([
+    const [total, active, expired, expiringSoon, allSubs] = await Promise.all([
       Subscription.countDocuments(),
       Subscription.countDocuments({ status: 'active' }),
       Subscription.countDocuments({ status: 'expired' }),
       Subscription.countDocuments({ status: 'expiring_soon' }),
+      Subscription.find().select('cost currency renewalCycle sslExpiryDate sslValid'),
     ]);
+
+    // Financial spend projections
+    let totalYearlyCost = 0;
+    let totalMonthlyCost = 0;
+    let sslExpiringCount = 0;
+
+    for (const sub of allSubs) {
+      const cost = sub.cost || 0;
+      if (sub.renewalCycle === 'Monthly') {
+        totalMonthlyCost += cost;
+        totalYearlyCost += cost * 12;
+      } else if (sub.renewalCycle === 'Quarterly') {
+        totalMonthlyCost += cost / 3;
+        totalYearlyCost += cost * 4;
+      } else {
+        // Yearly or Custom default
+        totalMonthlyCost += cost / 12;
+        totalYearlyCost += cost;
+      }
+
+      if (sub.sslExpiryDate && new Date(sub.sslExpiryDate) <= in15Days && new Date(sub.sslExpiryDate) >= now) {
+        sslExpiringCount++;
+      }
+    }
 
     const recentlyAdded = await Subscription.find()
       .sort('-createdAt')
       .limit(5)
-      .select('domain expiryDate status owner');
+      .select('domain expiryDate status owner cost currency');
 
     const upcomingExpiries = await Subscription.find({
       expiryDate: { $gte: now, $lte: in30Days },
-    }).sort('expiryDate').limit(5).select('domain expiryDate owner ownerEmail status');
+    }).sort('expiryDate').limit(5).select('domain expiryDate owner ownerEmail status cost currency sslExpiryDate');
 
-    res.json({ total, active, expired, expiringSoon, recentlyAdded, upcomingExpiries });
+    res.json({
+      total,
+      active,
+      expired,
+      expiringSoon,
+      sslExpiringCount,
+      totalYearlyCost: Math.round(totalYearlyCost * 100) / 100,
+      totalMonthlyCost: Math.round(totalMonthlyCost * 100) / 100,
+      recentlyAdded,
+      upcomingExpiries,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

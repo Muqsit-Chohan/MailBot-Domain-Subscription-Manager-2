@@ -88,4 +88,31 @@ router.post('/test-email', auth, async (req, res) => {
   }
 });
 
+// POST /api/settings/test-webhook – send test webhook alert
+router.post('/test-webhook', auth, async (req, res) => {
+  try {
+    const { webhookUrl } = req.body;
+    if (!webhookUrl) {
+      return res.status(400).json({ message: 'Webhook URL is required' });
+    }
+
+    const { sendWebhookNotification } = require('../services/webhookService');
+    const result = await sendWebhookNotification(webhookUrl, {
+      title: '🔔 MailBot Webhook Test',
+      message: 'This is a test notification from your MailBot Domain Manager. Webhook integration is working successfully!',
+      domain: 'test-domain.com',
+      daysUntilExpiry: 7,
+      expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    if (!result.success) {
+      return res.status(400).json({ message: result.error || 'Failed to trigger webhook' });
+    }
+
+    res.json({ message: 'Test webhook sent successfully!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to test webhook: ' + err.message });
+  }
+});
+
 module.exports = router;

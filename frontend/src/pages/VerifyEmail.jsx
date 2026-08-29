@@ -40,31 +40,33 @@ export default function VerifyEmail() {
   }, [searchParams, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-[#f0f2f5] dark:bg-[#0a0a0a] p-4">
+      <div className="text-center p-8 bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-[#272727] rounded-2xl shadow-xl max-w-md w-full">
         {status === 'verifying' && (
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Verifying your email...</h2>
+            <h2 className="text-xl font-bold text-[#111827] dark:text-[#f5f5f5] mb-4">Verifying your email...</h2>
             <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
           </div>
         )}
         {status === 'success' && (
           <div>
-            <h2 className="text-xl font-semibold text-green-600 mb-2">✅ Email Verified!</h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              Your email has been verified. Please login to continue.
+            <h2 className="text-xl font-bold text-emerald-500 mb-2">✅ Email Verified!</h2>
+            <p className="text-sm text-[#6b7280] dark:text-[#a1a1aa] mb-5">
+              Your email has been verified. Redirecting you to login...
             </p>
-            <button onClick={() => navigate('/login')} className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+            <button onClick={() => navigate('/login')} className="btn-primary">
               Go to Login
             </button>
           </div>
         )}
         {status === 'error' && (
           <div>
-            <h2 className="text-xl font-semibold text-red-600 mb-2">❌ Verification Failed</h2>
-            <p className="text-gray-600 dark:text-gray-300">The link is invalid or expired. Please try logging in to request a new verification email.</p>
-            <button onClick={() => navigate('/login')} className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-              Go to Login
+            <h2 className="text-xl font-bold text-red-500 mb-2">❌ Verification Failed</h2>
+            <p className="text-sm text-[#6b7280] dark:text-[#a1a1aa] mb-5">
+              The verification link is invalid or has expired.
+            </p>
+            <button onClick={() => navigate('/login')} className="btn-secondary">
+              Back to Login
             </button>
           </div>
         )}

@@ -16,12 +16,37 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required.' });
     }
 
-    const existingUser = await User.findOne({ email });
+    const cleanEmail = email.toLowerCase().trim();
+    const existingUser = await User.findOne({ email: cleanEmail });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered.' });
     }
 
-    const existingPending = await PendingVerification.findOne({ email });
+    const userCount = await User.countDocuments();
+
+    // If this is the FIRST user in the system -> make them verified Admin immediately
+    if (userCount === 0) {
+      const adminUser = new User({
+        name: name || 'Admin',
+        email: cleanEmail,
+        password,
+        role: 'admin',
+        isActive: true,
+        isVerified: true,
+      });
+      await adminUser.save();
+
+      const jwtToken = jwt.sign({ id: adminUser._id, role: adminUser.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+      return res.status(201).json({
+        message: 'Admin account created successfully! You can now configure SMTP settings in the Settings page.',
+        token: jwtToken,
+        user: { id: adminUser._id, name: adminUser.name, email: adminUser.email, role: adminUser.role },
+      });
+    }
+
+    // Subsequent users -> verification flow
+    const existingPending = await PendingVerification.findOne({ email: cleanEmail });
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const verificationTokenExpiry = Date.now() + 3600000; // 1 hour
 
@@ -34,7 +59,7 @@ router.post('/register', async (req, res) => {
     } else {
       const pending = new PendingVerification({
         name,
-        email,
+        email: cleanEmail,
         password,
         verificationToken,
         verificationTokenExpiry,
@@ -42,15 +67,23 @@ router.post('/register', async (req, res) => {
       await pending.save();
     }
 
-    // Send verification email
-    await sendVerificationEmail(email, verificationToken);
+    // Attempt sending verification email
+    try {
+      await sendVerificationEmail(cleanEmail, verificationToken);
+      res.status(201).json({
+        message: 'Registration initiated! Please check your email to verify your account.',
+      });
+    } catch (emailErr) {
+      const verifyLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
+      console.log(`\n========================================\n[SMTP Notice] Email failed to send (${emailErr.message}).\nDirect Verification URL:\n${verifyLink}\n========================================\n`);
 
-    res.status(201).json({
-      message: 'Registration initiated! Please check your email to verify your account.',
-    });
+      res.status(201).json({
+        message: 'Account created! If email delivery fails, check the backend console for the verification link or configure SMTP in Settings.',
+      });
+    }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error: ' + err.message });
   }
 });
 
@@ -124,7 +157,14 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        webhookUrl: user.webhookUrl,
+        webhookEnabled: user.webhookEnabled,
+      },
     });
   } catch (err) {
     console.error(err);
@@ -132,6 +172,101 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// ... aapke baaki jo routes pehle se the (e.g., profile, etc.) unhe yahin rakhein
+// POST /api/auth/forgot-password
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required.' });
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    if (!user) {
+      // Return success message anyway to prevent user enumeration attacks
+      return res.json({ message: 'If that email exists in our system, a password reset link has been sent.' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+
+    const { sendPasswordResetEmail } = require('../services/emailService');
+    await sendPasswordResetEmail(user.email, resetToken);
+
+    res.json({ message: 'If that email exists in our system, a password reset link has been sent.' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ message: 'Failed to send password reset email: ' + err.message });
+  }
+});
+
+// POST /api/auth/reset-password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      return res.status(400).json({ message: 'Token and new password are required.' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters.' });
+    }
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
+    }
+
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: 'Password has been reset successfully! You can now log in.' });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// GET /api/auth/me
+router.get('/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// PUT /api/auth/profile
+router.put('/profile', auth, async (req, res) => {
+  try {
+    const { name, webhookUrl, webhookEnabled } = req.body;
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (name) user.name = name;
+    if (typeof webhookUrl !== 'undefined') user.webhookUrl = webhookUrl;
+    if (typeof webhookEnabled !== 'undefined') user.webhookEnabled = webhookEnabled;
+
+    await user.save();
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        webhookUrl: user.webhookUrl,
+        webhookEnabled: user.webhookEnabled,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;
