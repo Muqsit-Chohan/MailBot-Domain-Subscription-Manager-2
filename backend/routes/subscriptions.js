@@ -108,7 +108,9 @@ router.post('/import-csv', auth, async (req, res) => {
           ownerEmail: item.ownerEmail.trim().toLowerCase(),
           ownerEmails: item.ownerEmails || [],
           subscriptionType: item.subscriptionType || 'Domain',
+          customTypeName: item.customTypeName?.trim() || '',
           renewalCycle: item.renewalCycle || 'Yearly',
+          customCycleMonths: Number(item.customCycleMonths) || 12,
           expiryDate: new Date(item.expiryDate),
           cost: parseFloat(item.cost) || 0,
           currency: item.currency ? item.currency.toUpperCase() : 'USD',
@@ -151,22 +153,28 @@ router.get('/stats', auth, async (req, res) => {
     ]);
 
     // Financial spend projections
-    let totalYearlyCost = 0;
-    let totalMonthlyCost = 0;
+    const currencyTotals = {};
     let sslExpiringCount = 0;
 
     for (const sub of allSubs) {
       const cost = sub.cost || 0;
+      const currency = (sub.currency || 'USD').toUpperCase();
+      if (!currencyTotals[currency]) {
+        currencyTotals[currency] = { monthly: 0, yearly: 0, subscriptions: 0 };
+      }
+      currencyTotals[currency].subscriptions += 1;
+
       if (sub.renewalCycle === 'Monthly') {
-        totalMonthlyCost += cost;
-        totalYearlyCost += cost * 12;
+        currencyTotals[currency].monthly += cost;
+        currencyTotals[currency].yearly += cost * 12;
       } else if (sub.renewalCycle === 'Quarterly') {
-        totalMonthlyCost += cost / 3;
-        totalYearlyCost += cost * 4;
+        currencyTotals[currency].monthly += cost / 3;
+        currencyTotals[currency].yearly += cost * 4;
       } else {
-        // Yearly or Custom default
-        totalMonthlyCost += cost / 12;
-        totalYearlyCost += cost;
+        // Yearly or custom billing period
+        const months = sub.renewalCycle === 'Custom' ? Math.max(Number(sub.customCycleMonths) || 12, 1) : 12;
+        currencyTotals[currency].monthly += cost / months;
+        currencyTotals[currency].yearly += cost * (12 / months);
       }
 
       if (sub.sslExpiryDate && new Date(sub.sslExpiryDate) <= in15Days && new Date(sub.sslExpiryDate) >= now) {
@@ -189,8 +197,13 @@ router.get('/stats', auth, async (req, res) => {
       expired,
       expiringSoon,
       sslExpiringCount,
-      totalYearlyCost: Math.round(totalYearlyCost * 100) / 100,
-      totalMonthlyCost: Math.round(totalMonthlyCost * 100) / 100,
+      currencyTotals: Object.fromEntries(
+        Object.entries(currencyTotals).map(([currency, totals]) => [currency, {
+          monthly: Math.round(totals.monthly * 100) / 100,
+          yearly: Math.round(totals.yearly * 100) / 100,
+          subscriptions: totals.subscriptions,
+        }])
+      ),
       recentlyAdded,
       upcomingExpiries,
     });

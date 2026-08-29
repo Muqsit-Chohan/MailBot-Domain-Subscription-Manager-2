@@ -298,7 +298,7 @@ export default function SubscriptionsPage() {
                         <div className="flex flex-col">
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/20">
-                              {sub.subscriptionType || 'Domain'}
+                              {sub.subscriptionType === 'Custom' && sub.customTypeName ? sub.customTypeName : (sub.subscriptionType || 'Domain')}
                             </span>
                             <span className="text-xs text-[#6b7280] dark:text-[#a1a1aa]">({sub.renewalCycle || 'Yearly'})</span>
                           </div>
@@ -425,7 +425,7 @@ export default function SubscriptionsPage() {
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Type & Cost</p>
-                    <p className="font-medium">{sub.subscriptionType || 'Domain'}</p>
+                    <p className="font-medium">{sub.subscriptionType === 'Custom' && sub.customTypeName ? sub.customTypeName : (sub.subscriptionType || 'Domain')}</p>
                     <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                       {sub.cost ? `${sub.currency || 'USD'} ${sub.cost}` : 'Free'}
                     </p>

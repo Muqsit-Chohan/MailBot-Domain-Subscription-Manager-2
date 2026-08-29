@@ -89,7 +89,9 @@ export default function DashboardPage() {
 
   // 2. By Subscription Type (pie data)
   const typeCounts = allSubs.reduce((acc, sub) => {
-    const type = sub.subscriptionType || 'Domain';
+    const type = sub.subscriptionType === 'Custom' && sub.customTypeName
+      ? sub.customTypeName
+      : (sub.subscriptionType || 'Domain');
     acc[type] = (acc[type] || 0) + 1;
     return acc;
   }, {});
@@ -107,6 +109,41 @@ export default function DashboardPage() {
 
   // 5. Recent upcoming subscriptions (from stats)
   const upcoming = stats?.upcomingExpiries || [];
+  // Calculate totals from the subscriptions already loaded on this page.
+  // This also keeps the dashboard compatible while an older backend process
+  // is still running without the currencyTotals response field.
+  const currencyTotals = allSubs.reduce((acc, sub) => {
+    const currency = (sub.currency || 'USD').toUpperCase();
+    const cost = Number(sub.cost) || 0;
+    if (!acc[currency]) acc[currency] = { monthly: 0, yearly: 0, subscriptions: 0 };
+    acc[currency].subscriptions += 1;
+
+    if (sub.renewalCycle === 'Monthly') {
+      acc[currency].monthly += cost;
+      acc[currency].yearly += cost * 12;
+    } else if (sub.renewalCycle === 'Quarterly') {
+      acc[currency].monthly += cost / 3;
+      acc[currency].yearly += cost * 4;
+    } else {
+      const months = sub.renewalCycle === 'Custom' ? Math.max(Number(sub.customCycleMonths) || 12, 1) : 12;
+      acc[currency].monthly += cost / months;
+      acc[currency].yearly += cost * (12 / months);
+    }
+    return acc;
+  }, {});
+  const formatTotal = (value) => Number(value || 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const currencyTotalRows = (period) => {
+    const rows = Object.entries(currencyTotals)
+      .map(([currency, values]) => ({
+        currency,
+        amount: values[period],
+        subscriptions: values.subscriptions || 0,
+      }));
+    return rows.length ? rows : [{ currency: 'USD', amount: 0, subscriptions: 0 }];
+  };
 
   return (
     <div className="space-y-6 animate-[fadeIn_0.3s_ease-out]">
@@ -218,9 +255,18 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-3xl font-extrabold text-gray-900 dark:text-white">
-              ${stats?.totalMonthlyCost || '0.00'}
-            </span>
+            <div className="mt-4 space-y-1.5">
+              {currencyTotalRows('monthly').map((row) => (
+                <div key={row.currency} className="flex items-baseline justify-between gap-3">
+                  <span className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
+                    {row.currency} {formatTotal(row.amount)}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                    {row.subscriptions} {row.subscriptions === 1 ? 'subscription' : 'subscriptions'}
+                  </span>
+                </div>
+              ))}
+            </div>
             <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 px-2.5 py-1 rounded-lg border border-indigo-100 dark:border-indigo-800/40">
               Avg. monthly
             </span>
@@ -241,9 +287,18 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-3xl font-extrabold text-gray-900 dark:text-white">
-              ${stats?.totalYearlyCost || '0.00'}
-            </span>
+            <div className="mt-4 space-y-1.5">
+              {currencyTotalRows('yearly').map((row) => (
+                <div key={row.currency} className="flex items-baseline justify-between gap-3">
+                  <span className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
+                    {row.currency} {formatTotal(row.amount)}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                    {row.subscriptions} {row.subscriptions === 1 ? 'subscription' : 'subscriptions'}
+                  </span>
+                </div>
+              ))}
+            </div>
             <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/40 px-2.5 py-1 rounded-lg border border-purple-100 dark:border-purple-800/40">
               {stats?.total || 0} subscriptions
             </span>

@@ -17,10 +17,16 @@ const subscriptionSchema = new mongoose.Schema({
     enum: ['Domain', 'Hosting', 'SSL', 'Custom'],
     default: 'Domain',
   },
+  customTypeName: { type: String, trim: true },
   renewalCycle: {
     type: String,
     enum: ['Monthly', 'Quarterly', 'Yearly', 'Custom'],
     default: 'Yearly',
+  },
+  customCycleMonths: {
+    type: Number,
+    min: 1,
+    default: 12,
   },
 
   expiryDate: { type: Date, required: true },

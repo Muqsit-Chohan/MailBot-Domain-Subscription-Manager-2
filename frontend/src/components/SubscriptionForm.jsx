@@ -16,7 +16,9 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
     clientName: '',
     clientEmails: [''],
     subscriptionType: 'Domain',
+    customTypeName: '',
     renewalCycle: 'Yearly',
+    customCycleMonths: 12,
     expiryDate: '',
     cost: 0,
     currency: 'USD',
@@ -39,7 +41,9 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
         clientName: editing.owner || '',
         clientEmails: editing.ownerEmails?.length ? editing.ownerEmails : [editing.ownerEmail || ''],
         subscriptionType: editing.subscriptionType || 'Domain',
+        customTypeName: editing.customTypeName || '',
         renewalCycle: editing.renewalCycle || 'Yearly',
+        customCycleMonths: editing.customCycleMonths || 12,
         expiryDate: editing.expiryDate ? new Date(editing.expiryDate).toISOString().split('T')[0] : '',
         cost: editing.cost || 0,
         currency: editing.currency || 'USD',
@@ -57,7 +61,9 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
         clientName: '',
         clientEmails: [''],
         subscriptionType: 'Domain',
+        customTypeName: '',
         renewalCycle: 'Yearly',
+        customCycleMonths: 12,
         expiryDate: '',
         cost: 0,
         currency: 'USD',
@@ -140,7 +146,7 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.domain || !form.clientName || !isEmailsValid() || !form.expiryDate || form.reminderIntervals.length === 0) {
+    if (!form.domain || !form.clientName || !isEmailsValid() || !form.expiryDate || form.reminderIntervals.length === 0 || (form.renewalCycle === 'Custom' && Number(form.customCycleMonths) < 1) || (form.subscriptionType === 'Custom' && !form.customTypeName.trim())) {
       toast.error('Please fill all required fields and select at least one reminder interval.');
       return;
     }
@@ -153,7 +159,9 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
       ownerEmail: form.clientEmails.find(e => e.trim() !== '') || '',
       ownerEmails: form.clientEmails.filter(e => e.trim() !== ''),
       subscriptionType: form.subscriptionType,
+      customTypeName: form.subscriptionType === 'Custom' ? form.customTypeName.trim() : '',
       renewalCycle: form.renewalCycle,
+      customCycleMonths: form.renewalCycle === 'Custom' ? Number(form.customCycleMonths) || 12 : undefined,
       expiryDate: form.expiryDate,
       cost: parseFloat(form.cost) || 0,
       currency: form.currency || 'USD',
@@ -284,6 +292,39 @@ export default function SubscriptionForm({ open, onClose, onSaved, editing }) {
               </select>
             </div>
           </div>
+
+          {form.subscriptionType === 'Custom' && (
+            <div>
+              <label className="label">Custom Subscription Type *</label>
+              <input
+                type="text"
+                name="customTypeName"
+                className="input"
+                placeholder="e.g. VPN, Cloud Backup, Adobe License"
+                value={form.customTypeName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          )}
+
+          {form.renewalCycle === 'Custom' && (
+            <div>
+              <label className="label">Custom Renewal Period (Months) *</label>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                name="customCycleMonths"
+                className="input"
+                placeholder="e.g. 6"
+                value={form.customCycleMonths}
+                onChange={handleChange}
+                required
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Used to calculate monthly and yearly dashboard totals.</p>
+            </div>
+          )}
 
           {/* Cost & Currency */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
