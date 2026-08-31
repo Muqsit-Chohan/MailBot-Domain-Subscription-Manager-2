@@ -149,7 +149,7 @@ router.get('/stats', auth, async (req, res) => {
       Subscription.countDocuments({ status: 'active' }),
       Subscription.countDocuments({ status: 'expired' }),
       Subscription.countDocuments({ status: 'expiring_soon' }),
-      Subscription.find().select('cost currency renewalCycle sslExpiryDate sslValid'),
+      Subscription.find().select('cost currency renewalCycle customCycleMonths sslExpiryDate sslValid'),
     ]);
 
     // Financial spend projections
@@ -157,7 +157,7 @@ router.get('/stats', auth, async (req, res) => {
     let sslExpiringCount = 0;
 
     for (const sub of allSubs) {
-      const cost = sub.cost || 0;
+      const cost = Number(sub.cost) || 0;
       const currency = (sub.currency || 'USD').toUpperCase();
       if (!currencyTotals[currency]) {
         currencyTotals[currency] = { monthly: 0, yearly: 0, subscriptions: 0 };

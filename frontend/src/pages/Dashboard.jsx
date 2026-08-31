@@ -109,28 +109,9 @@ export default function DashboardPage() {
 
   // 5. Recent upcoming subscriptions (from stats)
   const upcoming = stats?.upcomingExpiries || [];
-  // Calculate totals from the subscriptions already loaded on this page.
-  // This also keeps the dashboard compatible while an older backend process
-  // is still running without the currencyTotals response field.
-  const currencyTotals = allSubs.reduce((acc, sub) => {
-    const currency = (sub.currency || 'USD').toUpperCase();
-    const cost = Number(sub.cost) || 0;
-    if (!acc[currency]) acc[currency] = { monthly: 0, yearly: 0, subscriptions: 0 };
-    acc[currency].subscriptions += 1;
-
-    if (sub.renewalCycle === 'Monthly') {
-      acc[currency].monthly += cost;
-      acc[currency].yearly += cost * 12;
-    } else if (sub.renewalCycle === 'Quarterly') {
-      acc[currency].monthly += cost / 3;
-      acc[currency].yearly += cost * 4;
-    } else {
-      const months = sub.renewalCycle === 'Custom' ? Math.max(Number(sub.customCycleMonths) || 12, 1) : 12;
-      acc[currency].monthly += cost / months;
-      acc[currency].yearly += cost * (12 / months);
-    }
-    return acc;
-  }, {});
+  // The stats endpoint calculates totals across all subscriptions. Use it as
+  // the source of truth so the dashboard is not affected by list pagination.
+  const currencyTotals = stats?.currencyTotals || {};
   const formatTotal = (value) => Number(value || 0).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
