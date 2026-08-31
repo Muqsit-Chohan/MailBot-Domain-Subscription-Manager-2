@@ -6,13 +6,11 @@
   },
   "steps": {
     "install": {
-      "commands": [
-        "if [ -d backend ]; then cd backend; fi && npm ci"
-      ]
+      "commands": ["npm ci"]
     }
   },
   "deploy": {
-    "startCommand": "if [ -d backend ]; then node backend/server.js; else node server.js; fi",
+    "startCommand": "node server.js",
     "variables": {
       "TZ": "Asia/Karachi"
     }
