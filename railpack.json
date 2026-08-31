@@ -7,7 +7,7 @@
   "steps": {
     "install": {
       "commands": [
-        "if [ -d backend ]; then cd backend; fi && npm install --omit=dev"
+        "cd backend && npm install --omit=dev"
       ]
     },
     "build": {
@@ -18,9 +18,10 @@
     }
   },
   "deploy": {
-    "startCommand": "if [ -d backend ]; then node backend/server.js; else node server.js; fi",
+    "startCommand": "node backend/server.js",
     "variables": {
       "TZ": "Asia/Karachi"
     }
   }
 }
+
