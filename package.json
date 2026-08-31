@@ -8,5 +8,6 @@
     "install:all": "cd backend && npm install && cd ../frontend && npm install",
     "build": "cd frontend && npm run build"
   },
-  "private": true
+  "private": true,
+  "packageManager": "npm@11.4.2"
 }

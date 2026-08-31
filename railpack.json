@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "node",
+  "packages": {
+    "node": "22"
+  },
+  "steps": {
+    "install": {
+      "commands": [
+        "cd backend && npm ci"
+      ]
+    }
+  },
+  "deploy": {
+    "startCommand": "node backend/server.js",
+    "variables": {
+      "TZ": "Asia/Karachi"
+    }
+  }
+}
