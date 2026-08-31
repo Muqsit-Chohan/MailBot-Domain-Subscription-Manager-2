@@ -7,8 +7,14 @@
   "steps": {
     "install": {
       "commands": [
-        "if [ -d backend ]; then cd backend; fi && npm ci"
+        "if [ -d backend ]; then cd backend; fi && npm install --omit=dev"
       ]
+    },
+    "build": {
+      "inputs": [
+        { "step": "install" }
+      ],
+      "commands": ["true"]
     }
   },
   "deploy": {
