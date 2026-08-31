@@ -7,7 +7,10 @@
   "steps": {
     "install": {
       "commands": [
-        "if [ -d backend ]; then cd backend; fi && npm install --omit=dev"
+        { "src": "backend/package.json", "dest": "backend/package.json" },
+        { "src": "backend/package-lock.json", "dest": "backend/package-lock.json" },
+        { "src": "backend", "dest": "backend" },
+        "cd backend && npm install --omit=dev"
       ]
     },
     "build": {

@@ -6,7 +6,11 @@
   },
   "steps": {
     "install": {
-      "commands": ["npm install --omit=dev"]
+      "commands": [
+        { "src": "package.json", "dest": "package.json" },
+        { "src": "package-lock.json", "dest": "package-lock.json" },
+        "npm install --omit=dev"
+      ]
     }
   },
   "deploy": {
