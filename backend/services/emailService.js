@@ -5,10 +5,10 @@ const EmailTemplate = require('../models/EmailTemplate');
 let transporter = null;
 
 const buildTransportOptions = (config = {}) => {
-  const host = config.host || process.env.SMTP_HOST || 'smtp.resend.com';
-  const port = parseInt(config.port || process.env.SMTP_PORT || '587', 10);
+  const host = config.host || process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(config.port || process.env.SMTP_PORT || '465', 10);
   const secure = config.secure !== undefined ? !!config.secure : process.env.SMTP_SECURE === 'true';
-  const user = config.username || config.user || process.env.SMTP_USER || 'resend';
+  const user = config.username || config.user || process.env.SMTP_USER || 'yourgmail@gmail.com';
   const pass = config.password || config.pass || process.env.SMTP_PASS || '';
 
   return {

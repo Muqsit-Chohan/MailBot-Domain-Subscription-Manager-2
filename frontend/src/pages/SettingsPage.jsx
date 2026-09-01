@@ -26,9 +26,9 @@ export default function SettingsPage() {
 
   // ---------- SMTP form state ----------
   const [smtpForm, setSmtpForm] = useState({
-    host: 'smtp.resend.com',
+    host: 'smtp.gmail.com',
     port: '587',
-    username: 'resend',
+    username: '',
     password: '',
     senderEmail: '',
     senderName: '',
@@ -189,7 +189,7 @@ export default function SettingsPage() {
       {/* ===== UPDATED Email/SMTP Section ===== */}
       <Section title="SMTP Configuration" icon={Mail}>
         <p className="text-sm text-[#6b7280] dark:text-[#8b92b3] mb-4">
-          For Railway/Vercel deployment, use a hosted provider such as Resend or SendGrid. Gmail often times out from production servers.
+          Configure your email server settings to send automated reminders
         </p>
 
         <form onSubmit={handleSave} className="space-y-4">
