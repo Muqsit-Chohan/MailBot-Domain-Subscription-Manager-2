@@ -21,6 +21,7 @@ const getTransporter = async (userId = null) => {
           host: saved.host,
           port: parseInt(saved.port) || 587,
           secure: !!saved.secure,
+          family: 4, // Force IPv4 (disable IPv6)
           auth: {
             user: saved.username,
             pass: saved.password,
@@ -39,6 +40,7 @@ const getTransporter = async (userId = null) => {
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT) || 587,
       secure: process.env.SMTP_SECURE === 'true',
+      family: 4, // Force IPv4 (disable IPv6)
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,

@@ -74,6 +74,7 @@ router.post('/test-email', auth, async (req, res) => {
         host,
         port: parseInt(port),
         secure: secure,
+        family: 4, // Force IPv4 (disable IPv6)
         auth: { user: username, pass: password },
       },
     });

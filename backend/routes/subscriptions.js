@@ -306,6 +306,7 @@ router.post('/:id/send-test', auth, async (req, res) => {
         host,
         port,
         secure,
+        family: 4, // Force IPv4 (disable IPv6)
         auth: { user, pass },
       },
     });
