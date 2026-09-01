@@ -4,6 +4,28 @@ const EmailTemplate = require('../models/EmailTemplate');
 
 let transporter = null;
 
+const buildTransportOptions = (config = {}) => {
+  const host = config.host || process.env.SMTP_HOST || 'smtp.resend.com';
+  const port = parseInt(config.port || process.env.SMTP_PORT || '587', 10);
+  const secure = config.secure !== undefined ? !!config.secure : process.env.SMTP_SECURE === 'true';
+  const user = config.username || config.user || process.env.SMTP_USER || 'resend';
+  const pass = config.password || config.pass || process.env.SMTP_PASS || '';
+
+  return {
+    host,
+    port,
+    secure,
+    family: 4,
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 20000,
+    auth: {
+      user,
+      pass,
+    },
+  };
+};
+
 const getTransporter = async (userId = null) => {
   try {
     const SmtpSettings = require('../models/SmtpSettings');
@@ -17,16 +39,13 @@ const getTransporter = async (userId = null) => {
 
     if (saved && saved.host && saved.username && saved.password) {
       return {
-        transporter: nodemailer.createTransport({
+        transporter: nodemailer.createTransport(buildTransportOptions({
           host: saved.host,
-          port: parseInt(saved.port) || 587,
-          secure: !!saved.secure,
-          family: 4, // Force IPv4 (disable IPv6)
-          auth: {
-            user: saved.username,
-            pass: saved.password,
-          },
-        }),
+          port: saved.port,
+          secure: saved.secure,
+          username: saved.username,
+          password: saved.password,
+        })),
         from: `"${saved.senderName || 'MailBot'}" <${saved.senderEmail || saved.username}>`,
       };
     }
@@ -34,19 +53,9 @@ const getTransporter = async (userId = null) => {
     console.error('Error fetching DB SMTP settings:', err.message);
   }
 
-  // Fallback to .env
   return {
-    transporter: nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true',
-      family: 4, // Force IPv4 (disable IPv6)
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    }),
-    from: `"${process.env.SMTP_FROM_NAME || 'MailBot'}" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
+    transporter: nodemailer.createTransport(buildTransportOptions()),
+    from: `"${process.env.SMTP_FROM_NAME || 'MailBot'}" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'your@yourdomain.com'}>`,
   };
 };
 
