@@ -8,23 +8,25 @@ const { startCron } = require('./services/cronService');
 
 const app = express();
 
-// CORS configuration - accept Vercel preview URLs and production URL
-const corsOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
-const allowedOrigins = [
-  corsOrigin,
-  /^https:\/\/mailbot-flash.*\.vercel\.app$/, // Accept all Vercel preview/production URLs
-];
-
+// CORS configuration - accept Vercel URLs
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.some(o => {
-      if (typeof o === 'string') return origin === o;
-      return o.test(origin);
-    })) {
-      callback(null, true);
-    } else {
-      callback(new Error('CORS not allowed'));
-    }
+  origin: function(origin, callback) {
+    // Allow if no origin (mobile apps, Postman)
+    if (!origin) return callback(null, true);
+    
+    // Allow any vercel.app domain
+    if (origin.includes('vercel.app')) return callback(null, true);
+    
+    // Allow localhost for development
+    if (origin.includes('localhost')) return callback(null, true);
+    
+    // Check environment variable
+    const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+    if (origin === allowedOrigin) return callback(null, true);
+    
+    // Block others
+    console.warn(`CORS blocked origin: ${origin}`);
+    callback(new Error('CORS not allowed'));
   },
   credentials: true,
 }));
