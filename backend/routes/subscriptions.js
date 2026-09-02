@@ -282,7 +282,7 @@ router.post('/:id/send-test', auth, async (req, res) => {
     );
     const host = hasSavedConfig ? saved.host : process.env.SMTP_HOST;
     const port = hasSavedConfig ? Number(saved.port) : parseInt(process.env.SMTP_PORT, 10) || 587;
-    const secure = hasSavedConfig ? Boolean(saved.secure) : process.env.SMTP_SECURE === 'true';
+    const secure = port === 465;
     const user = hasSavedConfig ? saved.username : process.env.SMTP_USER;
     const pass = hasSavedConfig ? saved.password : process.env.SMTP_PASS;
     const fromEmail = hasSavedConfig ? saved.senderEmail : process.env.SMTP_FROM_EMAIL;
