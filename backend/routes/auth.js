@@ -73,20 +73,15 @@ router.post('/register', async (req, res) => {
       await pending.save();
     }
 
-    // Attempt sending verification email
-    try {
-      await sendVerificationEmail(cleanEmail, verificationToken);
-      res.status(201).json({
-        message: 'Registration initiated! Please check your email to verify your account.',
-      });
-    } catch (emailErr) {
+    // Do not make account registration wait for a slow SMTP connection.
+    res.status(201).json({
+      message: 'Account created! Please check your email to verify your account.',
+    });
+
+    sendVerificationEmail(cleanEmail, verificationToken).catch((emailErr) => {
       const verifyLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
       console.log(`\n========================================\n[SMTP Notice] Email failed to send (${emailErr.message}).\nDirect Verification URL:\n${verifyLink}\n========================================\n`);
-
-      res.status(201).json({
-        message: 'Account created! If email delivery fails, check the backend console for the verification link or configure SMTP in Settings.',
-      });
-    }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Registration failed. Please try again.' });
