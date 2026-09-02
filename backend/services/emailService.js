@@ -53,14 +53,15 @@ const getTransporter = async (userId = null) => {
     }
 
     if (saved && saved.host && saved.username && saved.password) {
+      const transportOptions = await resolveIpv4TransportOptions(buildTransportOptions({
+        host: saved.host,
+        port: saved.port,
+        secure: saved.secure,
+        username: saved.username,
+        password: saved.password,
+      }));
       return {
-        transporter: nodemailer.createTransport(buildTransportOptions({
-          host: saved.host,
-          port: saved.port,
-          secure: saved.secure,
-          username: saved.username,
-          password: saved.password,
-        })),
+        transporter: nodemailer.createTransport(transportOptions),
         from: `"${saved.senderName || 'MailBot'}" <${saved.senderEmail || saved.username}>`,
       };
     }
@@ -68,8 +69,9 @@ const getTransporter = async (userId = null) => {
     console.error('Error fetching DB SMTP settings:', err.message);
   }
 
+  const transportOptions = await resolveIpv4TransportOptions(buildTransportOptions());
   return {
-    transporter: nodemailer.createTransport(buildTransportOptions()),
+    transporter: nodemailer.createTransport(transportOptions),
     from: `"${process.env.SMTP_FROM_NAME || 'MailBot'}" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'your@yourdomain.com'}>`,
   };
 };
