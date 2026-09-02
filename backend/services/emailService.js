@@ -8,7 +8,8 @@ let transporter = null;
 const buildTransportOptions = (config = {}) => {
   const host = config.host || process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = parseInt(config.port || process.env.SMTP_PORT || '465', 10);
-  const secure = config.secure !== undefined ? !!config.secure : process.env.SMTP_SECURE === 'true';
+  const requestedSecure = config.secure !== undefined ? !!config.secure : process.env.SMTP_SECURE === 'true';
+  const secure = port === 465 && requestedSecure;
   const user = config.username || config.user || process.env.SMTP_USER || 'yourgmail@gmail.com';
   const pass = config.password || config.pass || process.env.SMTP_PASS || '';
 
