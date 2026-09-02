@@ -154,7 +154,9 @@ export default function SettingsPage() {
       setTestResult({ success: true, error: null, message: data.message || 'Test email sent!' });
       toast.success(data.message || 'Test email sent! Check your inbox.');
     } catch (err) {
-      const msg = err.response?.data?.message || 'Test email failed';
+      const msg = err.response?.data?.message
+        || err.message
+        || 'Test email failed';
       setTestResult({ success: false, error: msg, message: msg });
       toast.error(msg);
     } finally {
