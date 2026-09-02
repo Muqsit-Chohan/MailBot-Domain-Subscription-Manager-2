@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
 const EmailLog = require('../models/EmailLog');
 const EmailTemplate = require('../models/EmailTemplate');
 
@@ -22,6 +23,20 @@ const buildTransportOptions = (config = {}) => {
     auth: {
       user,
       pass,
+    },
+  };
+};
+
+const resolveIpv4TransportOptions = async (options) => {
+  if (!options?.host) return options;
+
+  const address = await dns.promises.lookup(options.host, { family: 4 });
+  return {
+    ...options,
+    host: address.address,
+    tls: {
+      ...options.tls,
+      servername: options.host,
     },
   };
 };
@@ -93,7 +108,8 @@ const sendEmail = async ({ to, from, subject, html, text, subscription, template
     let defaultFrom;
 
     if (transportOptions) {
-      mailTransporter = nodemailer.createTransport(transportOptions);
+      const ipv4TransportOptions = await resolveIpv4TransportOptions(transportOptions);
+      mailTransporter = nodemailer.createTransport(ipv4TransportOptions);
       defaultFrom = from;
     } else {
       const resolved = await getTransporter(userId);
