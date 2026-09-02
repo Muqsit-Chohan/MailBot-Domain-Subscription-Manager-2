@@ -324,7 +324,7 @@ export default function DashboardPage() {
           </div>
 
           <div style={{ width: '100%', height: 230 }}>
-            <ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={230}>
               <BarChart data={monthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#dde1e9" className="dark:stroke-[#272727]" />
                 <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />

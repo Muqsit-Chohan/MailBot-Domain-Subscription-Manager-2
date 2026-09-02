@@ -8,23 +8,24 @@ const { startCron } = require('./services/cronService');
 
 const app = express();
 
-// CORS configuration - accept Vercel URLs
+// CORS configuration. FRONTEND_URL may contain a comma-separated list of
+// deployed frontend origins, while local development is always supported.
+const configuredOrigins = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map(origin => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (/^https?:\/\/(localhost|127\.0\.0\.1):(5173|4173)$/.test(origin)) return true;
+  if (/^https:\/\/mailbot-flash(?:-[\w-]+)?\.vercel\.app$/.test(origin)) return true;
+  return configuredOrigins.includes(origin.replace(/\/$/, ''));
+};
+
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow if no origin (mobile apps, Postman)
-    if (!origin) return callback(null, true);
-    
-    // Allow any vercel.app domain
-    if (origin.includes('vercel.app')) return callback(null, true);
-    
-    // Allow localhost for development
-    if (origin.includes('localhost')) return callback(null, true);
-    
-    // Check environment variable
-    const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
-    if (origin === allowedOrigin) return callback(null, true);
-    
-    // Block others
+    if (isAllowedOrigin(origin)) return callback(null, true);
+
     console.warn(`CORS blocked origin: ${origin}`);
     callback(new Error('CORS not allowed'));
   },

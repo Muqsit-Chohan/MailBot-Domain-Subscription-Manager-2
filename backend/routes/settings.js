@@ -22,9 +22,10 @@ router.put('/smtp', auth, async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
+    const normalizedPassword = password.replace(/\s/g, '');
     const settings = await SmtpSettings.findOneAndUpdate(
       { user: req.user._id },
-      { host, port, username, password, senderEmail, senderName, secure },
+      { host, port, username, password: normalizedPassword, senderEmail, senderName, secure },
       { upsert: true, new: true }
     );
 
@@ -53,6 +54,14 @@ router.post('/test-email', auth, async (req, res) => {
       return res.status(400).json({ message: 'Recipient email required' });
     }
 
+    const smtpPort = Number.parseInt(port, 10);
+    if (!host || !username || !password || !senderEmail || !Number.isInteger(smtpPort) || smtpPort < 1 || smtpPort > 65535) {
+      return res.status(400).json({ message: 'Complete SMTP configuration is required' });
+    }
+
+    // Gmail app passwords are often copied with spaces between each group.
+    const smtpPassword = password.replace(/\s/g, '');
+
     const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>✅ MailBot SMTP Test</h2>
@@ -72,10 +81,10 @@ router.post('/test-email', auth, async (req, res) => {
       triggeredBy: 'test',
       transportOptions: {
         host,
-        port: parseInt(port),
-        secure: secure,
+        port: smtpPort,
+        secure: secure === true || secure === 'true',
         family: 4, // Force IPv4 (disable IPv6)
-        auth: { user: username, pass: password },
+        auth: { user: username, pass: smtpPassword },
       },
     });
 
@@ -85,7 +94,8 @@ router.post('/test-email', auth, async (req, res) => {
 
     res.json({ message: 'Test email sent successfully!' });
   } catch (err) {
-    res.status(500).json({ message: 'Failed to send test email: ' + err.message });
+    console.error('SMTP test email failed:', err);
+    res.status(502).json({ message: 'SMTP email failed: ' + err.message });
   }
 });
 

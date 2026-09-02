@@ -274,14 +274,26 @@ router.post('/:id/send-test', auth, async (req, res) => {
     // 1. Load user's saved SMTP settings (if any)
     const saved = await SmtpSettings.findOne({ user: req.user._id });
 
-    // 2. Use saved values or fallback to .env
-    const host = saved?.host || process.env.SMTP_HOST;
-    const port = saved?.port || parseInt(process.env.SMTP_PORT) || 587;
-    const secure = saved?.secure || process.env.SMTP_SECURE === 'true';
-    const user = saved?.username || process.env.SMTP_USER;
-    const pass = saved?.password || process.env.SMTP_PASS;
-    const fromEmail = saved?.senderEmail || process.env.SMTP_FROM_EMAIL;
-    const fromName = saved?.senderName || process.env.SMTP_FROM_NAME || 'MailBot';
+    // 2. Use one complete saved configuration, otherwise fall back to .env.
+    // Mixing individual fields can combine an old saved password with a new
+    // host or sender and causes an opaque SMTP 500 error.
+    const hasSavedConfig = Boolean(
+      saved?.host && saved?.port && saved?.username && saved?.password && saved?.senderEmail
+    );
+    const host = hasSavedConfig ? saved.host : process.env.SMTP_HOST;
+    const port = hasSavedConfig ? Number(saved.port) : parseInt(process.env.SMTP_PORT, 10) || 587;
+    const secure = hasSavedConfig ? Boolean(saved.secure) : process.env.SMTP_SECURE === 'true';
+    const user = hasSavedConfig ? saved.username : process.env.SMTP_USER;
+    const pass = hasSavedConfig ? saved.password : process.env.SMTP_PASS;
+    const fromEmail = hasSavedConfig ? saved.senderEmail : process.env.SMTP_FROM_EMAIL;
+    const fromName = (hasSavedConfig ? saved.senderName : process.env.SMTP_FROM_NAME) || 'MailBot';
+
+    if (!host || !user || !pass || !fromEmail || !Number.isInteger(port)) {
+      return res.status(400).json({
+        success: false,
+        error: 'SMTP configuration is incomplete. Configure SMTP settings first.',
+      });
+    }
 
     // 3. Create transporter
     const daysUntil = Math.ceil((new Date(sub.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
@@ -318,7 +330,7 @@ router.post('/:id/send-test', auth, async (req, res) => {
     res.json({ success: true, message: 'Test email sent!' });
   } catch (error) {
     console.error('Send test error:', error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(502).json({ success: false, error: error.message });
   }
 });
 

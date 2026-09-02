@@ -313,8 +313,8 @@ export default function SettingsPage() {
                 </a>
               </li>
               <li>Use the app password (not your regular password) in SMTP Password</li>
-              <li><strong>Recommended:</strong> Host: smtp.gmail.com, Port: 587, TLS: Enabled (uses STARTTLS)</li>
-              <li><strong>Alternative:</strong> Host: smtp.gmail.com, Port: 465, TLS: Enabled (uses SSL)</li>
+              <li><strong>Recommended:</strong> Host: smtp.gmail.com, Port: 587, TLS/SSL checkbox: off (uses STARTTLS)</li>
+              <li><strong>Alternative:</strong> Host: smtp.gmail.com, Port: 465, TLS/SSL checkbox: on (uses SSL)</li>
             </ul>
           </div>
 
