@@ -61,6 +61,7 @@ router.post('/test-email', auth, async (req, res) => {
 
     // Gmail app passwords are often copied with spaces between each group.
     const smtpPassword = password.replace(/\s/g, '');
+    const useSecureConnection = smtpPort === 465 && (secure === true || secure === 'true');
 
     const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
@@ -82,7 +83,7 @@ router.post('/test-email', auth, async (req, res) => {
       transportOptions: {
         host,
         port: smtpPort,
-        secure: secure === true || secure === 'true',
+        secure: useSecureConnection,
         family: 4, // Force IPv4 (disable IPv6)
         connectionTimeout: 20000,
         greetingTimeout: 20000,
