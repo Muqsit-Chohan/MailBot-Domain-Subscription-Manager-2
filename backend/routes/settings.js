@@ -84,6 +84,9 @@ router.post('/test-email', auth, async (req, res) => {
         port: smtpPort,
         secure: secure === true || secure === 'true',
         family: 4, // Force IPv4 (disable IPv6)
+        connectionTimeout: 20000,
+        greetingTimeout: 20000,
+        socketTimeout: 20000,
         auth: { user: username, pass: smtpPassword },
       },
     });

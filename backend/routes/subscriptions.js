@@ -319,6 +319,9 @@ router.post('/:id/send-test', auth, async (req, res) => {
         port,
         secure,
         family: 4, // Force IPv4 (disable IPv6)
+        connectionTimeout: 20000,
+        greetingTimeout: 20000,
+        socketTimeout: 20000,
         auth: { user, pass },
       },
     });
