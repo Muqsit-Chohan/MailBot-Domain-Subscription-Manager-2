@@ -49,7 +49,14 @@ const getTransporter = async (userId = null) => {
     if (userId) {
       saved = await SmtpSettings.findOne({ user: userId });
     }
-    if (!saved) {
+    const hasEnvironmentConfig = process.env.SMTP_HOST
+      && process.env.SMTP_USER
+      && process.env.SMTP_PASS
+      && process.env.SMTP_FROM_EMAIL;
+
+    // Verification and cron jobs have no current user. Prefer Railway's
+    // service-level SMTP config instead of an arbitrary user's saved config.
+    if (!saved && !userId && !hasEnvironmentConfig) {
       saved = await SmtpSettings.findOne().sort('-updatedAt');
     }
 
