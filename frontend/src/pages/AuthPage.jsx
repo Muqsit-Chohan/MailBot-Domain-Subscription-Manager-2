@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
+import api from '../lib/api';
 
 export default function AuthPage() {
   const [mode, setMode] = useState('login');
@@ -16,24 +17,16 @@ export default function AuthPage() {
   const { login, register } = useAuth();
   const navigate = useNavigate();
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     setForgotLoading(true);
     try {
-      const res = await fetch(`${API_URL}/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to send reset email');
+      const { data } = await api.post('/auth/forgot-password', { email: forgotEmail });
       toast.success(data.message || 'Password reset link sent to your email!');
       setShowForgotModal(false);
       setForgotEmail('');
     } catch (err) {
-      toast.error(err.message || 'Failed to request password reset');
+      toast.error(err.response?.data?.message || err.message || 'Failed to request password reset');
     } finally {
       setForgotLoading(false);
     }
@@ -66,7 +59,7 @@ export default function AuthPage() {
         setMode('login');
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Something went wrong');
+      toast.error(err.response?.data?.message || err.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
