@@ -1,10 +1,4 @@
 const tls = require('tls');
-const dns = require('dns');
-
-// Configure public DNS
-try {
-  dns.setServers(['8.8.8.8', '8.8.4.4']);
-} catch (e) {}
 
 /**
  * Clean domain string (remove protocol, www, paths)
