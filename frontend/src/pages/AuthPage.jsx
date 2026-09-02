@@ -106,9 +106,9 @@ export default function AuthPage() {
 
           {info && (
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-700/40 dark:bg-emerald-950/40 dark:text-emerald-200 mb-4">
-              <strong>Verification email sent!</strong>
+              <strong>Account created!</strong>
               <p className="mt-2">{info.message}</p>
-              <p className="mt-2">Check <span className="font-semibold">{info.email}</span> and click the link to verify your account.</p>
+              <p className="mt-2">We are sending the verification email to <span className="font-semibold">{info.email}</span>. Check your inbox and spam folder.</p>
             </div>
           )}
 

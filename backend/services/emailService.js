@@ -10,7 +10,7 @@ const buildTransportOptions = (config = {}) => {
   const port = parseInt(config.port || process.env.SMTP_PORT || '465', 10);
   const secure = port === 465;
   const user = config.username || config.user || process.env.SMTP_USER || 'yourgmail@gmail.com';
-  const pass = config.password || config.pass || process.env.SMTP_PASS || '';
+  const pass = (config.password || config.pass || process.env.SMTP_PASS || '').replace(/\s/g, '');
 
   return {
     host,
