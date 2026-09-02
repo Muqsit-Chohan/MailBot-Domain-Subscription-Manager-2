@@ -15,6 +15,12 @@ router.post('/register', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required.' });
     }
+    if (!name?.trim()) {
+      return res.status(400).json({ message: 'Name is required.' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters.' });
+    }
 
     const cleanEmail = email.toLowerCase().trim();
     const existingUser = await User.findOne({ email: cleanEmail });
@@ -83,7 +89,7 @@ router.post('/register', async (req, res) => {
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error: ' + err.message });
+    res.status(500).json({ message: 'Registration failed. Please try again.' });
   }
 });
 
