@@ -48,46 +48,46 @@ export default function LogsPage() {
   };
 
   return (
-    <div className="space-y-5 animate-[fadeIn_0.3s_ease-out]">
+    <div className="space-y-4 sm:space-y-5 animate-[fadeIn_0.3s_ease-out]">
       <div>
         <h1 className="page-title">Email Logs</h1>
-        <p className="text-sm text-[#6b7280] dark:text-[#8b92b3] mt-0.5">{total} log entries</p>
+        <p className="text-xs sm:text-sm text-[#6b7280] dark:text-[#8b92b3] mt-0.5">{total} log entries</p>
       </div>
 
       {/* Stats mini */}
       {logStats && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           {[
             { label: 'Total', value: logStats.total, cls: 'text-[#0f1523] dark:text-[#eef0f8]' },
             { label: 'Sent', value: logStats.sent, cls: 'text-emerald-600 dark:text-emerald-400' },
             { label: 'Failed', value: logStats.failed, cls: 'text-red-600 dark:text-red-400' },
             { label: 'Pending', value: logStats.pending, cls: 'text-gray-500 dark:text-gray-400' },
           ].map(({ label, value, cls }) => (
-            <div key={label} className="card px-4 py-3">
-              <p className="text-xs text-[#6b7280] dark:text-[#8b92b3]">{label}</p>
-              <p className={`text-2xl font-bold mt-0.5 ${cls}`}>{value}</p>
+            <div key={label} className="card px-3 py-2 sm:px-4 sm:py-3">
+              <p className="text-xs text-[#6b7280] dark:text-[#8b92b3] line-clamp-1">{label}</p>
+              <p className={`text-xl sm:text-2xl font-bold mt-1 ${cls}`}>{value}</p>
             </div>
           ))}
         </div>
       )}
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
-          <input className="input pl-9" placeholder="Search emails, subjects…" value={search}
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+        <div className="relative flex-1 min-w-0">
+          <Search size={14} className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#9ca3af] flex-shrink-0" />
+          <input className="input pl-8 sm:pl-9 text-sm" placeholder="Search…" value={search}
             onChange={e => setSearch(e.target.value)} />
         </div>
-        <div className="flex gap-1.5 flex-wrap">
+        <div className="flex gap-1 sm:gap-1.5 flex-wrap">
           {STATUS_OPTS.map(s => (
             <button key={s} onClick={() => setStatus(s)}
-              className={`px-3 py-2 rounded-lg text-xs font-medium capitalize transition-all ${status === s ? 'bg-indigo-600 text-white' : 'btn-secondary'}`}>
+              className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs font-medium capitalize transition-all whitespace-nowrap ${status === s ? 'bg-indigo-600 text-white' : 'btn-secondary'}`}>
               {s}
             </button>
           ))}
         </div>
-        <button onClick={load} className="btn-secondary flex items-center gap-2">
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+        <button onClick={load} className="btn-secondary flex items-center gap-1 sm:gap-2 py-1.5 sm:py-2 px-2.5 sm:px-3 flex-shrink-0">
+          <RefreshCw size={13} className={`${loading ? 'animate-spin' : ''} sm:w-3.5 sm:h-3.5`} />
         </button>
       </div>
 
@@ -157,9 +157,9 @@ export default function LogsPage() {
       </div>
 
       {!loading && logs.length > 0 && (
-        <div className="space-y-3 sm:hidden">
+        <div className="space-y-2 sm:space-y-3 sm:hidden">
           {logs.map(log => (
-            <div key={log._id} className="card p-4">
+            <div key={log._id} className="card p-3 space-y-2">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <StatusIcon status={log.status} />
@@ -171,33 +171,33 @@ export default function LogsPage() {
               </div>
               <div className="mt-3 text-sm space-y-2">
                 <div>
-                  <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">To</p>
-                  <p className="font-mono text-xs break-words">{log.to}</p>
+                  <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">To</p>
+                  <p className="font-mono text-xs break-words line-clamp-2">{log.to}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Subject</p>
-                  <p className="break-words">{log.subject}</p>
+                  <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Subject</p>
+                  <p className="break-words line-clamp-2 text-sm">{log.subject}</p>
                   {log.status === 'failed' && log.errorMessage && (
-                    <p className="text-[11px] text-red-600 dark:text-red-300 mt-1">{log.errorMessage}</p>
+                    <p className="text-[10px] text-red-600 dark:text-red-300 mt-1 line-clamp-2">{log.errorMessage}</p>
                   )}
                 </div>
-                <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Domain</p>
-                    <p>{log.domain || log.subscription?.domain || '—'}</p>
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Domain</p>
+                    <p className="truncate text-sm">{log.domain || log.subscription?.domain || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Interval</p>
-                    <p>{log.reminderInterval ? `${log.reminderInterval}d` : '—'}</p>
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Interval</p>
+                    <p className="text-sm">{log.reminderInterval ? `${log.reminderInterval}d` : '—'}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Triggered</p>
-                    <p>{log.triggeredBy}</p>
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Triggered</p>
+                    <p className="text-sm">{log.triggeredBy}</p>
                   </div>
                   <div>
-                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Date</p>
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Date</p>
                     <p>{log.sentAt ? format(new Date(log.sentAt), 'MMM d, HH:mm') : format(new Date(log.createdAt), 'MMM d, HH:mm')}</p>
                   </div>
                 </div>
@@ -217,10 +217,12 @@ export default function LogsPage() {
 
       {/* Error details tooltips via title on failed rows */}
       {pages > 1 && (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-1 overflow-x-auto pb-1">
           {Array.from({ length: pages }, (_, i) => i + 1).map(p => (
             <button key={p} onClick={() => setPage(p)}
-              className={`w-8 h-8 rounded-lg text-sm font-medium ${p === page ? 'bg-indigo-600 text-white' : 'btn-secondary'}`}>
+              className={`min-w-8 w-8 h-8 sm:w-9 sm:h-9 rounded-lg text-xs sm:text-sm font-medium flex-shrink-0 ${
+                p === page ? 'bg-indigo-600 text-white' : 'btn-secondary'
+              }`}>
               {p}
             </button>
           ))}

@@ -14,21 +14,21 @@ const navItems = [
 
 function Sidebar({ mobile = false, onClose, user, dark, toggle, logout }) {
   return (
-    <aside className={`${mobile ? 'flex' : 'hidden lg:flex'} flex-col w-[250px] h-full bg-white dark:bg-[#141414] border-r border-[#dde1e9] dark:border-[#272727]`}>
+    <aside className={`${mobile ? 'flex' : 'hidden lg:flex'} flex-col w-[250px] h-full bg-white dark:bg-[#242d3d] border-r border-transparent shadow-[0.2rem_0_0.4rem_rgba(0,0,0,0.05)] dark:shadow-[0.2rem_0_0.4rem_rgba(0,0,0,0.2)]`}>
       {/* Logo */}
-      <div className="flex items-center gap-1 px-5 h-16 border-b border-[#dde1e9] dark:border-[#272727]">
+      <div className="flex items-center gap-1 px-5 h-16 border-b border-transparent">
         <Link to="/dashboard" aria-label="MailBot dashboard">
           <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-9 h-9 object-contain" />
         </Link>
         <div>
-          <span className="font-bold text-[#111827] dark:text-[#f5f5f5] tracking-tight text-[15px]">MailBot</span>
-          <p className="text-[10px] text-[#6b7280] dark:text-[#a1a1aa] leading-none -mt-0.5">Subscription Manager</p>
+          <span className="font-bold text-[#2c3e50] dark:text-[#e8eef5] tracking-tight text-[15px]">MailBot</span>
+          <p className="text-[10px] text-[#7f8c8d] dark:text-[#a0aac0] leading-none -mt-0.5">Subscription Manager</p>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <p className="text-[10px] font-bold text-[#9ca3af] dark:text-[#52525b] uppercase tracking-wider px-3 mb-2">Menu</p>
+        <p className="text-[10px] font-bold text-[#95a5a6] dark:text-[#7f8c8d] uppercase tracking-wider px-3 mb-2">Menu</p>
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -38,10 +38,10 @@ function Sidebar({ mobile = false, onClose, user, dark, toggle, logout }) {
               end={item.to === '/dashboard'}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
+                `flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[13px] font-medium transition-all duration-200 ${
                   isActive
-                    ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold border border-indigo-200/80 dark:border-indigo-500/25 shadow-sm'
-                    : 'text-[#6b7280] dark:text-[#a1a1aa] hover:bg-[#f0f2f5] dark:hover:bg-[#1c1c1c] hover:text-[#111827] dark:hover:text-[#f5f5f5]'
+                    ? 'bg-gradient-to-r from-indigo-100 to-indigo-50 dark:from-indigo-900/30 dark:to-indigo-800/20 text-indigo-700 dark:text-indigo-300 font-semibold shadow-[0.2rem_0.2rem_0.4rem_rgba(0,0,0,0.08),-0.15rem_-0.15rem_0.3rem_rgba(255,255,255,0.6)] dark:shadow-[0.2rem_0.2rem_0.4rem_rgba(0,0,0,0.2),-0.15rem_-0.15rem_0.3rem_rgba(255,255,255,0.02)]'
+                    : 'text-[#7f8c8d] dark:text-[#a0aac0] hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-50 dark:hover:from-[#2d3748] dark:hover:to-[#242d3d] hover:text-[#2c3e50] dark:hover:text-[#e8eef5]'
                 }`
               }
             >
@@ -53,24 +53,24 @@ function Sidebar({ mobile = false, onClose, user, dark, toggle, logout }) {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-[#dde1e9] dark:border-[#272727] space-y-2">
-        <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-[#f5f6f8] dark:bg-[#0f0f0f] border border-[#dde1e9] dark:border-[#272727]">
-          <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center shadow-sm">
+      <div className="p-3 border-t border-transparent space-y-2">
+        <div className="flex items-center gap-3 px-3 py-2 rounded-2xl bg-gradient-to-r from-gray-100 to-gray-50 dark:from-[#2d3748] dark:to-[#242d3d] shadow-[0.2rem_0.2rem_0.4rem_rgba(0,0,0,0.08),-0.15rem_-0.15rem_0.3rem_rgba(255,255,255,0.6)] dark:shadow-[0.2rem_0.2rem_0.4rem_rgba(0,0,0,0.2),-0.15rem_-0.15rem_0.3rem_rgba(255,255,255,0.02)]">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-md">
             <span className="text-xs font-bold text-white">
               {user?.name?.[0]?.toUpperCase()}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-[#111827] dark:text-[#f5f5f5] truncate">{user?.name}</p>
-            <p className="text-[10px] text-[#6b7280] dark:text-[#a1a1aa] truncate capitalize">{user?.role}</p>
+            <p className="text-xs font-semibold text-[#2c3e50] dark:text-[#e8eef5] truncate">{user?.name}</p>
+            <p className="text-[10px] text-[#7f8c8d] dark:text-[#a0aac0] truncate capitalize">{user?.role}</p>
           </div>
         </div>
         <div className="flex gap-1">
-          <button onClick={toggle} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-[#6b7280] dark:text-[#a1a1aa] hover:bg-[#f0f2f5] dark:hover:bg-[#1c1c1c] transition-colors border border-[#dde1e9] dark:border-[#272727]">
+          <button onClick={toggle} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-[#7f8c8d] dark:text-[#a0aac0] hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-50 dark:hover:from-[#2d3748] dark:hover:to-[#242d3d] transition-all shadow-[0.15rem_0.15rem_0.3rem_rgba(0,0,0,0.08),-0.1rem_-0.1rem_0.25rem_rgba(255,255,255,0.5)] dark:shadow-[0.15rem_0.15rem_0.3rem_rgba(0,0,0,0.2),-0.1rem_-0.1rem_0.25rem_rgba(255,255,255,0.02)]">
             {dark ? <Sun size={14} /> : <Moon size={14} />}
             {dark ? 'Light' : 'Dark'}
           </button>
-          <button onClick={logout} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors border border-transparent dark:border-red-900/20">
+          <button onClick={logout} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-red-500 dark:text-red-400 hover:bg-gradient-to-r hover:from-red-100 hover:to-red-50 dark:hover:from-red-900/30 dark:hover:to-red-800/20 transition-all shadow-[0.15rem_0.15rem_0.3rem_rgba(0,0,0,0.08),-0.1rem_-0.1rem_0.25rem_rgba(255,255,255,0.5)] dark:shadow-[0.15rem_0.15rem_0.3rem_rgba(0,0,0,0.2),-0.1rem_-0.1rem_0.25rem_rgba(255,255,255,0.02)]">
             <LogOut size={14} />
             Logout
           </button>

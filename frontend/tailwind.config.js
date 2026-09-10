@@ -23,6 +23,13 @@ export default {
           950: '#1c2057',
         },
       },
+      boxShadow: {
+        'neumorphic': '0.3rem 0.3rem 0.6rem rgba(0,0,0,0.1), -0.2rem -0.2rem 0.5rem rgba(255,255,255,0.7)',
+        'neumorphic-md': '0.5rem 0.5rem 1rem rgba(0,0,0,0.12), -0.3rem -0.3rem 0.8rem rgba(255,255,255,0.6)',
+        'neumorphic-lg': '0.8rem 0.8rem 1.6rem rgba(0,0,0,0.15), -0.4rem -0.4rem 1rem rgba(255,255,255,0.5)',
+        'neumorphic-inset': 'inset 0.2rem 0.2rem 0.5rem rgba(0,0,0,0.1), inset -0.2rem -0.2rem 0.5rem rgba(255,255,255,0.7)',
+        'neumorphic-dark': '0.3rem 0.3rem 0.6rem rgba(0,0,0,0.5), -0.2rem -0.2rem 0.5rem rgba(255,255,255,0.05)',
+      },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out',
         'slide-up': 'slideUp 0.3s ease-out',

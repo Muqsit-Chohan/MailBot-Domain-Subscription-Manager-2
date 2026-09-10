@@ -166,37 +166,37 @@ export default function SubscriptionsPage() {
   };
 
   return (
-    <div className="space-y-5 animate-fade-in">
+    <div className="space-y-4 sm:space-y-5 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
         <div>
           <h1 className="page-title">Subscriptions</h1>
-          <p className="text-sm text-[#6b7280] dark:text-[#a1a1aa] mt-0.5">{total} subscription{total !== 1 ? 's' : ''} tracked</p>
+          <p className="text-xs sm:text-sm text-[#6b7280] dark:text-[#a1a1aa] mt-0.5">{total} subscription{total !== 1 ? 's' : ''} tracked</p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <button onClick={handleExportCsv} disabled={exporting || subs.length === 0} className="btn-secondary flex items-center gap-1.5 text-xs py-2">
-            <Download size={14} /> {exporting ? 'Exporting...' : 'Export CSV'}
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+          <button onClick={handleExportCsv} disabled={exporting || subs.length === 0} className="btn-secondary flex items-center gap-1 sm:gap-1.5 text-xs py-1.5 sm:py-2 px-2 sm:px-3">
+            <Download size={13} className="sm:w-3.5 sm:h-3.5" /> <span className="hidden sm:inline">{exporting ? 'Exporting...' : 'Export CSV'}</span><span className="sm:hidden">{exporting ? '...' : 'Export'}</span>
           </button>
-          <button onClick={() => setImportModalOpen(true)} className="btn-secondary flex items-center gap-1.5 text-xs py-2">
-            <Upload size={14} /> Import CSV
+          <button onClick={() => setImportModalOpen(true)} className="btn-secondary flex items-center gap-1 sm:gap-1.5 text-xs py-1.5 sm:py-2 px-2 sm:px-3">
+            <Upload size={13} className="sm:w-3.5 sm:h-3.5" /> <span className="hidden sm:inline">Import CSV</span><span className="sm:hidden">Import</span>
           </button>
-          <button onClick={() => { setEditing(null); setFormOpen(true); }} className="btn-primary flex items-center gap-2">
-            <Plus size={15} /> Add Subscription
+          <button onClick={() => { setEditing(null); setFormOpen(true); }} className="btn-primary flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-1.5 sm:py-2 px-2.5 sm:px-3">
+            <Plus size={14} className="sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Add Subscription</span><span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
           <input className="input pl-10" placeholder="Search subscriptions, owners..." value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }} />
         </div>
-        <div className="flex gap-1.5 flex-wrap">
+        <div className="flex gap-1 sm:gap-1.5 flex-wrap">
           {STATUS_OPTS.map(s => (
             <button key={s} onClick={() => { setStatus(s); setPage(1); }}
-              className={`px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all capitalize border ${
+              className={`px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-xs font-semibold transition-all capitalize border ${
                 status === s
                   ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-500/20'
                   : 'bg-white dark:bg-[#141414] border-[#dde1e9] dark:border-[#272727] text-[#6b7280] dark:text-[#a1a1aa] hover:bg-[#f0f2f5] dark:hover:bg-[#1c1c1c] hover:text-[#111827] dark:hover:text-[#f5f5f5]'
@@ -205,8 +205,8 @@ export default function SubscriptionsPage() {
             </button>
           ))}
         </div>
-        <button onClick={refresh} className="btn-secondary flex items-center gap-2">
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+        <button onClick={refresh} className="btn-secondary flex items-center gap-1 sm:gap-2 py-1.5 sm:py-2 px-2 sm:px-3">
+          <RefreshCw size={13} className={`${loading ? 'animate-spin' : ''} sm:w-3.5 sm:h-3.5`} /> <span className="hidden sm:inline">Refresh</span>
         </button>
       </div>
 
@@ -378,28 +378,28 @@ export default function SubscriptionsPage() {
       </div>
 
       {!loading && subs.length > 0 && (
-        <div className="space-y-4 sm:hidden">
+        <div className="space-y-3 sm:hidden">
           {subs.map(sub => {
             const days = differenceInDays(new Date(sub.expiryDate), new Date());
             return (
-              <div key={sub._id} className="card p-4 space-y-3">
+              <div key={sub._id} className="card p-3 space-y-2.5">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="font-medium text-sm">{sub.domain}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-sm truncate">{sub.domain}</div>
                     {sub.registrar && <div className="text-xs text-[#6b7280] dark:text-[#8b92b3] mt-1 truncate">{sub.registrar}</div>}
-                    <div className="text-xs text-[#6b7280] dark:text-[#8b92b3] mt-2">
-                      {sub.owner || '—'} · {sub.ownerEmail || '—'}
+                    <div className="text-xs text-[#6b7280] dark:text-[#8b92b3] mt-1.5 truncate">
+                      <span className="truncate">{sub.owner || '—'}</span> · <span className="truncate">{sub.ownerEmail || '—'}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       type="button"
                       onClick={() => handleSendTest(sub)}
                       disabled={sendingTest === sub._id}
                       title="Send Test Email"
-                      className="p-1.5 rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
+                      className="p-1 rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
                     >
-                      <Send size={15} />
+                      <Send size={14} />
                     </button>
                     <button
                       type="button"
@@ -408,41 +408,40 @@ export default function SubscriptionsPage() {
                         setFormOpen(true);
                       }}
                       title="Edit Subscription"
-                      className="p-1.5 rounded-lg text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30"
+                      className="p-1 rounded-lg text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30"
                     >
-                      <Pencil size={15} />
+                      <Pencil size={14} />
                     </button>
                     <button
                       type="button"
                       onClick={() => setDeleteTarget(sub)}
                       title="Delete Subscription"
-                      className="p-1.5 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
+                      className="p-1 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Type & Cost</p>
-                    <p className="font-medium">{sub.subscriptionType === 'Custom' && sub.customTypeName ? sub.customTypeName : (sub.subscriptionType || 'Domain')}</p>
-                    <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Type</p>
+                    <p className="font-medium text-sm">{sub.subscriptionType === 'Custom' && sub.customTypeName ? sub.customTypeName : (sub.subscriptionType || 'Domain')}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Cost</p>
+                    <p className="font-semibold text-emerald-600 dark:text-emerald-400 text-sm">
                       {sub.cost ? `${sub.currency || 'USD'} ${sub.cost}` : 'Free'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Renewal</p>
-                    <p className="font-medium">{sub.renewalCycle || 'Yearly'}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Expiry</p>
-                    <p>{format(new Date(sub.expiryDate), 'MMM d, yyyy')}</p>
-                    <p className={`text-xs mt-0.5 ${days < 0 ? 'text-red-500' : days <= 7 ? 'text-amber-500' : 'text-[#6b7280] dark:text-[#8b92b3]'}`}>
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Expiry</p>
+                    <p className="text-sm">{format(new Date(sub.expiryDate), 'MMM d')}</p>
+                    <p className={`text-xs mt-0.5 font-semibold ${days < 0 ? 'text-red-500' : days <= 7 ? 'text-amber-500' : 'text-[#6b7280] dark:text-[#8b92b3]'}`}>
                       {days < 0 ? `${Math.abs(days)}d ago` : `${days}d left`}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">Status</p>
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Status</p>
                     <StatusBadge status={sub.status} />
                   </div>
                 </div>
@@ -459,10 +458,10 @@ export default function SubscriptionsPage() {
 
       {/* Pagination */}
       {pages > 1 && (
-        <div className="flex items-center justify-center gap-1.5">
+        <div className="flex items-center justify-center gap-1 overflow-x-auto pb-1">
           {Array.from({ length: pages }, (_, i) => i + 1).map(p => (
             <button key={p} onClick={() => setPage(p)}
-              className={`w-9 h-9 rounded-xl text-sm font-medium transition-all ${
+              className={`min-w-8 w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all flex-shrink-0 ${
                 p === page
                   ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20'
                   : 'bg-[#f1f3f9] dark:bg-[#1e2235] text-[#6b7280] dark:text-[#8b92b3] hover:bg-[#e2e6f0] dark:hover:bg-[#2a2f48]'
