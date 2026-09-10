@@ -103,7 +103,7 @@ export default function Layout({ children }) {
       )}
 
       {/* Main */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="min-w-0 flex-1 flex flex-col overflow-hidden">
         {/* Mobile topbar */}
         <div className="lg:hidden flex items-center justify-between px-4 h-14 bg-white dark:bg-[#141414] border-b border-[#dde1e9] dark:border-[#272727]">
           <div className="flex items-center gap-2">
@@ -120,7 +120,7 @@ export default function Layout({ children }) {
           </button>
         </div>
 
-        <main className="flex-1 overflow-y-auto p-5 lg:p-8">
+        <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>
