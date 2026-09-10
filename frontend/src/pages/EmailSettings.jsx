@@ -72,10 +72,6 @@ export default function EmailSettings() {
 
   // Send Test Email
   const handleTestEmail = async () => {
-    if (!form.host || !form.port || !form.username || !form.password || !form.senderEmail) {
-      toast.error('Please fill all required fields first.');
-      return;
-    }
     setTesting(true);
     setTestStatus(null);
     try {

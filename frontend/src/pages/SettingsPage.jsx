@@ -136,11 +136,6 @@ export default function SettingsPage() {
 
   // Send Test Email
   const handleTestEmail = async () => {
-    if (!smtpForm.host || !smtpForm.port || !smtpForm.username ||
-        !smtpForm.password || !smtpForm.senderEmail) {
-      toast.error('Please fill all required fields first.');
-      return;
-    }
     setTesting(true);
     setTestResult(null);
     try {

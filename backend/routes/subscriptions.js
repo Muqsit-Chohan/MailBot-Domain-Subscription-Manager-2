@@ -4,7 +4,7 @@ const { body, validationResult } = require('express-validator');
 const Subscription = require('../models/Subscription');
 const { auth } = require('../middleware/auth');
 const SmtpSettings = require('../models/SmtpSettings'); // 👈 import model
-const { sendEmail } = require('../services/emailService');
+const { sendEmail, isResendEnabled } = require('../services/emailService');
 
 // GET /api/subscriptions
 router.get('/', auth, async (req, res) => {
@@ -272,7 +272,7 @@ router.post('/:id/send-test', auth, async (req, res) => {
     if (!sub) return res.status(404).json({ message: 'Subscription not found' });
 
     // 1. Load user's saved SMTP settings (if any)
-    const saved = await SmtpSettings.findOne({ user: req.user._id });
+    const saved = isResendEnabled() ? null : await SmtpSettings.findOne({ user: req.user._id });
 
     // 2. Use one complete saved configuration, otherwise fall back to .env.
     // Mixing individual fields can combine an old saved password with a new
@@ -288,7 +288,7 @@ router.post('/:id/send-test', auth, async (req, res) => {
     const fromEmail = hasSavedConfig ? saved.senderEmail : process.env.SMTP_FROM_EMAIL;
     const fromName = (hasSavedConfig ? saved.senderName : process.env.SMTP_FROM_NAME) || 'MailBot';
 
-    if (!host || !user || !pass || !fromEmail || !Number.isInteger(port)) {
+    if (!isResendEnabled() && (!host || !user || !pass || !fromEmail || !Number.isInteger(port))) {
       return res.status(400).json({
         success: false,
         error: 'SMTP configuration is incomplete. Configure SMTP settings first.',

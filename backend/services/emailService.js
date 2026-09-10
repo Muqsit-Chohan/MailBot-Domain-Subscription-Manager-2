@@ -3,7 +3,32 @@ const dns = require('dns');
 const EmailLog = require('../models/EmailLog');
 const EmailTemplate = require('../models/EmailTemplate');
 
-let transporter = null;
+const isResendEnabled = () => Boolean(process.env.RESEND_API_KEY?.trim());
+
+const sendWithResend = async ({ to, subject, html, text }) => {
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+      'Content-Type': 'application/json',
+    },
+    signal: AbortSignal.timeout(20000),
+    body: JSON.stringify({
+      // SMTP senders may not be verified in Resend. Use a dedicated sender.
+      from: process.env.EMAIL_FROM?.trim() || 'MailBot <onboarding@resend.dev>',
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html,
+      text,
+    }),
+  });
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(`Resend: ${data?.message || `Email request failed (HTTP ${response.status})`}`);
+  }
+  if (!data?.id) throw new Error('Resend returned no email ID');
+  return { messageId: data.id };
+};
 
 const buildTransportOptions = (config = {}) => {
   const host = config.host || process.env.SMTP_HOST || 'smtp.gmail.com';
@@ -48,14 +73,9 @@ const getTransporter = async (userId = null) => {
     if (userId) {
       saved = await SmtpSettings.findOne({ user: userId });
     }
-    const hasEnvironmentConfig = process.env.SMTP_HOST
-      && process.env.SMTP_USER
-      && process.env.SMTP_PASS
-      && process.env.SMTP_FROM_EMAIL;
-
-    // Verification and cron jobs have no current user. Prefer Railway's
-    // service-level SMTP config instead of an arbitrary user's saved config.
-    if (!saved && !userId && !hasEnvironmentConfig) {
+    // Verification and cron jobs have no current user. Use the latest admin
+    // configuration saved in Settings, then fall back to service-level SMTP.
+    if (!saved && !userId) {
       saved = await SmtpSettings.findOne().sort('-updatedAt');
     }
 
@@ -98,7 +118,10 @@ const renderTemplate = (template, variables) => {
 };
 
 const sendEmail = async ({ to, from, subject, html, text, subscription, template, reminderInterval, triggeredBy = 'cron', transportOptions, userId = null }) => {
-  console.log('[EmailService] sendEmail ->', { to, from, subject, triggeredBy });
+  console.log('[EmailService] sendEmail ->', {
+    provider: isResendEnabled() ? 'resend' : 'smtp',
+    to, subject, triggeredBy,
+  });
   // Create initial log
   const log = new EmailLog({
     subscription: subscription?._id,
@@ -113,26 +136,31 @@ const sendEmail = async ({ to, from, subject, html, text, subscription, template
   await log.save();
 
   try {
-    let mailTransporter;
-    let defaultFrom;
-
-    if (transportOptions) {
-      const ipv4TransportOptions = await resolveIpv4TransportOptions(transportOptions);
-      mailTransporter = nodemailer.createTransport(ipv4TransportOptions);
-      defaultFrom = from;
+    let info;
+    if (isResendEnabled()) {
+      info = await sendWithResend({ to, subject, html, text });
     } else {
-      const resolved = await getTransporter(userId);
-      mailTransporter = resolved.transporter;
-      defaultFrom = resolved.from;
-    }
+      let mailTransporter;
+      let defaultFrom;
 
-    const info = await mailTransporter.sendMail({
-      from: from || defaultFrom,
-      to,
-      subject,
-      html,
-      text,
-    });
+      if (transportOptions) {
+        const ipv4TransportOptions = await resolveIpv4TransportOptions(transportOptions);
+        mailTransporter = nodemailer.createTransport(ipv4TransportOptions);
+        defaultFrom = from;
+      } else {
+        const resolved = await getTransporter(userId);
+        mailTransporter = resolved.transporter;
+        defaultFrom = resolved.from;
+      }
+
+      info = await mailTransporter.sendMail({
+        from: from || defaultFrom,
+        to,
+        subject,
+        html,
+        text,
+      });
+    }
 
     log.status = 'sent';
     log.messageId = info.messageId || info.response || null;
@@ -184,8 +212,9 @@ const verifyConnection = async () => {
 
 // ========== NEW FUNCTION FOR VERIFICATION EMAIL ==========
 const sendVerificationEmail = async (to, token) => {
-  const verificationUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/verify-email?token=${token}`;
-  console.log('[EmailService] sendVerificationEmail ->', { to, token });
+  const clientUrl = process.env.CLIENT_URL || (process.env.FRONTEND_URL || '').split(',')[0] || 'http://localhost:5173';
+  const verificationUrl = `${clientUrl.replace(/\/$/, '')}/verify-email?token=${token}`;
+  console.log('[EmailService] sendVerificationEmail ->', { to });
 
   const subject = 'Verify your email - MailBot';
   const html = `
@@ -205,7 +234,7 @@ const sendVerificationEmail = async (to, token) => {
 };
 // ========== NEW FUNCTION FOR PASSWORD RESET EMAIL ==========
 const sendPasswordResetEmail = async (to, token) => {
-  const baseUrl = process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173';
+  const baseUrl = process.env.CLIENT_URL || (process.env.FRONTEND_URL || '').split(',')[0] || 'http://localhost:5173';
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
   console.log('[EmailService] sendPasswordResetEmail ->', { to, token });
 
@@ -228,4 +257,4 @@ const sendPasswordResetEmail = async (to, token) => {
 };
 // ==========================================================
 
-module.exports = { sendEmail, sendReminderEmail, verifyConnection, renderTemplate, sendVerificationEmail, sendPasswordResetEmail };
+module.exports = { sendEmail, sendReminderEmail, verifyConnection, renderTemplate, sendVerificationEmail, sendPasswordResetEmail, isResendEnabled };

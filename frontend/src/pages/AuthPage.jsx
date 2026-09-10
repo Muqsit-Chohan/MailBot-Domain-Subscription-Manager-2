@@ -53,6 +53,7 @@ export default function AuthPage() {
         toast.success('Account created!');
         setInfo({
           message: data.message || 'A verification email has been sent to your inbox.',
+          emailSent: data.emailSent !== false,
           email: form.email,
         });
         setForm({ name: '', email: '', password: '' });
@@ -105,10 +106,17 @@ export default function AuthPage() {
           )}
 
           {info && (
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-700/40 dark:bg-emerald-950/40 dark:text-emerald-200 mb-4">
+            <div className={`rounded-2xl border p-4 text-sm mb-4 ${info.emailSent
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-700/40 dark:bg-emerald-950/40 dark:text-emerald-200'
+              : 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-700/40 dark:bg-amber-950/40 dark:text-amber-200'
+            }`}>
               <strong>Account created!</strong>
               <p className="mt-2">{info.message}</p>
-              <p className="mt-2">We are sending the verification email to <span className="font-semibold">{info.email}</span>. Check your inbox and spam folder.</p>
+              {info.emailSent ? (
+                <p className="mt-2">We are sending the verification email to <span className="font-semibold">{info.email}</span>. Check your inbox and spam folder.</p>
+              ) : (
+                <p className="mt-2">Your account will become available after email verification. Please contact the administrator if this continues.</p>
+              )}
             </div>
           )}
 

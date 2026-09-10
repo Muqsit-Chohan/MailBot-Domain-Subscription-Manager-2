@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { auth } = require('../middleware/auth');
 const SmtpSettings = require('../models/SmtpSettings');
-const { sendEmail } = require('../services/emailService');
+const { sendEmail, isResendEnabled } = require('../services/emailService');
 
 // GET /api/settings/smtp – load saved SMTP config
 router.get('/smtp', auth, async (req, res) => {
@@ -55,12 +55,12 @@ router.post('/test-email', auth, async (req, res) => {
     }
 
     const smtpPort = Number.parseInt(port, 10);
-    if (!host || !username || !password || !senderEmail || !Number.isInteger(smtpPort) || smtpPort < 1 || smtpPort > 65535) {
+    if (!isResendEnabled() && (!host || !username || !password || !senderEmail || !Number.isInteger(smtpPort) || smtpPort < 1 || smtpPort > 65535)) {
       return res.status(400).json({ message: 'Complete SMTP configuration is required' });
     }
 
     // Gmail app passwords are often copied with spaces between each group.
-    const smtpPassword = password.replace(/\s/g, '');
+    const smtpPassword = (password || '').replace(/\s/g, '');
     const useSecureConnection = smtpPort === 465;
 
     const html = `
