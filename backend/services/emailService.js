@@ -189,7 +189,7 @@ const sendReminderEmail = async (subscription, daysUntilExpiry) => {
     const { subject, html, text } = renderTemplate(template, vars);
 
     const res = await sendEmail({
-      to: subscription.email,
+      to: subscription.ownerEmail,
       subject,
       html,
       text,
@@ -197,6 +197,7 @@ const sendReminderEmail = async (subscription, daysUntilExpiry) => {
       template,
       reminderInterval: daysUntilExpiry,
       triggeredBy: 'cron',
+      userId: subscription.createdBy,
     });
 
     return res;

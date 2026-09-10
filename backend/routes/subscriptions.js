@@ -288,7 +288,7 @@ router.post('/:id/send-test', auth, async (req, res) => {
     const fromEmail = hasSavedConfig ? saved.senderEmail : process.env.SMTP_FROM_EMAIL;
     const fromName = (hasSavedConfig ? saved.senderName : process.env.SMTP_FROM_NAME) || 'MailBot';
 
-    if (!isResendEnabled() && (!host || !user || !pass || !fromEmail || !Number.isInteger(port))) {
+    if (!isResendEnabled() && (!host || !user || !pass || !fromEmail || !Number.isInteger(port) || port < 1 || port > 65535)) {
       return res.status(400).json({
         success: false,
         error: 'SMTP configuration is incomplete. Configure SMTP settings first.',
@@ -322,7 +322,7 @@ router.post('/:id/send-test', auth, async (req, res) => {
         connectionTimeout: 20000,
         greetingTimeout: 20000,
         socketTimeout: 20000,
-        auth: { user, pass },
+        auth: { user, pass: (pass || '').replace(/\s/g, '') },
       },
     });
 

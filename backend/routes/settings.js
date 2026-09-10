@@ -38,7 +38,7 @@ router.put('/smtp', auth, async (req, res) => {
 // Manually run cron
 router.post('/run-cron', auth, async (req, res) => {
   try {
-    const result = await require('../services/scheduler').processReminders();
+    const result = await require('../services/cronService').processReminders();
     res.json({ sent: result.sent, failed: result.failed, error: result.error || null });
   } catch (err) {
     res.status(500).json({ message: 'Failed to run cron: ' + err.message });
