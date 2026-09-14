@@ -272,6 +272,9 @@ router.post('/:id/send-test', auth, async (req, res) => {
     if (!sub) return res.status(404).json({ message: 'Subscription not found' });
 
     // 1. Load user's saved SMTP settings (if any)
+    const { sendReminderWebhook } = require('../services/webhookService');
+    const webhook = await sendReminderWebhook(sub,
+      Math.ceil((new Date(sub.expiryDate) - new Date()) / 86400000), req.user._id);
     const saved = isResendEnabled() ? null : await SmtpSettings.findOne({ user: req.user._id });
 
     // 2. Use one complete saved configuration, otherwise fall back to .env.
@@ -327,10 +330,13 @@ router.post('/:id/send-test', auth, async (req, res) => {
     });
 
     if (!response.success) {
-      throw new Error(response.error || 'Failed to send test email');
+      return res.status(502).json({ success: false, webhook, error: `${response.error || 'Failed to send test email'}${webhook.success ? ' Webhook reminder was sent.' : ''}` });
     }
 
-    res.json({ success: true, message: 'Test email sent!' });
+    res.json({ success: true, webhook, message: webhook.success
+      ? 'Test email and webhook reminder sent!'
+      : webhook.skipped ? `Test email sent. Webhook skipped: ${webhook.reason}. Enable webhook notifications and save settings.`
+        : 'Test email sent, but webhook delivery failed. Check your webhook settings.' });
   } catch (error) {
     console.error('Send test error:', error);
     res.status(502).json({ success: false, error: error.message });

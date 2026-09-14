@@ -15,19 +15,21 @@ const processReminders = async () => {
     });
 
     let sent = 0, failed = 0;
+    let webhookSentCount = 0, webhookFailed = 0, webhookSkipped = 0, due = 0;
 
     for (const sub of subscriptions) {
       const daysUntilExpiry = Math.ceil((new Date(sub.expiryDate) - now) / (1000 * 60 * 60 * 24));
 
       for (const interval of sub.reminderIntervals) {
         if (daysUntilExpiry === interval) {
+          due++;
           const alreadySent = sub.remindersSent?.some(
             r => r.interval === interval &&
               new Date(r.sentAt).toDateString() === now.toDateString()
           );
 
           if (!alreadySent) {
-            const result = await sendReminderEmail(sub, interval);
+            const result = await sendReminderEmail(sub, interval).catch(error => ({ success: false, error: error.message }));
             if (result.success) {
               sub.remindersSent = sub.remindersSent || [];
               sub.remindersSent.push({ interval, sentAt: now });
@@ -35,27 +37,28 @@ const processReminders = async () => {
               await sub.save();
               sent++;
 
-              // Webhook notification if enabled on owner user
-              try {
-                if (sub.createdBy) {
-                  const User = require('../models/User');
-                  const user = await User.findById(sub.createdBy);
-                  if (user?.webhookEnabled && user?.webhookUrl) {
-                    const { sendWebhookNotification } = require('./webhookService');
-                    await sendWebhookNotification(user.webhookUrl, {
-                      title: `⏰ Renewal Reminder: ${sub.domain}`,
-                      message: `Domain **${sub.domain}** is expiring in **${daysUntilExpiry} days** on ${new Date(sub.expiryDate).toLocaleDateString()}.`,
-                      domain: sub.domain,
-                      daysUntilExpiry,
-                      expiryDate: sub.expiryDate,
-                    });
-                  }
-                }
-              } catch (webhookErr) {
-                console.error('[Cron] Webhook trigger error:', webhookErr.message);
-              }
             } else {
               failed++;
+              console.error('[Cron] Email reminder failed:', result.error);
+            }
+          }
+          const webhookSent = sub.webhookRemindersSent?.some(
+            r => r.interval === interval && new Date(r.sentAt).toDateString() === now.toDateString()
+          );
+          if (!webhookSent) {
+            const { sendReminderWebhook } = require('./webhookService');
+            const webhook = await sendReminderWebhook(sub, daysUntilExpiry);
+            if (webhook.success) {
+              webhookSentCount++;
+              sub.webhookRemindersSent = sub.webhookRemindersSent || [];
+              sub.webhookRemindersSent.push({ interval, sentAt: now });
+              await sub.save();
+            } else if (!webhook.skipped) {
+              webhookFailed++;
+              console.error('[Cron] Reminder webhook failed:', webhook.error);
+            } else {
+              webhookSkipped++;
+              console.log('[Cron] Reminder webhook skipped:', webhook.reason);
             }
           }
         }
@@ -63,7 +66,8 @@ const processReminders = async () => {
     }
 
     console.log(`[Cron] Done. Sent: ${sent}, Failed: ${failed}`);
-    return { sent, failed };
+    return { sent, failed, checked: subscriptions.length, due,
+      webhookSent: webhookSentCount, webhookFailed, webhookSkipped };
   } catch (error) {
     console.error('[Cron] Error:', error);
     return { sent: 0, failed: 0, error: error.message };

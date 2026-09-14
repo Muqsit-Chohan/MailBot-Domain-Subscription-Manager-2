@@ -79,10 +79,14 @@ export default function SettingsPage() {
   }, []);
 
   const handleSaveProfile = async () => {
+    if (webhookEnabled && !webhookUrl.trim()) {
+      toast.error('Enter a webhook URL before enabling reminder alerts.');
+      return;
+    }
     setSavingProfile(true);
     try {
-      await api.put('/auth/profile', { webhookUrl, webhookEnabled });
-      toast.success('Webhook settings updated!');
+      await api.put('/auth/profile', { webhookUrl: webhookUrl.trim(), webhookEnabled });
+      toast.success(webhookEnabled ? 'Webhook saved and reminder alerts enabled!' : 'Webhook saved. Reminder alerts are disabled.');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update settings');
     } finally {
@@ -97,8 +101,8 @@ export default function SettingsPage() {
     }
     setTestingWebhook(true);
     try {
-      const { data } = await api.post('/settings/test-webhook', { webhookUrl });
-      toast.success(data.message || 'Test webhook delivered successfully!');
+      await api.post('/settings/test-webhook', { webhookUrl });
+      toast.success('Test delivered. To receive subscription alerts, enable notifications and save settings.', { duration: 7000 });
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to trigger webhook');
     } finally {
@@ -166,7 +170,10 @@ export default function SettingsPage() {
     try {
       const { data } = await api.post('/settings/run-cron');
       setCronResult(data);
-      toast.success(`Cron complete: ${data.sent} sent, ${data.failed} failed`);
+      const summary = `Email: ${data.sent} sent, ${data.failed} failed. Webhook: ${data.webhookSent || 0} sent, ${data.webhookFailed || 0} failed, ${data.webhookSkipped || 0} skipped.`;
+      if (data.error || data.failed || data.webhookFailed) toast.error(data.error || summary);
+      else if (data.due === 0) toast('No subscriptions are due on their configured reminder days.');
+      else toast.success(summary);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Cron failed');
     } finally {
@@ -389,6 +396,7 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <p className="text-sm text-[#6b7280] dark:text-[#8b92b3]">
             Receive instant renewal alerts directly in your Discord channel, Slack channel, or custom server.
+            {' '}Testing only checks the URL. Enable notifications and save settings to receive subscription alerts.
           </p>
 
           <div>

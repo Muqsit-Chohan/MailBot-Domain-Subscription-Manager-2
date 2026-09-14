@@ -154,7 +154,11 @@ export default function SubscriptionsPage() {
     try {
       const { data } = await api.post(`/subscriptions/${sub._id}/send-test`);
       if (data.success) {
-        toast.success(data.message || 'Test email sent!');
+        if (data.webhook && !data.webhook.success) {
+          toast.error(data.message, { duration: 8000 });
+        } else {
+          toast.success(data.message || 'Test email sent!');
+        }
       } else {
         toast.error(data.error || 'Failed to send test email');
       }

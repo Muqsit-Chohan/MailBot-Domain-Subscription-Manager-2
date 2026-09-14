@@ -51,6 +51,7 @@ const subscriptionSchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   lastReminderSent: { type: Date },
   remindersSent: [{ interval: Number, sentAt: Date }],
+  webhookRemindersSent: [{ interval: Number, sentAt: Date }],
 }, { timestamps: true });
 
 // Pre-save hook (unchanged)

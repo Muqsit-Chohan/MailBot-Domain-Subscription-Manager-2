@@ -61,6 +61,7 @@ async function sendWebhookNotification(webhookUrl, { title, message, domain, exp
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!res.ok) {
@@ -75,4 +76,23 @@ async function sendWebhookNotification(webhookUrl, { title, message, domain, exp
   }
 }
 
-module.exports = { sendWebhookNotification };
+async function sendReminderWebhook(subscription, daysUntilExpiry, userId = subscription.createdBy) {
+  try {
+    if (!userId) return { success: false, skipped: true, reason: 'Subscription has no owner' };
+    const user = await require('../models/User').findById(userId);
+    if (!user) return { success: false, skipped: true, reason: 'Subscription owner not found' };
+    if (!user.webhookEnabled) return { success: false, skipped: true, reason: 'Webhook notifications disabled for owner' };
+    if (!user.webhookUrl) return { success: false, skipped: true, reason: 'Owner has no saved webhook URL' };
+    return await sendWebhookNotification(user.webhookUrl, {
+      title: `Renewal Reminder: ${subscription.domain}`,
+      message: `${subscription.domain} expires in ${daysUntilExpiry} days.`,
+      domain: subscription.domain,
+      expiryDate: subscription.expiryDate,
+      daysUntilExpiry,
+    });
+  } catch (error) {
+    return { success: false, error: 'Could not deliver reminder webhook' };
+  }
+}
+
+module.exports = { sendWebhookNotification, sendReminderWebhook };

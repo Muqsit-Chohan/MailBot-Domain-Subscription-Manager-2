@@ -20,6 +20,8 @@ const invoke = async (router, path, req) => {
 };
 
 test('email routes and reminders select the correct transport and recipient', async t => {
+  t.mock.method(require('../models/Template'), 'findOne', async () => null);
+  t.mock.method(require('../models/User'), 'findById', async () => null);
   const previousKey = process.env.RESEND_API_KEY;
   const previousFrom = process.env.EMAIL_FROM;
   t.after(() => {

@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer');
 const dns = require('dns');
 const EmailLog = require('../models/EmailLog');
 const EmailTemplate = require('../models/EmailTemplate');
+const Template = require('../models/Template');
 
 const isResendEnabled = () => Boolean(process.env.RESEND_API_KEY?.trim());
 
@@ -182,10 +183,16 @@ const sendEmail = async ({ to, from, subject, html, text, subscription, template
 const sendReminderEmail = async (subscription, daysUntilExpiry) => {
   try {
     // Choose template by interval or default
-    const template = await EmailTemplate.findOne({ type: `reminder_${daysUntilExpiry}` }) || await EmailTemplate.findOne({ isDefault: true });
+    if (!subscription.createdBy) throw new Error('Subscription has no owner configured');
+    const template = await Template.findOne({ user: subscription.createdBy, type: `reminder_${daysUntilExpiry}` })
+      || await Template.findOne({ user: subscription.createdBy, isDefault: true })
+      || await EmailTemplate.findOne({ createdBy: subscription.createdBy, type: `reminder_${daysUntilExpiry}` })
+      || await EmailTemplate.findOne({ createdBy: subscription.createdBy, isDefault: true });
     if (!template) throw new Error('No email template configured');
 
-    const vars = { domain: subscription.domain, days: String(daysUntilExpiry) };
+    const vars = { domain: subscription.domain, days: String(daysUntilExpiry),
+      owner: subscription.owner || '', registrar: subscription.registrar || '',
+      expiryDate: new Date(subscription.expiryDate).toLocaleDateString() };
     const { subject, html, text } = renderTemplate(template, vars);
 
     const res = await sendEmail({
