@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { accountRole } = require('../utils/accountRole');
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
@@ -21,6 +22,7 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {
+  this.role = accountRole(this.email);
   if (!this.isModified('password')) return;
   if (/^\$2[aby]\$/.test(this.password)) return;
   this.password = await bcrypt.hash(this.password, 12);

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { accountRole } = require('../utils/accountRole');
 
 const auth = async (req, res, next) => {
   try {
@@ -15,6 +16,7 @@ const auth = async (req, res, next) => {
       return res.status(403).json({ message: 'Email not verified. Please verify your email first.' });
     }
 
+    user.role = accountRole(user.email);
     req.user = user;
     next();
   } catch (err) {
@@ -23,7 +25,7 @@ const auth = async (req, res, next) => {
 };
 
 const adminOnly = (req, res, next) => {
-  if (req.user.role !== 'admin') {
+  if (accountRole(req.user?.email) !== 'admin') {
     return res.status(403).json({ message: 'Admin access required.' });
   }
   next();

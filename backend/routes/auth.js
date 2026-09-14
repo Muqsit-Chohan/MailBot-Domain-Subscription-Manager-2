@@ -7,6 +7,7 @@ const PendingVerification = require('../models/PendingVerification');
 const { sendVerificationEmail } = require('../services/emailService');
 const { auth } = require('../middleware/auth');
 const withTimeout = require('../utils/withTimeout');
+const { accountRole } = require('../utils/accountRole');
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -29,30 +30,7 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Email already registered.' });
     }
 
-    const userCount = await User.countDocuments();
-
-    // If this is the FIRST user in the system -> make them verified Admin immediately
-    if (userCount === 0) {
-      const adminUser = new User({
-        name: name || 'Admin',
-        email: cleanEmail,
-        password,
-        role: 'admin',
-        isActive: true,
-        isVerified: true,
-      });
-      await adminUser.save();
-
-      const jwtToken = jwt.sign({ id: adminUser._id, role: adminUser.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
-
-      return res.status(201).json({
-        message: 'Admin account created successfully! You can now configure SMTP settings in the Settings page.',
-        token: jwtToken,
-        user: { id: adminUser._id, name: adminUser.name, email: adminUser.email, role: adminUser.role },
-      });
-    }
-
-    // Subsequent users -> verification flow
+    // Every public signup must prove ownership of its email address.
     const existingPending = await PendingVerification.findOne({ email: cleanEmail });
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const verificationTokenExpiry = Date.now() + 3600000; // 1 hour
@@ -150,7 +128,7 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: typeof email === 'string' ? email.trim().toLowerCase() : '' });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
@@ -165,6 +143,7 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ message: 'Please verify your email before logging in.' });
     }
 
+    user.role = accountRole(user.email);
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({
       token,
@@ -246,6 +225,7 @@ router.post('/reset-password', async (req, res) => {
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
+    if (user) user.role = accountRole(user.email);
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });

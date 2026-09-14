@@ -74,11 +74,8 @@ const getTransporter = async (userId = null) => {
     if (userId) {
       saved = await SmtpSettings.findOne({ user: userId });
     }
-    // Verification and cron jobs have no current user. Use the latest admin
-    // configuration saved in Settings, then fall back to service-level SMTP.
-    if (!saved && !userId) {
-      saved = await SmtpSettings.findOne().sort('-updatedAt');
-    }
+    // Account verification and password resets use the application's SMTP
+    // configuration. A user's saved transport must not override account mail.
 
     if (saved && saved.host && saved.username && saved.password) {
       const transportOptions = await resolveIpv4TransportOptions(buildTransportOptions({
