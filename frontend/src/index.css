@@ -157,8 +157,6 @@
 .dark .btn-secondary {
   box-shadow: none;
 }
-.dark .btn-secondary { background-color: #ffffff; color: #2c3e50; }
-.dark .btn-secondary:hover { background-color: #f9fafb; }
 .dark .input {
   background: #1d2126;
   border: 1px solid var(--border);
