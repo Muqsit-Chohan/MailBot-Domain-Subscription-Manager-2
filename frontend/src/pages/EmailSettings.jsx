@@ -62,9 +62,12 @@ export default function EmailSettings() {
     try {
       const payload = { ...form, port: parseInt(form.port) };
       const { data } = await api.put('/settings/smtp', payload);
+      setTestStatus({ success: true, message: data.message });
       toast.success(data.message || 'SMTP configuration saved!');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to save settings');
+      const message = err.response?.data?.message || 'Failed to save settings';
+      setTestStatus({ success: false, message });
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -225,7 +228,8 @@ export default function EmailSettings() {
                 </a>
               </li>
               <li>Use the app password (not your regular password) in SMTP Password</li>
-              <li><strong>Recommended:</strong> Host: smtp.gmail.com, Port: 587, TLS: Enabled (uses STARTTLS)</li>
+              <li><strong>Recommended:</strong> Host: smtp.gmail.com, Port: 587 (uses STARTTLS automatically)</li>
+              <li>Use your full Gmail address and an App Password from that same account. If Gmail rejects login, generate a new App Password, save, then send a test email.</li>
               <li><strong>Alternative:</strong> Host: smtp.gmail.com, Port: 465, TLS: Enabled (uses SSL)</li>
             </ul>
           </div>

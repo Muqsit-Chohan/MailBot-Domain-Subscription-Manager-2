@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { auth } = require('../middleware/auth');
 const SmtpSettings = require('../models/SmtpSettings');
-const { sendEmail, isResendEnabled } = require('../services/emailService');
+const { sendEmail, isResendEnabled, verifyConnection, normalizeSmtpPassword } = require('../services/emailService');
 
 // GET /api/settings/smtp – load saved SMTP config
 router.get('/smtp', auth, async (req, res) => {
@@ -22,14 +22,27 @@ router.put('/smtp', auth, async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    const normalizedPassword = password.replace(/\s/g, '');
+    const smtpPort = Number(port);
+    if (!Number.isInteger(smtpPort) || smtpPort < 1 || smtpPort > 65535) {
+      return res.status(400).json({ message: 'SMTP port must be between 1 and 65535' });
+    }
+    const config = { host: host.trim(), port: smtpPort, username: username.trim(),
+      password: normalizeSmtpPassword(host, password), senderEmail: senderEmail.trim(),
+      senderName, secure: smtpPort === 465 };
+    if (!config.host || !config.username || !config.password || !config.senderEmail) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+    const verification = await verifyConnection(config);
+    if (!verification.success) {
+      return res.status(502).json({ message: verification.error });
+    }
     const settings = await SmtpSettings.findOneAndUpdate(
       { user: req.user._id },
-      { host, port, username, password: normalizedPassword, senderEmail, senderName, secure },
+      config,
       { upsert: true, new: true }
     );
 
-    res.json({ message: 'SMTP configuration saved!', settings });
+    res.json({ message: 'SMTP connection verified and configuration saved!', settings });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -60,7 +73,7 @@ router.post('/test-email', auth, async (req, res) => {
     }
 
     // Gmail app passwords are often copied with spaces between each group.
-    const smtpPassword = (password || '').replace(/\s/g, '');
+    const smtpPassword = normalizeSmtpPassword(host, password);
     const useSecureConnection = smtpPort === 465;
 
     const html = `

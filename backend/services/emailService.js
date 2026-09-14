@@ -6,6 +6,22 @@ const Template = require('../models/Template');
 
 const isResendEnabled = () => Boolean(process.env.RESEND_API_KEY?.trim());
 
+const normalizeSmtpPassword = (host, password) =>
+  /^smtp\.(gmail|googlemail)\.com$/i.test((host || '').trim())
+    ? (password || '').replace(/\s/g, '')
+    : (password || '');
+
+const formatEmailError = (error) => {
+  const message = error?.response || error?.message || String(error);
+  if (error?.code === 'EAUTH' || error?.responseCode === 535 || /535[ -]5\.7\.8/.test(message)) {
+    if (/gsmtp|gmail|google|BadCredentials/i.test(message)) {
+      return 'Gmail rejected the SMTP login. In Email Settings, enter your full Gmail address and a new 16-character Google App Password for that same account (2-Step Verification required), then save and test again. Your regular Google password will not work. Create an App Password at https://myaccount.google.com/apppasswords';
+    }
+    return 'SMTP authentication failed. Update the username and password in Email Settings, then save and test again.';
+  }
+  return message;
+};
+
 const sendWithResend = async ({ to, subject, html, text }) => {
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -32,11 +48,11 @@ const sendWithResend = async ({ to, subject, html, text }) => {
 };
 
 const buildTransportOptions = (config = {}) => {
-  const host = config.host || process.env.SMTP_HOST || 'smtp.gmail.com';
+  const host = (config.host || process.env.SMTP_HOST || 'smtp.gmail.com').trim();
   const port = parseInt(config.port || process.env.SMTP_PORT || '465', 10);
   const secure = port === 465;
-  const user = config.username || config.user || process.env.SMTP_USER || 'yourgmail@gmail.com';
-  const pass = (config.password || config.pass || process.env.SMTP_PASS || '').replace(/\s/g, '');
+  const user = (config.username || config.user || process.env.SMTP_USER || '').trim();
+  const pass = normalizeSmtpPassword(host, config.password || config.pass || process.env.SMTP_PASS || '');
 
   return {
     host,
@@ -142,7 +158,12 @@ const sendEmail = async ({ to, from, subject, html, text, subscription, template
       let defaultFrom;
 
       if (transportOptions) {
-        const ipv4TransportOptions = await resolveIpv4TransportOptions(transportOptions);
+        const normalizedOptions = { ...transportOptions, host: transportOptions.host.trim(), auth: {
+          ...transportOptions.auth,
+          user: transportOptions.auth.user.trim(),
+          pass: normalizeSmtpPassword(transportOptions.host, transportOptions.auth.pass),
+        } };
+        const ipv4TransportOptions = await resolveIpv4TransportOptions(normalizedOptions);
         mailTransporter = nodemailer.createTransport(ipv4TransportOptions);
         defaultFrom = from;
       } else {
@@ -173,7 +194,7 @@ const sendEmail = async ({ to, from, subject, html, text, subscription, template
     log.sentAt = new Date();
     await log.save();
     console.error('Email send failed:', errMsg);
-    return { success: false, error: errMsg, log };
+    return { success: false, error: formatEmailError(error), log };
   }
 };
 
@@ -211,8 +232,18 @@ const sendReminderEmail = async (subscription, daysUntilExpiry) => {
   }
 };
 
-const verifyConnection = async () => {
-  // ... (aapka existing code same rahega)
+const verifyConnection = async (config = {}) => {
+  let transporter;
+  try {
+    const options = await resolveIpv4TransportOptions(buildTransportOptions(config));
+    transporter = nodemailer.createTransport(options);
+    await transporter.verify();
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: formatEmailError(error) };
+  } finally {
+    transporter?.close?.();
+  }
 };
 
 // ========== NEW FUNCTION FOR VERIFICATION EMAIL ==========
@@ -262,4 +293,4 @@ const sendPasswordResetEmail = async (to, token) => {
 };
 // ==========================================================
 
-module.exports = { sendEmail, sendReminderEmail, verifyConnection, renderTemplate, sendVerificationEmail, sendPasswordResetEmail, isResendEnabled };
+module.exports = { sendEmail, sendReminderEmail, verifyConnection, renderTemplate, sendVerificationEmail, sendPasswordResetEmail, isResendEnabled, normalizeSmtpPassword };

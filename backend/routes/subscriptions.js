@@ -325,7 +325,7 @@ router.post('/:id/send-test', auth, async (req, res) => {
         connectionTimeout: 20000,
         greetingTimeout: 20000,
         socketTimeout: 20000,
-        auth: { user, pass: (pass || '').replace(/\s/g, '') },
+        auth: { user, pass: pass || '' },
       },
     });
 

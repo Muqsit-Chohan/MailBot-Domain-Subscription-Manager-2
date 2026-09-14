@@ -130,9 +130,12 @@ export default function SettingsPage() {
     try {
       const payload = { ...smtpForm, port: parseInt(smtpForm.port) };
       const { data } = await api.put('/settings/smtp', payload);
+      setTestResult({ success: true, error: null, message: data.message });
       toast.success(data.message || 'SMTP configuration saved!');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to save settings');
+      const message = err.response?.data?.message || 'Failed to save settings';
+      setTestResult({ success: false, error: message, message });
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -349,7 +352,7 @@ export default function SettingsPage() {
           >
             {testResult.success ? <CheckCircle size={15} /> : <XCircle size={15} />}
             {testResult.success
-              ? 'Test email sent successfully!'
+              ? testResult.message
               : `Error: ${testResult.error || testResult.message}`}
           </div>
         )}
