@@ -89,7 +89,8 @@ router.post('/generate', auth, async (req, res) => {
     const generatedTemplate = await generateTemplateFromPrompt(prompt);
     res.json(generatedTemplate);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (error.status === 503) res.set('Retry-After', '30');
+    res.status(error.status === 503 ? 503 : 502).json({ message: error.message });
   }
 });
 

@@ -6,6 +6,7 @@ const User = require('../models/User');
 const PendingVerification = require('../models/PendingVerification');
 const { sendVerificationEmail } = require('../services/emailService');
 const { auth } = require('../middleware/auth');
+const withTimeout = require('../utils/withTimeout');
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -74,17 +75,21 @@ router.post('/register', async (req, res) => {
     }
 
     try {
-      await sendVerificationEmail(cleanEmail, verificationToken);
+      await withTimeout(
+        () => sendVerificationEmail(cleanEmail, verificationToken),
+        25000,
+        'Verification email delivery timed out'
+      );
     } catch (emailErr) {
       console.error('[SMTP Notice] Verification email failed:', emailErr.message);
-      return res.status(201).json({
-        message: 'Account created, but the verification email is temporarily unavailable. Please try again later.',
+      return res.status(503).json({
+        message: 'Signup is pending verification. We could not send the verification email. Please try Create Account again to request a new link. If this continues, contact the administrator.',
         emailSent: false,
       });
     }
 
     res.status(201).json({
-      message: 'Account created! Please check your email to verify your account.',
+      message: 'Verification email sent! Open the link in your email to finish creating your account.',
       emailSent: true,
     });
   } catch (err) {

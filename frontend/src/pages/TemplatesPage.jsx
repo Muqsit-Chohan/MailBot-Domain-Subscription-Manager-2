@@ -239,7 +239,7 @@ export default function TemplatesPage() {
       {/* Create/Edit Template Modal */}
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title={editing ? 'Edit Template' : 'New Template'} size="xl">
         <form onSubmit={handleSave} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="label">Template Name *</label>
               <input className="input" placeholder="30-Day Reminder" value={form.name}
@@ -260,7 +260,7 @@ export default function TemplatesPage() {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1.5">
               <label className="label mb-0">HTML Body *</label>
               <div className="flex gap-1 flex-wrap">
                 {VARS.map(v => (
@@ -286,7 +286,7 @@ export default function TemplatesPage() {
             <span className="text-sm text-[#6b7280] dark:text-[#8b92b3]">Set as default for this type</span>
           </label>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-wrap justify-end gap-2 pt-2">
             <button type="button" onClick={() => setFormOpen(false)} className="btn-secondary">Cancel</button>
             <button type="submit" disabled={saving} className="btn-primary">
               {saving ? 'Saving…' : editing ? 'Save Changes' : 'Create Template'}

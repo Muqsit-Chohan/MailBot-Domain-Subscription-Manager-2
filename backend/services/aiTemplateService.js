@@ -1,5 +1,5 @@
 // backend/services/aiTemplateService.js
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI, GoogleGenerativeAIAbortError } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -19,12 +19,26 @@ If no timeframe mentioned, choose a reasonable type.`;
 
 async function generateTemplateFromPrompt(userPrompt) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const model = genAI.getGenerativeModel(
+      { model: process.env.GEMINI_MODEL || 'gemini-flash-lite-latest' },
+      { timeout: 18000 }
+    );
 
     // Full prompt: system + user
     const fullPrompt = `${SYSTEM_PROMPT}\n\nUser: ${userPrompt}`;
 
-    const result = await model.generateContent(fullPrompt);
+    let result;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        result = await model.generateContent(fullPrompt);
+        break;
+      } catch (error) {
+        if (attempt === 1 || ![429, 500, 502, 503, 504].includes(error.status)) {
+          throw error;
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 500));
+      }
+    }
     const response = result.response;
     const text = response.text();
 
@@ -47,8 +61,14 @@ async function generateTemplateFromPrompt(userPrompt) {
 
     return templateData;
   } catch (error) {
-    console.error('Gemini Error:', error);
-    throw new Error(error.message || 'AI generation failed');
+    console.error('Gemini generation failed:', error.status || error.name);
+    const unavailable = [429, 500, 502, 503, 504].includes(error.status)
+      || error instanceof GoogleGenerativeAIAbortError;
+    const publicError = new Error(unavailable
+      ? 'AI generation is temporarily busy or unavailable. Please try again shortly.'
+      : 'AI generation failed. Please try again or contact support if the problem persists.');
+    publicError.status = unavailable ? 503 : 502;
+    throw publicError;
   }
 }
 

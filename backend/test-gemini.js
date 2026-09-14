@@ -1,16 +1,13 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const { generateTemplateFromPrompt } = require('./services/aiTemplateService');
 
 async function test() {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-  const prompt = "Reply with only a JSON object: {\"name\":\"test\"}";
   try {
-    const result = await model.generateContent(prompt);
-    console.log(result.response.text());
+    const result = await generateTemplateFromPrompt('A friendly domain renewal reminder 7 days before expiry');
+    console.log('Template generation succeeded:', { name: result.name, type: result.type, fields: Object.keys(result) });
   } catch (err) {
     console.error("Gemini Error:", err.message);
+    process.exitCode = 1;
   }
 }
 test();

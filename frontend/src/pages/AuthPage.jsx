@@ -50,7 +50,17 @@ export default function AuthPage() {
         navigate('/');
       } else {
         const data = await register(form.name, form.email, form.password);
-        toast.success('Account created!');
+        if (data.token && data.user) {
+          toast.success('Account created!');
+          navigate('/');
+          return;
+        }
+        if (data.emailSent === false) {
+          setInfo({ message: data.message, emailSent: false, email: form.email });
+          toast.error('Verification email could not be sent. Please retry.');
+          return;
+        }
+        toast.success('Verification email sent!');
         setInfo({
           message: data.message || 'A verification email has been sent to your inbox.',
           emailSent: data.emailSent !== false,
@@ -60,7 +70,13 @@ export default function AuthPage() {
         setMode('login');
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || 'Something went wrong');
+      const message = err.response?.data?.message ||
+        (err.code === 'ECONNABORTED' ? 'The request timed out. Check your inbox for a verification link, or try again.' : err.message) ||
+        'Something went wrong';
+      if (mode === 'register') {
+        setInfo({ message, emailSent: false, email: form.email });
+      }
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -89,7 +105,7 @@ export default function AuthPage() {
           {/* Tabs */}
           <div className="flex bg-[#f0f2f5] dark:bg-[#0f0f0f] border border-[#dde1e9] dark:border-[#272727] rounded-xl p-1 mb-6">
             {['login', 'register'].map(m => (
-              <button key={m} onClick={() => switchMode(m)}
+              <button key={m} disabled={loading} onClick={() => switchMode(m)}
                 className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all capitalize ${
                   mode === m ? 'bg-white dark:bg-[#1c1c1c] text-[#111827] dark:text-[#f5f5f5] shadow-sm' : 'text-[#6b7280] dark:text-[#71717a] hover:text-[#111827] dark:hover:text-[#f5f5f5]'
                 }`}
@@ -110,7 +126,7 @@ export default function AuthPage() {
               ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-700/40 dark:bg-emerald-950/40 dark:text-emerald-200'
               : 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-700/40 dark:bg-amber-950/40 dark:text-amber-200'
             }`}>
-              <strong>Account created!</strong>
+              <strong>{info.emailSent ? 'Check your email' : 'Signup needs attention'}</strong>
               <p className="mt-2">{info.message}</p>
               {info.emailSent ? (
                 <p className="mt-2">We are sending the verification email to <span className="font-semibold">{info.email}</span>. Check your inbox and spam folder.</p>
