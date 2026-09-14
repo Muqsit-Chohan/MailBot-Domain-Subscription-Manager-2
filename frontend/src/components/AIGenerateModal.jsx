@@ -20,11 +20,28 @@ export default function AIGenerateModal({ open, onClose, onTemplateGenerated, in
     setIsGenerating(true);
     try {
       const { data } = await api.post('/templates/generate', { prompt });
+      if (!data || typeof data !== 'object' ||
+          !['name', 'subject', 'htmlBody', 'textBody', 'type'].every(key => typeof data[key] === 'string')) {
+        toast.error('The server returned an unexpected response. Please contact support.');
+        return;
+      }
       onTemplateGenerated(data);
       toast.success('Template generated! You can review it now.');
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Something went wrong. Please try again.');
+      const status = err.response?.status;
+      let message = 'AI generation failed. Please try again.';
+      if (err.code === 'ECONNABORTED' || err.code === 'ETIMEDOUT' || status === 504) {
+        message = 'AI generation took too long. Please try again shortly.';
+      } else if (!err.response && err.isAxiosError) {
+        message = 'Cannot reach the AI server. Check your connection and try again.';
+      } else if (status === 404) {
+        message = 'AI generation is unavailable on this server. Please contact support.';
+      } else if (status === 502 || status === 503) {
+        message = 'The AI service is temporarily unavailable. Please try again shortly.';
+      }
+      toast.error(typeof err.response?.data?.message === 'string' ? err.response.data.message : message);
+      console.error('AI generation request failed', { status, code: err.code });
     } finally {
       setIsGenerating(false);
     }
