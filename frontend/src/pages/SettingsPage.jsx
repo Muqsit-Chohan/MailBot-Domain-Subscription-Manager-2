@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 function Section({ title, icon: Icon, children }) {
   return (
     <div className="card p-6">
-      <div className="flex items-center gap-2 mb-5 pb-4 border-b border-[#e2e6f0] dark:border-[#2a2f48]">
+      <div className="flex items-center gap-2 mb-5 pb-4 border-b border-[#e2e6f0] dark:border-[#373e47]">
         <div className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
           <Icon size={15} className="text-indigo-600 dark:text-indigo-400" />
         </div>
@@ -185,14 +185,14 @@ export default function SettingsPage() {
     <div className="space-y-5 max-w-2xl animate-[fadeIn_0.3s_ease-out]">
       <div>
         <h1 className="page-title">Settings</h1>
-        <p className="text-sm text-[#6b7280] dark:text-[#8b92b3] mt-0.5">
+        <p className="text-sm text-[#6b7280] dark:text-[#a8b0bc] mt-0.5">
           Application configuration
         </p>
       </div>
 
       {/* ===== UPDATED Email/SMTP Section ===== */}
       <Section title="SMTP Configuration" icon={Mail}>
-        <p className="text-sm text-[#6b7280] dark:text-[#8b92b3] mb-4">
+        <p className="text-sm text-[#6b7280] dark:text-[#a8b0bc] mb-4">
           Configure your email server settings to send automated reminders
         </p>
 
@@ -258,7 +258,7 @@ export default function SettingsPage() {
                   {showSmtpPass ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              <p className="text-[11px] text-[#6b7280] dark:text-[#8b92b3] mt-1">
+              <p className="text-[11px] text-[#6b7280] dark:text-[#a8b0bc] mt-1">
                 Paste your 16-character Google App Password without any spaces.
               </p>
             </div>
@@ -293,7 +293,7 @@ export default function SettingsPage() {
               onChange={handleSmtpChange}
               className="rounded"
             />
-            <span className="text-sm text-[#6b7280] dark:text-[#8b92b3]">
+            <span className="text-sm text-[#6b7280] dark:text-[#a8b0bc]">
               Enable TLS/SSL
             </span>
           </label>
@@ -385,7 +385,7 @@ export default function SettingsPage() {
             )}
           </>
         ) : (
-          <p className="text-sm text-[#6b7280] dark:text-[#8b92b3]">
+          <p className="text-sm text-[#6b7280] dark:text-[#a8b0bc]">
             Admin access required to trigger the cron job manually.
           </p>
         )}
@@ -394,7 +394,7 @@ export default function SettingsPage() {
       {/* Webhook Notifications Section */}
       <Section title="Multi-Channel Webhooks (Discord / Slack)" icon={Server}>
         <div className="space-y-4">
-          <p className="text-sm text-[#6b7280] dark:text-[#8b92b3]">
+          <p className="text-sm text-[#6b7280] dark:text-[#a8b0bc]">
             Receive instant renewal alerts directly in your Discord channel, Slack channel, or custom server.
             {' '}Testing only checks the URL. Enable notifications and save settings to receive subscription alerts.
           </p>
@@ -453,8 +453,8 @@ export default function SettingsPage() {
             { label: 'Role', value: user?.role },
             { label: 'Webhook Status', value: webhookEnabled ? 'Enabled' : 'Disabled' },
           ].map(({ label, value }) => (
-            <div key={label} className="flex items-center justify-between py-2 border-b border-[#f1f3f9] dark:border-[#1e2235] last:border-0">
-              <span className="text-xs font-medium text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide">{label}</span>
+            <div key={label} className="flex items-center justify-between py-2 border-b border-[#f1f3f9] dark:border-[#2b3037] last:border-0">
+              <span className="text-xs font-medium text-[#6b7280] dark:text-[#a8b0bc] uppercase tracking-wide">{label}</span>
               <span className="text-sm text-[#0f1523] dark:text-[#eef0f8] font-medium">{value}</span>
             </div>
           ))}
@@ -463,7 +463,7 @@ export default function SettingsPage() {
 
       {/* About */}
       <Section title="About" icon={Info}>
-        <div className="space-y-2 text-sm text-[#6b7280] dark:text-[#8b92b3]">
+        <div className="space-y-2 text-sm text-[#6b7280] dark:text-[#a8b0bc]">
           <p><strong className="text-[#0f1523] dark:text-[#eef0f8]">MailBot Domain Manager</strong></p>
           <p>Stack: React + Vite, Tailwind CSS, Node.js, Express, MongoDB, Nodemailer, node-cron</p>
           <p className="font-mono text-xs">v1.0.0</p>

@@ -32,8 +32,8 @@ export default function LegalPage({ type }) {
   const page = content[type] || content.privacy;
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-[#f0f2f5] dark:bg-[#0a0a0a] text-[#111827] dark:text-white transition-colors duration-300">
-      <header className="border-b border-[#dde1e9] dark:border-white/[0.06] bg-white/80 dark:bg-[#0a0a0a]/90 backdrop-blur-md">
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#f0f2f5] dark:bg-[#191c20] text-[#111827] dark:text-white transition-colors duration-300">
+      <header className="border-b border-[#dde1e9] dark:border-white/[0.06] bg-white/80 dark:bg-[#191c20]/90 backdrop-blur-md">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 min-h-16 flex flex-col sm:flex-row items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2.5" aria-label="MailBot home">
             <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-9 h-9 object-contain" />

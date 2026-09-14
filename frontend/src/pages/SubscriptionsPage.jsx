@@ -203,7 +203,7 @@ export default function SubscriptionsPage() {
               className={`px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-xs font-semibold transition-all capitalize border ${
                 status === s
                   ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-500/20'
-                  : 'bg-white dark:bg-[#141414] border-[#dde1e9] dark:border-[#272727] text-[#6b7280] dark:text-[#a1a1aa] hover:bg-[#f0f2f5] dark:hover:bg-[#1c1c1c] hover:text-[#111827] dark:hover:text-[#f5f5f5]'
+                  : 'bg-white dark:bg-[#23272d] border-[#dde1e9] dark:border-[#373e47] text-[#6b7280] dark:text-[#a1a1aa] hover:bg-[#f0f2f5] dark:hover:bg-[#2b3037] hover:text-[#111827] dark:hover:text-[#e7e9ed]'
               }`}>
               {s === 'expiring_soon' ? 'Expiring' : s}
             </button>
@@ -225,7 +225,7 @@ export default function SubscriptionsPage() {
             <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mx-auto mb-4 border border-indigo-200/50 dark:border-indigo-500/20">
               <Globe size={24} className="text-indigo-600 dark:text-indigo-400" />
             </div>
-            <p className="font-bold text-[#111827] dark:text-[#f5f5f5]">No subscriptions yet</p>
+            <p className="font-bold text-[#111827] dark:text-[#e7e9ed]">No subscriptions yet</p>
             <p className="text-sm text-[#6b7280] dark:text-[#a1a1aa] mt-1 mb-5">Add your first subscription to start tracking expiry dates</p>
             <button onClick={() => setFormOpen(true)} className="btn-primary inline-flex items-center gap-2">
               <Plus size={15} /> Add your first subscription
@@ -244,7 +244,7 @@ export default function SubscriptionsPage() {
                   <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#dde1e9] dark:divide-[#272727]">
+              <tbody className="divide-y divide-[#dde1e9] dark:divide-[#373e47]">
                 {subs.map(sub => {
                   const days = differenceInDays(new Date(sub.expiryDate), new Date());
                   const cleanDomain = (sub.domain || '').replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '');
@@ -254,7 +254,7 @@ export default function SubscriptionsPage() {
                       <td>
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-bold text-sm text-[#111827] dark:text-[#f5f5f5]">{cleanDomain}</span>
+                            <span className="font-bold text-sm text-[#111827] dark:text-[#e7e9ed]">{cleanDomain}</span>
                             <a
                               href={`https://${cleanDomain}`}
                               target="_blank"
@@ -292,7 +292,7 @@ export default function SubscriptionsPage() {
                       {/* 2. Client / Owner */}
                       <td>
                         <div className="flex flex-col">
-                          <span className="font-semibold text-xs text-[#111827] dark:text-[#f5f5f5]">{sub.owner || '—'}</span>
+                          <span className="font-semibold text-xs text-[#111827] dark:text-[#e7e9ed]">{sub.owner || '—'}</span>
                           <span className="text-xs text-[#6b7280] dark:text-[#a1a1aa] mt-0.5 truncate max-w-[180px]">{sub.ownerEmail}</span>
                         </div>
                       </td>
@@ -315,7 +315,7 @@ export default function SubscriptionsPage() {
                       {/* 4. Expiry Date */}
                       <td>
                         <div className="flex flex-col">
-                          <span className="font-medium text-xs text-[#111827] dark:text-[#f5f5f5]">
+                          <span className="font-medium text-xs text-[#111827] dark:text-[#e7e9ed]">
                             {format(new Date(sub.expiryDate), 'MMM d, yyyy')}
                           </span>
                           <span
@@ -350,7 +350,7 @@ export default function SubscriptionsPage() {
                             onClick={() => handleSendTest(sub)}
                             disabled={sendingTest === sub._id}
                             title="Send Test Email"
-                            className="p-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 border border-[#dde1e9] dark:border-[#272727] hover:border-indigo-300 dark:hover:border-indigo-500/30 transition-colors disabled:opacity-40 shadow-sm"
+                            className="p-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 border border-[#dde1e9] dark:border-[#373e47] hover:border-indigo-300 dark:hover:border-indigo-500/30 transition-colors disabled:opacity-40 shadow-sm"
                           >
                             <Send size={13} className={sendingTest === sub._id ? 'animate-pulse' : ''} />
                           </button>
@@ -358,7 +358,7 @@ export default function SubscriptionsPage() {
                             type="button"
                             onClick={() => { setEditing(sub); setFormOpen(true); }}
                             title="Edit"
-                            className="p-2 rounded-xl text-[#6b7280] dark:text-[#a1a1aa] hover:bg-[#f0f2f5] dark:hover:bg-[#1c1c1c] hover:text-[#111827] dark:hover:text-[#f5f5f5] border border-[#dde1e9] dark:border-[#272727] transition-colors shadow-sm"
+                            className="p-2 rounded-xl text-[#6b7280] dark:text-[#a1a1aa] hover:bg-[#f0f2f5] dark:hover:bg-[#2b3037] hover:text-[#111827] dark:hover:text-[#e7e9ed] border border-[#dde1e9] dark:border-[#373e47] transition-colors shadow-sm"
                           >
                             <Pencil size={13} />
                           </button>
@@ -366,7 +366,7 @@ export default function SubscriptionsPage() {
                             type="button"
                             onClick={() => setDeleteTarget(sub)}
                             title="Delete"
-                            className="p-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 border border-[#dde1e9] dark:border-[#272727] hover:border-red-200 dark:hover:border-red-500/30 transition-colors shadow-sm"
+                            className="p-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 border border-[#dde1e9] dark:border-[#373e47] hover:border-red-200 dark:hover:border-red-500/30 transition-colors shadow-sm"
                           >
                             <Trash2 size={13} />
                           </button>
@@ -390,8 +390,8 @@ export default function SubscriptionsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="font-medium text-sm truncate">{sub.domain}</div>
-                    {sub.registrar && <div className="text-xs text-[#6b7280] dark:text-[#8b92b3] mt-1 truncate">{sub.registrar}</div>}
-                    <div className="text-xs text-[#6b7280] dark:text-[#8b92b3] mt-1.5 truncate">
+                    {sub.registrar && <div className="text-xs text-[#6b7280] dark:text-[#a8b0bc] mt-1 truncate">{sub.registrar}</div>}
+                    <div className="text-xs text-[#6b7280] dark:text-[#a8b0bc] mt-1.5 truncate">
                       <span className="truncate">{sub.owner || '—'}</span> · <span className="truncate">{sub.ownerEmail || '—'}</span>
                     </div>
                   </div>
@@ -428,30 +428,30 @@ export default function SubscriptionsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Type</p>
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#a8b0bc] uppercase tracking-wide mb-0.5">Type</p>
                     <p className="font-medium text-sm">{sub.subscriptionType === 'Custom' && sub.customTypeName ? sub.customTypeName : (sub.subscriptionType || 'Domain')}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Cost</p>
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#a8b0bc] uppercase tracking-wide mb-0.5">Cost</p>
                     <p className="font-semibold text-emerald-600 dark:text-emerald-400 text-sm">
                       {sub.cost ? `${sub.currency || 'USD'} ${sub.cost}` : 'Free'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Expiry</p>
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#a8b0bc] uppercase tracking-wide mb-0.5">Expiry</p>
                     <p className="text-sm">{format(new Date(sub.expiryDate), 'MMM d')}</p>
-                    <p className={`text-xs mt-0.5 font-semibold ${days < 0 ? 'text-red-500' : days <= 7 ? 'text-amber-500' : 'text-[#6b7280] dark:text-[#8b92b3]'}`}>
+                    <p className={`text-xs mt-0.5 font-semibold ${days < 0 ? 'text-red-500' : days <= 7 ? 'text-amber-500' : 'text-[#6b7280] dark:text-[#a8b0bc]'}`}>
                       {days < 0 ? `${Math.abs(days)}d ago` : `${days}d left`}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-[#6b7280] dark:text-[#8b92b3] uppercase tracking-wide mb-0.5">Status</p>
+                    <p className="text-[10px] text-[#6b7280] dark:text-[#a8b0bc] uppercase tracking-wide mb-0.5">Status</p>
                     <StatusBadge status={sub.status} />
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {sub.reminderIntervals?.map(n => (
-                    <span key={n} className="badge bg-[#f1f3f9] dark:bg-[#1e2235] text-[#6b7280] dark:text-[#8b92b3]">{n}d</span>
+                    <span key={n} className="badge bg-[#f1f3f9] dark:bg-[#2b3037] text-[#6b7280] dark:text-[#a8b0bc]">{n}d</span>
                   ))}
                 </div>
               </div>
@@ -468,7 +468,7 @@ export default function SubscriptionsPage() {
               className={`min-w-8 w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all flex-shrink-0 ${
                 p === page
                   ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20'
-                  : 'bg-[#f1f3f9] dark:bg-[#1e2235] text-[#6b7280] dark:text-[#8b92b3] hover:bg-[#e2e6f0] dark:hover:bg-[#2a2f48]'
+                  : 'bg-[#f1f3f9] dark:bg-[#2b3037] text-[#6b7280] dark:text-[#a8b0bc] hover:bg-[#e2e6f0] dark:hover:bg-[#373e47]'
               }`}>
               {p}
             </button>
@@ -523,7 +523,7 @@ export default function SubscriptionsPage() {
 
       {/* Delete confirm */}
       <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete Subscription" size="sm">
-        <p className="text-sm text-[#6b7280] dark:text-[#8b92b3]">
+        <p className="text-sm text-[#6b7280] dark:text-[#a8b0bc]">
           Delete <strong className="text-[#0f1523] dark:text-[#eef0f8]">{deleteTarget?.domain}</strong>? This cannot be undone.
         </p>
         <div className="flex justify-end gap-2 mt-5">

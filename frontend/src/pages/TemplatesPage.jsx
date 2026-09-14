@@ -22,8 +22,8 @@ function TemplateCard({ tmpl, onEdit, onDelete, onToggleDefault }) {
       <div className="flex flex-col sm:flex-row sm:items-start justify-between p-4 gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-bold text-[#111827] dark:text-[#f5f5f5] text-sm truncate">{tmpl.name}</h3>
-            <span className="badge bg-[#f0f2f5] dark:bg-[#1c1c1c] text-[#6b7280] dark:text-[#a1a1aa] font-mono text-[10px] border border-[#dde1e9] dark:border-[#272727]">
+            <h3 className="font-bold text-[#111827] dark:text-[#e7e9ed] text-sm truncate">{tmpl.name}</h3>
+            <span className="badge bg-[#f0f2f5] dark:bg-[#2b3037] text-[#6b7280] dark:text-[#a1a1aa] font-mono text-[10px] border border-[#dde1e9] dark:border-[#373e47]">
               {tmpl.type}
             </span>
             {tmpl.isDefault && <span className="badge bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/20">Default</span>}
@@ -35,21 +35,21 @@ function TemplateCard({ tmpl, onEdit, onDelete, onToggleDefault }) {
             className={`p-1.5 rounded-lg transition-colors ${tmpl.isDefault ? 'text-amber-500' : 'text-[#9ca3af] hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10'}`}>
             <Star size={14} fill={tmpl.isDefault ? 'currentColor' : 'none'} />
           </button>
-          <button onClick={() => onEdit(tmpl)} className="p-1.5 rounded-lg hover:bg-[#f0f2f5] dark:hover:bg-[#1c1c1c] text-[#6b7280] dark:text-[#a1a1aa] transition-colors">
+          <button onClick={() => onEdit(tmpl)} className="p-1.5 rounded-lg hover:bg-[#f0f2f5] dark:hover:bg-[#2b3037] text-[#6b7280] dark:text-[#a1a1aa] transition-colors">
             <Pencil size={14} />
           </button>
           <button onClick={() => onDelete(tmpl)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 transition-colors">
             <Trash2 size={14} />
           </button>
-          <button onClick={() => setExpanded(e => !e)} className="p-1.5 rounded-lg hover:bg-[#f0f2f5] dark:hover:bg-[#1c1c1c] text-[#6b7280] dark:text-[#a1a1aa] transition-colors">
+          <button onClick={() => setExpanded(e => !e)} className="p-1.5 rounded-lg hover:bg-[#f0f2f5] dark:hover:bg-[#2b3037] text-[#6b7280] dark:text-[#a1a1aa] transition-colors">
             {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
         </div>
       </div>
       {expanded && (
-        <div className="border-t border-[#dde1e9] dark:border-[#272727] p-4 bg-[#f8f9fb] dark:bg-[#0f0f0f]">
+        <div className="border-t border-[#dde1e9] dark:border-[#373e47] p-4 bg-[#f8f9fb] dark:bg-[#1d2025]">
           <p className="text-xs text-[#6b7280] dark:text-[#a1a1aa] font-mono mb-2 uppercase tracking-wide">HTML Body Preview</p>
-          <div className="text-xs bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-[#272727] rounded-xl p-3 font-mono overflow-x-auto max-h-48 overflow-y-auto whitespace-pre-wrap text-[#111827] dark:text-[#f5f5f5]">
+          <div className="text-xs bg-white dark:bg-[#23272d] border border-[#dde1e9] dark:border-[#373e47] rounded-xl p-3 font-mono overflow-x-auto max-h-48 overflow-y-auto whitespace-pre-wrap text-[#111827] dark:text-[#e7e9ed]">
             {tmpl.htmlBody}
           </div>
         </div>
@@ -188,7 +188,7 @@ export default function TemplatesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="page-title">Email Templates</h1>
-          <p className="text-sm text-[#6b7280] dark:text-[#8b92b3] mt-0.5">
+          <p className="text-sm text-[#6b7280] dark:text-[#a8b0bc] mt-0.5">
             {templates.length} template{templates.length !== 1 ? 's' : ''}
           </p>
         </div>
@@ -225,7 +225,7 @@ export default function TemplatesPage() {
         </div>
       ) : templates.length === 0 ? (
         <div className="card p-12 text-center">
-          <p className="text-[#6b7280] dark:text-[#8b92b3] mb-4">No templates yet. Seed defaults or create your own.</p>
+          <p className="text-[#6b7280] dark:text-[#a8b0bc] mb-4">No templates yet. Seed defaults or create your own.</p>
           <button onClick={seedDefaults} className="btn-primary">Seed Default Templates</button>
         </div>
       ) : (
@@ -283,7 +283,7 @@ export default function TemplatesPage() {
 
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={form.isDefault} onChange={e => setForm(f => ({ ...f, isDefault: e.target.checked }))} className="rounded" />
-            <span className="text-sm text-[#6b7280] dark:text-[#8b92b3]">Set as default for this type</span>
+            <span className="text-sm text-[#6b7280] dark:text-[#a8b0bc]">Set as default for this type</span>
           </label>
 
           <div className="flex flex-wrap justify-end gap-2 pt-2">
@@ -297,7 +297,7 @@ export default function TemplatesPage() {
 
       {/* Delete Confirmation Modal */}
       <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete Template" size="sm">
-        <p className="text-sm text-[#6b7280] dark:text-[#8b92b3]">
+        <p className="text-sm text-[#6b7280] dark:text-[#a8b0bc]">
           Delete <strong className="text-[#0f1523] dark:text-[#eef0f8]">{deleteTarget?.name}</strong>?
         </p>
         <div className="flex justify-end gap-2 mt-5">

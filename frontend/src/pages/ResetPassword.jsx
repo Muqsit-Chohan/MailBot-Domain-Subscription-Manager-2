@@ -45,13 +45,13 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f0f2f5] dark:bg-[#0a0a0a] px-4">
-      <div className="max-w-md w-full bg-white dark:bg-[#141414] rounded-2xl shadow-xl p-8 border border-[#dde1e9] dark:border-[#272727]">
+    <div className="min-h-screen flex items-center justify-center bg-[#f0f2f5] dark:bg-[#191c20] px-4">
+      <div className="max-w-md w-full bg-white dark:bg-[#23272d] rounded-2xl shadow-xl p-8 border border-[#dde1e9] dark:border-[#373e47]">
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold shadow-sm">
             <Lock />
           </div>
-          <h2 className="text-2xl font-bold text-[#111827] dark:text-[#f5f5f5]">Reset Password</h2>
+          <h2 className="text-2xl font-bold text-[#111827] dark:text-[#e7e9ed]">Reset Password</h2>
           <p className="text-sm text-[#6b7280] dark:text-[#a1a1aa] mt-1">
             Enter your new password below
           </p>

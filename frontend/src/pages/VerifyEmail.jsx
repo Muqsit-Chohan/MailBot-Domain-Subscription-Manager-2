@@ -40,11 +40,11 @@ export default function VerifyEmail() {
   }, [searchParams, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f0f2f5] dark:bg-[#0a0a0a] p-4">
-      <div className="text-center p-8 bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-[#272727] rounded-2xl shadow-xl max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-[#f0f2f5] dark:bg-[#191c20] p-4">
+      <div className="text-center p-8 bg-white dark:bg-[#23272d] border border-[#dde1e9] dark:border-[#373e47] rounded-2xl shadow-xl max-w-md w-full">
         {status === 'verifying' && (
           <div>
-            <h2 className="text-xl font-bold text-[#111827] dark:text-[#f5f5f5] mb-4">Verifying your email...</h2>
+            <h2 className="text-xl font-bold text-[#111827] dark:text-[#e7e9ed] mb-4">Verifying your email...</h2>
             <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
           </div>
         )}

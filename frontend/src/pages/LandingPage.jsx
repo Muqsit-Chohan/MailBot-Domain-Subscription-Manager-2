@@ -146,7 +146,7 @@ function Navbar() {
       transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
       className={`fixed left-1/2 -translate-x-1/2 z-50 border transition-[background-color,box-shadow,border-color,backdrop-filter] duration-700 ease-out will-change-[top,width,border-radius] ${
         scrolled
-          ? 'bg-white/85 dark:bg-[#0a0a0a]/90 border-[#dde1e9] dark:border-white/[0.12] shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/40'
+          ? 'bg-white/85 dark:bg-[#191c20]/90 border-[#dde1e9] dark:border-white/[0.12] shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/40'
           : 'bg-transparent border-transparent shadow-none backdrop-blur-0'
       }`}
     >
@@ -170,7 +170,7 @@ function Navbar() {
           <button
             onClick={toggle}
             aria-label="Toggle Theme"
-            className="p-2 rounded-xl border border-[#dde1e9] dark:border-white/10 bg-[#f0f2f5] dark:bg-[#141414] text-[#4b5563] dark:text-white/70 hover:text-[#111827] dark:hover:text-white transition-all shadow-sm"
+            className="p-2 rounded-xl border border-[#dde1e9] dark:border-white/10 bg-[#f0f2f5] dark:bg-[#23272d] text-[#4b5563] dark:text-white/70 hover:text-[#111827] dark:hover:text-white transition-all shadow-sm"
           >
             {dark ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} className="text-indigo-600" />}
           </button>
@@ -215,10 +215,10 @@ function HeroCard() {
       transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className="relative mx-auto w-full max-w-xl mt-10 sm:mt-14 min-w-0">
       <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-        className="bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/10 rounded-2xl overflow-hidden shadow-2xl shadow-black/5 dark:shadow-black/80">
+        className="bg-white dark:bg-[#23272d] border border-[#dde1e9] dark:border-white/10 rounded-2xl overflow-hidden shadow-2xl shadow-black/5 dark:shadow-black/80">
         
         {/* Top bar with live status lights */}
-        <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-[#dde1e9] dark:border-white/[0.07] bg-[#f8f9fb] dark:bg-[#0f0f0f]">
+        <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-b border-[#dde1e9] dark:border-white/[0.07] bg-[#f8f9fb] dark:bg-[#1d2025]">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 overflow-hidden">
             <div className="w-3 h-3 rounded-full bg-red-500/80" />
             <div className="w-3 h-3 rounded-full bg-amber-500/80" />
@@ -337,7 +337,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div ref={rootRef} className="min-h-screen bg-[#f0f2f5] dark:bg-[#0a0a0a] text-[#111827] dark:text-white overflow-x-hidden transition-colors duration-300">
+    <div ref={rootRef} className="min-h-screen bg-[#f0f2f5] dark:bg-[#191c20] text-[#111827] dark:text-white overflow-x-hidden transition-colors duration-300">
       <Navbar />
 
       {/* ════════════ HERO ════════════ */}
@@ -426,7 +426,7 @@ export default function LandingPage() {
               const Icon = c.icon;
               const clr = colorMap[c.color];
               return (
-                <div key={c.title} className="category-card group bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-4 sm:p-6 hover:border-indigo-300 dark:hover:border-white/20 transition-all duration-300 shadow-sm dark:shadow-none relative overflow-hidden">
+                <div key={c.title} className="category-card group bg-white dark:bg-[#23272d] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-4 sm:p-6 hover:border-indigo-300 dark:hover:border-white/20 transition-all duration-300 shadow-sm dark:shadow-none relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4">
                     <div className={`w-11 h-11 rounded-xl ${clr.bg} border ${clr.border} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                       <Icon size={20} className={clr.text} />
@@ -462,7 +462,7 @@ export default function LandingPage() {
               const Icon = f.icon;
               const c = colorMap[f.color];
               return (
-                <div key={f.title} className="feature-card group bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-4 sm:p-6 hover:border-indigo-300 dark:hover:border-white/15 transition-all duration-300 shadow-sm dark:shadow-none cursor-default">
+                <div key={f.title} className="feature-card group bg-white dark:bg-[#23272d] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-4 sm:p-6 hover:border-indigo-300 dark:hover:border-white/15 transition-all duration-300 shadow-sm dark:shadow-none cursor-default">
                   <div className={`w-11 h-11 rounded-xl ${c.bg} border ${c.border} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     <Icon size={20} className={c.text} />
                   </div>
@@ -493,7 +493,7 @@ export default function LandingPage() {
                     <span className="text-lg sm:text-2xl font-black text-indigo-600 dark:text-indigo-400">{s.step}</span>
                   </div>
                 </div>
-                <div className={`min-w-0 flex-1 bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-4 sm:p-6 shadow-sm dark:shadow-none ${i % 2 !== 0 ? 'md:text-right' : ''}`}>
+                <div className={`min-w-0 flex-1 bg-white dark:bg-[#23272d] border border-[#dde1e9] dark:border-white/[0.08] rounded-2xl p-4 sm:p-6 shadow-sm dark:shadow-none ${i % 2 !== 0 ? 'md:text-right' : ''}`}>
                   <h3 className="text-lg sm:text-xl font-bold text-[#111827] dark:text-white mb-2">{s.title}</h3>
                   <p className="text-[#4b5563] dark:text-white/45 leading-relaxed">{s.desc}</p>
                 </div>
@@ -520,7 +520,7 @@ export default function LandingPage() {
               const c = colorMap[item.color];
               return (
                 <FadeIn key={item.label} delay={i * 0.13}>
-                  <div className="h-full text-center p-7 rounded-2xl bg-white dark:bg-[#141414] border border-[#dde1e9] dark:border-white/[0.08] hover:border-indigo-300 dark:hover:border-white/15 transition-all shadow-sm dark:shadow-none">
+                  <div className="h-full text-center p-7 rounded-2xl bg-white dark:bg-[#23272d] border border-[#dde1e9] dark:border-white/[0.08] hover:border-indigo-300 dark:hover:border-white/15 transition-all shadow-sm dark:shadow-none">
                     <div className={`w-12 h-12 rounded-xl ${c.bg} border ${c.border} flex items-center justify-center mx-auto mb-4`}>
                       <Icon size={21} className={c.text} />
                     </div>

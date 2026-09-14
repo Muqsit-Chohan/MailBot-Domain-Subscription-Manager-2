@@ -83,7 +83,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] dark:bg-[#0a0a0a] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#f0f2f5] dark:bg-[#191c20] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-600/15 rounded-full blur-[100px]" />
@@ -96,18 +96,18 @@ export default function AuthPage() {
           <Link to="/" aria-label="MailBot home">
             <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-16 h-16 object-contain mb-2" />
           </Link>
-          <h1 className="text-2xl font-extrabold text-[#111827] dark:text-[#f5f5f5] tracking-tight">MailBot</h1>
+          <h1 className="text-2xl font-extrabold text-[#111827] dark:text-[#e7e9ed] tracking-tight">MailBot</h1>
           <p className="text-xs text-[#6b7280] dark:text-[#a1a1aa] mt-1">Domain, Hosting & Subscription Manager</p>
         </div>
 
         {/* Card */}
         <div className="card p-6 shadow-xl shadow-black/5 dark:shadow-2xl dark:shadow-black/70">
           {/* Tabs */}
-          <div className="flex bg-[#f0f2f5] dark:bg-[#0f0f0f] border border-[#dde1e9] dark:border-[#272727] rounded-xl p-1 mb-6">
+          <div className="flex bg-[#f0f2f5] dark:bg-[#1d2025] border border-[#dde1e9] dark:border-[#373e47] rounded-xl p-1 mb-6">
             {['login', 'register'].map(m => (
               <button key={m} disabled={loading} onClick={() => switchMode(m)}
                 className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all capitalize ${
-                  mode === m ? 'bg-white dark:bg-[#1c1c1c] text-[#111827] dark:text-[#f5f5f5] shadow-sm' : 'text-[#6b7280] dark:text-[#71717a] hover:text-[#111827] dark:hover:text-[#f5f5f5]'
+                  mode === m ? 'bg-white dark:bg-[#2b3037] text-[#111827] dark:text-[#e7e9ed] shadow-sm' : 'text-[#6b7280] dark:text-[#71717a] hover:text-[#111827] dark:hover:text-[#e7e9ed]'
                 }`}
               >
                 {m === 'login' ? 'Sign In' : 'Create Account'}
@@ -185,12 +185,12 @@ export default function AuthPage() {
               {loading ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Create Account'}
             </button>
             {mode === 'login' && (
-              <p className="text-center text-sm text-[#6b7280] dark:text-[#8b92b3] mt-2">
+              <p className="text-center text-sm text-[#6b7280] dark:text-[#a8b0bc] mt-2">
                 If you signed up already, please verify your email before logging in.
               </p>
             )}
             {mode === 'register' && (
-              <p className="text-center text-sm text-[#6b7280] dark:text-[#8b92b3] mt-2">
+              <p className="text-center text-sm text-[#6b7280] dark:text-[#a8b0bc] mt-2">
                 Didn’t receive the email? Check your spam folder and try again after a few minutes.
               </p>
             )}
@@ -200,8 +200,8 @@ export default function AuthPage() {
         {/* Forgot Password Modal */}
         {showForgotModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-            <div className="bg-white dark:bg-[#141414] rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-[#dde1e9] dark:border-[#272727]">
-              <h3 className="text-lg font-bold text-[#111827] dark:text-[#f5f5f5] mb-1">Reset your password</h3>
+            <div className="bg-white dark:bg-[#23272d] rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-[#dde1e9] dark:border-[#373e47]">
+              <h3 className="text-lg font-bold text-[#111827] dark:text-[#e7e9ed] mb-1">Reset your password</h3>
               <p className="text-xs text-[#6b7280] dark:text-[#a1a1aa] mb-4">
                 Enter your account email and we will send you a password reset link.
               </p>

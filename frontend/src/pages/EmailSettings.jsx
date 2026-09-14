@@ -106,20 +106,20 @@ export default function EmailSettings() {
       {/* Header */}
       <div>
         <h1 className="page-title">Email Settings</h1>
-        <p className="text-sm text-[#6b7280] dark:text-[#8b92b3] mt-0.5">
+        <p className="text-sm text-[#6b7280] dark:text-[#a8b0bc] mt-0.5">
           Configure your SMTP settings to send automated email reminders
         </p>
       </div>
 
       {/* SMTP Configuration Card */}
       <div className="card p-6">
-        <div className="flex items-center gap-2 mb-5 pb-4 border-b border-[#e2e6f0] dark:border-[#2a2f48]">
+        <div className="flex items-center gap-2 mb-5 pb-4 border-b border-[#e2e6f0] dark:border-[#373e47]">
           <div className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
             <Mail size={15} className="text-indigo-600 dark:text-indigo-400" />
           </div>
           <h2 className="font-semibold text-[#0f1523] dark:text-[#eef0f8] text-sm">SMTP Configuration</h2>
         </div>
-        <p className="text-sm text-[#6b7280] dark:text-[#8b92b3] mb-4">
+        <p className="text-sm text-[#6b7280] dark:text-[#a8b0bc] mb-4">
           Configure your email server settings to send automated reminders
         </p>
 
@@ -203,7 +203,7 @@ export default function EmailSettings() {
               onChange={handleChange}
               className="rounded"
             />
-            <span className="text-sm text-[#6b7280] dark:text-[#8b92b3]">Enable TLS/SSL</span>
+            <span className="text-sm text-[#6b7280] dark:text-[#a8b0bc]">Enable TLS/SSL</span>
           </label>
 
           {/* Gmail Setup Instructions */}

@@ -255,7 +255,7 @@ export default function DashboardPage() {
                     <dd className="w-full min-w-0">
                       <details className="group">
                         <summary className="cursor-pointer rounded-md py-2 text-xs font-medium text-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500 dark:text-indigo-300">View subscriptions</summary>
-                        <div role="region" aria-label={`${row.currency} ${period} subscription costs`} tabIndex={0} className="mt-2 max-h-56 overflow-y-auto overscroll-contain rounded-lg border border-gray-200 bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500 dark:border-white/10 dark:bg-[#141414]">
+                        <div role="region" aria-label={`${row.currency} ${period} subscription costs`} tabIndex={0} className="mt-2 max-h-56 overflow-y-auto overscroll-contain rounded-lg border border-gray-200 bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500 dark:border-white/10 dark:bg-[#23272d]">
                           <ul className="divide-y divide-gray-100 dark:divide-white/5">
                             {allSubs.filter(sub => (sub.currency || 'USD').toUpperCase() === row.currency).map(sub => {
                               const months = sub.renewalCycle === 'Monthly' ? 1 : sub.renewalCycle === 'Quarterly' ? 3 : sub.renewalCycle === 'Custom' ? Math.max(Number(sub.customCycleMonths) || 12, 1) : 12;
@@ -316,10 +316,10 @@ export default function DashboardPage() {
         <div className="card min-w-0 p-5 lg:col-span-2 flex flex-col justify-between">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div>
-              <h2 className="text-sm font-bold text-[#111827] dark:text-[#f5f5f5]">Renewal Expiry Timeline</h2>
+              <h2 className="text-sm font-bold text-[#111827] dark:text-[#e7e9ed]">Renewal Expiry Timeline</h2>
               <p className="text-xs text-[#6b7280] dark:text-[#a1a1aa] mt-0.5">Upcoming subscription renewals over the next 6 months</p>
             </div>
-            <span className="shrink-0 whitespace-nowrap text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#f0f2f5] dark:bg-[#1c1c1c] text-[#111827] dark:text-[#f5f5f5] border border-[#dde1e9] dark:border-[#272727]">
+            <span className="shrink-0 whitespace-nowrap text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#f0f2f5] dark:bg-[#2b3037] text-[#111827] dark:text-[#e7e9ed] border border-[#dde1e9] dark:border-[#373e47]">
               {total6MonthCount} upcoming
             </span>
           </div>
@@ -347,7 +347,7 @@ export default function DashboardPage() {
         {/* Chart 2: Portfolio Breakdown (Donut Chart) (1 col) */}
         <div className="card min-w-0 p-5 flex flex-col justify-between">
           <div className="mb-2">
-            <h2 className="text-sm font-bold text-[#111827] dark:text-[#f5f5f5]">Portfolio by Type</h2>
+            <h2 className="text-sm font-bold text-[#111827] dark:text-[#e7e9ed]">Portfolio by Type</h2>
             <p className="text-xs text-[#6b7280] dark:text-[#a1a1aa] mt-0.5">Distribution across services</p>
           </div>
 
@@ -372,7 +372,7 @@ export default function DashboardPage() {
           {typePieData.length === 0 && <p className="mb-4 text-center text-xs text-gray-500 dark:text-gray-400">Add a subscription to see your portfolio breakdown.</p>}
 
           {/* Custom Sleek Legend */}
-          <div className="space-y-1.5 pt-3 border-t border-[#dde1e9] dark:border-[#272727] text-xs">
+          <div className="space-y-1.5 pt-3 border-t border-[#dde1e9] dark:border-[#373e47] text-xs">
             {typePieData.map((item, idx) => {
               const pct = allSubs.length ? Math.round((item.value / allSubs.length) * 100) : 0;
               return (
@@ -381,7 +381,7 @@ export default function DashboardPage() {
                     <span className="w-2.5 h-2.5 shrink-0 rounded-full" style={{ backgroundColor: PALETTE[idx % PALETTE.length] }} />
                     <span className="break-all min-w-0 text-[#374151] dark:text-[#a1a1aa] font-medium">{item.name}</span>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2 font-semibold text-[#111827] dark:text-[#f5f5f5]">
+                  <div className="flex shrink-0 items-center gap-2 font-semibold text-[#111827] dark:text-[#e7e9ed]">
                     <span>{item.value}</span>
                     <span className="text-[#6b7280] dark:text-[#71717a] text-[11px]">({pct}%)</span>
                   </div>
@@ -394,19 +394,19 @@ export default function DashboardPage() {
 
       {/* Renewal Cycle Breakdown Progress Row */}
       <div className="card p-5">
-        <h2 className="text-sm font-bold text-[#111827] dark:text-[#f5f5f5] mb-1">Renewal Cycle Distribution</h2>
+        <h2 className="text-sm font-bold text-[#111827] dark:text-[#e7e9ed] mb-1">Renewal Cycle Distribution</h2>
         <p className="text-xs text-[#6b7280] dark:text-[#a1a1aa] mb-4">Breakdown of billing cycles across all managed assets</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           {['Yearly', 'Monthly', 'Quarterly', 'Custom'].map((cycle) => {
             const count = cycleCounts[cycle] || 0;
             const pct = allSubs.length ? Math.round((count / allSubs.length) * 100) : 0;
             return (
-              <div key={cycle} className="p-3.5 rounded-xl bg-[#f8f9fb] dark:bg-[#1c1c1c] border border-[#dde1e9] dark:border-[#272727]">
+              <div key={cycle} className="p-3.5 rounded-xl bg-[#f8f9fb] dark:bg-[#2b3037] border border-[#dde1e9] dark:border-[#373e47]">
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="text-xs font-semibold text-[#374151] dark:text-[#a1a1aa]">{cycle}</span>
-                  <span className="text-xs font-bold text-[#111827] dark:text-[#f5f5f5]">{count} ({pct}%)</span>
+                  <span className="text-xs font-bold text-[#111827] dark:text-[#e7e9ed]">{count} ({pct}%)</span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-[#dde1e9] dark:bg-[#272727] overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-[#dde1e9] dark:bg-[#373e47] overflow-hidden">
                   <div
                     className="h-full rounded-full bg-indigo-600 transition-all duration-300"
                     style={{ width: `${pct}%` }}
@@ -422,7 +422,7 @@ export default function DashboardPage() {
       <div className="card p-5">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-sm font-semibold text-[#111827] dark:text-[#f5f5f5]">Upcoming Renewals & Expiries</h2>
+            <h2 className="text-sm font-semibold text-[#111827] dark:text-[#e7e9ed]">Upcoming Renewals & Expiries</h2>
             <p className="text-xs text-[#6b7280] dark:text-[#a1a1aa]">Subscriptions renewing in the next 30 days</p>
           </div>
           <Link to="/subscriptions" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
@@ -435,14 +435,14 @@ export default function DashboardPage() {
             🎉 No upcoming expiries in the next 30 days.
           </div>
         ) : (
-          <div className="divide-y divide-[#dde1e9] dark:divide-[#272727]">
+          <div className="divide-y divide-[#dde1e9] dark:divide-[#373e47]">
             {upcoming.slice(0, 5).map(sub => {
               const daysLeft = differenceInDays(new Date(sub.expiryDate), new Date());
               return (
                 <div key={sub._id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="break-all font-semibold text-sm text-[#111827] dark:text-[#f5f5f5]">{sub.domain}</span>
+                      <span className="break-all font-semibold text-sm text-[#111827] dark:text-[#e7e9ed]">{sub.domain}</span>
                       {sub.cost ? (
                         <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/20">
                           {sub.currency || 'USD'} {sub.cost}
