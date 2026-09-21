@@ -143,4 +143,29 @@ router.post('/test-webhook', auth, async (req, res) => {
   }
 });
 
+// POST /api/settings/test-whatsapp – send test WhatsApp alert
+router.post('/test-whatsapp', auth, async (req, res) => {
+  try {
+    const { whatsappNumber, whatsappApiKey } = req.body;
+    if (!whatsappNumber || !whatsappApiKey) {
+      return res.status(400).json({ message: 'WhatsApp number and API key are required' });
+    }
+
+    const { sendWhatsAppNotification } = require('../services/whatsappService');
+    const result = await sendWhatsAppNotification(
+      whatsappNumber,
+      whatsappApiKey,
+      '🔔 MailBot WhatsApp Test\n\nThis is a test notification from your MailBot Domain Manager. WhatsApp integration is working successfully!'
+    );
+
+    if (!result.success) {
+      return res.status(400).json({ message: result.error || 'Failed to send WhatsApp message' });
+    }
+
+    res.json({ message: 'Test WhatsApp message sent successfully!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to test WhatsApp: ' + err.message });
+  }
+});
+
 module.exports = router;

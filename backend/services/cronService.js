@@ -16,6 +16,7 @@ const processReminders = async () => {
 
     let sent = 0, failed = 0;
     let webhookSentCount = 0, webhookFailed = 0, webhookSkipped = 0, due = 0;
+    let whatsappSentCount = 0, whatsappFailed = 0, whatsappSkipped = 0;
 
     for (const sub of subscriptions) {
       const daysUntilExpiry = Math.ceil((new Date(sub.expiryDate) - now) / (1000 * 60 * 60 * 24));
@@ -61,13 +62,33 @@ const processReminders = async () => {
               console.log('[Cron] Reminder webhook skipped:', webhook.reason);
             }
           }
+          const whatsappSent = sub.whatsappRemindersSent?.some(
+            r => r.interval === interval && new Date(r.sentAt).toDateString() === now.toDateString()
+          );
+          if (!whatsappSent) {
+            const { sendReminderWhatsApp } = require('./whatsappService');
+            const whatsapp = await sendReminderWhatsApp(sub, daysUntilExpiry);
+            if (whatsapp.success) {
+              whatsappSentCount++;
+              sub.whatsappRemindersSent = sub.whatsappRemindersSent || [];
+              sub.whatsappRemindersSent.push({ interval, sentAt: now });
+              await sub.save();
+            } else if (!whatsapp.skipped) {
+              whatsappFailed++;
+              console.error('[Cron] Reminder WhatsApp failed:', whatsapp.error);
+            } else {
+              whatsappSkipped++;
+              console.log('[Cron] Reminder WhatsApp skipped:', whatsapp.reason);
+            }
+          }
         }
       }
     }
 
     console.log(`[Cron] Done. Sent: ${sent}, Failed: ${failed}`);
     return { sent, failed, checked: subscriptions.length, due,
-      webhookSent: webhookSentCount, webhookFailed, webhookSkipped };
+      webhookSent: webhookSentCount, webhookFailed, webhookSkipped,
+      whatsappSent: whatsappSentCount, whatsappFailed, whatsappSkipped };
   } catch (error) {
     console.error('[Cron] Error:', error);
     return { sent: 0, failed: 0, error: error.message };

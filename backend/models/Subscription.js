@@ -52,6 +52,7 @@ const subscriptionSchema = new mongoose.Schema({
   lastReminderSent: { type: Date },
   remindersSent: [{ interval: Number, sentAt: Date }],
   webhookRemindersSent: [{ interval: Number, sentAt: Date }],
+  whatsappRemindersSent: [{ interval: Number, sentAt: Date }],
 }, { timestamps: true });
 
 // Pre-save hook (unchanged)

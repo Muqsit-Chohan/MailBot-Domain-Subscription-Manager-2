@@ -19,6 +19,11 @@ const userSchema = new mongoose.Schema({
   webhookUrl: { type: String, trim: true },
   webhookEnabled: { type: Boolean, default: false },
   // ============================================
+  // ===== WHATSAPP NOTIFICATIONS (CallMeBot) =====
+  whatsappNumber: { type: String, trim: true },
+  whatsappApiKey: { type: String, trim: true },
+  whatsappEnabled: { type: Boolean, default: false },
+  // ============================================
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {

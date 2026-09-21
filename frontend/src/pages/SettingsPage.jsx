@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   Mail, Play, CheckCircle, XCircle, Info, Server,
-  Save, Send, Eye, EyeOff
+  Save, Send, Eye, EyeOff, MessageCircle
 } from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
@@ -49,6 +49,13 @@ export default function SettingsPage() {
   const [testingWebhook, setTestingWebhook] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
 
+  // WhatsApp state
+  const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [whatsappApiKey, setWhatsappApiKey] = useState('');
+  const [whatsappEnabled, setWhatsappEnabled] = useState(false);
+  const [testingWhatsapp, setTestingWhatsapp] = useState(false);
+  const [savingWhatsapp, setSavingWhatsapp] = useState(false);
+
   // Load saved SMTP & Profile on mount
   useEffect(() => {
     const loadConfig = async () => {
@@ -72,6 +79,9 @@ export default function SettingsPage() {
         if (profile) {
           setWebhookUrl(profile.webhookUrl || '');
           setWebhookEnabled(!!profile.webhookEnabled);
+          setWhatsappNumber(profile.whatsappNumber || '');
+          setWhatsappApiKey(profile.whatsappApiKey || '');
+          setWhatsappEnabled(!!profile.whatsappEnabled);
         }
       } catch (err) {}
     };
@@ -107,6 +117,45 @@ export default function SettingsPage() {
       toast.error(err.response?.data?.message || 'Failed to trigger webhook');
     } finally {
       setTestingWebhook(false);
+    }
+  };
+
+  const handleSaveWhatsapp = async () => {
+    if (whatsappEnabled && (!whatsappNumber.trim() || !whatsappApiKey.trim())) {
+      toast.error('Enter your WhatsApp number and API key before enabling reminder alerts.');
+      return;
+    }
+    setSavingWhatsapp(true);
+    try {
+      await api.put('/auth/profile', {
+        whatsappNumber: whatsappNumber.trim(),
+        whatsappApiKey: whatsappApiKey.trim(),
+        whatsappEnabled,
+      });
+      toast.success(whatsappEnabled ? 'WhatsApp saved and reminder alerts enabled!' : 'WhatsApp saved. Reminder alerts are disabled.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update settings');
+    } finally {
+      setSavingWhatsapp(false);
+    }
+  };
+
+  const handleTestWhatsapp = async () => {
+    if (!whatsappNumber.trim() || !whatsappApiKey.trim()) {
+      toast.error('Please enter your WhatsApp number and API key');
+      return;
+    }
+    setTestingWhatsapp(true);
+    try {
+      await api.post('/settings/test-whatsapp', {
+        whatsappNumber: whatsappNumber.trim(),
+        whatsappApiKey: whatsappApiKey.trim(),
+      });
+      toast.success('Test message sent! Check your WhatsApp.', { duration: 7000 });
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to send WhatsApp message');
+    } finally {
+      setTestingWhatsapp(false);
     }
   };
 
@@ -173,8 +222,8 @@ export default function SettingsPage() {
     try {
       const { data } = await api.post('/settings/run-cron');
       setCronResult(data);
-      const summary = `Email: ${data.sent} sent, ${data.failed} failed. Webhook: ${data.webhookSent || 0} sent, ${data.webhookFailed || 0} failed, ${data.webhookSkipped || 0} skipped.`;
-      if (data.error || data.failed || data.webhookFailed) toast.error(data.error || summary);
+      const summary = `Email: ${data.sent} sent, ${data.failed} failed. Webhook: ${data.webhookSent || 0} sent, ${data.webhookFailed || 0} failed, ${data.webhookSkipped || 0} skipped. WhatsApp: ${data.whatsappSent || 0} sent, ${data.whatsappFailed || 0} failed, ${data.whatsappSkipped || 0} skipped.`;
+      if (data.error || data.failed || data.webhookFailed || data.whatsappFailed) toast.error(data.error || summary);
       else if (data.due === 0) toast('No subscriptions are due on their configured reminder days.');
       else toast.success(summary);
     } catch (err) {
@@ -447,6 +496,82 @@ export default function SettingsPage() {
         </div>
       </Section>
 
+      {/* WhatsApp Notifications Section */}
+      <Section title="WhatsApp Alerts (via CallMeBot)" icon={MessageCircle}>
+        <div className="space-y-4">
+          <p className="text-sm text-[#6b7280] dark:text-[#a8b0bc]">
+            Receive renewal reminders directly on WhatsApp using the free CallMeBot API.
+            {' '}Testing only checks delivery. Enable notifications and save settings to receive subscription alerts.
+          </p>
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">
+              One-time CallMeBot Setup
+            </h3>
+            <ul className="text-xs text-blue-800 dark:text-blue-200 space-y-1 list-disc pl-4">
+              <li>Save this contact on your phone: <strong>+34 644 59 71 67</strong></li>
+              <li>Send it the WhatsApp message: <span className="font-mono">I allow callmebot to send me messages</span></li>
+              <li>You'll receive your personal API key in a reply message</li>
+              <li>Enter your WhatsApp number (with country code, e.g. +923001234567) and that API key below</li>
+            </ul>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label">WhatsApp Number</label>
+              <input
+                className="input"
+                placeholder="+923001234567"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="label">CallMeBot API Key</label>
+              <input
+                className="input"
+                placeholder="123456"
+                value={whatsappApiKey}
+                onChange={(e) => setWhatsappApiKey(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={whatsappEnabled}
+              onChange={(e) => setWhatsappEnabled(e.target.checked)}
+              className="rounded"
+            />
+            <span className="text-sm text-[#0f1523] dark:text-[#eef0f8] font-medium">
+              Enable WhatsApp Notifications for renewal reminders
+            </span>
+          </label>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleTestWhatsapp}
+              disabled={testingWhatsapp || !whatsappNumber || !whatsappApiKey}
+              className="btn-secondary flex items-center gap-2"
+            >
+              <Send size={14} />
+              {testingWhatsapp ? 'Sending...' : 'Test WhatsApp Alert'}
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveWhatsapp}
+              disabled={savingWhatsapp}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Save size={14} />
+              {savingWhatsapp ? 'Saving...' : 'Save WhatsApp Settings'}
+            </button>
+          </div>
+        </div>
+      </Section>
+
       {/* Account info */}
       <Section title="Account" icon={Info}>
         <div className="space-y-3">
@@ -455,6 +580,7 @@ export default function SettingsPage() {
             { label: 'Email', value: user?.email },
             { label: 'Role', value: user?.role },
             { label: 'Webhook Status', value: webhookEnabled ? 'Enabled' : 'Disabled' },
+            { label: 'WhatsApp Status', value: whatsappEnabled ? 'Enabled' : 'Disabled' },
           ].map(({ label, value }) => (
             <div key={label} className="flex items-center justify-between py-2 border-b border-[#f1f3f9] dark:border-[#2b3037] last:border-0">
               <span className="text-xs font-medium text-[#6b7280] dark:text-[#a8b0bc] uppercase tracking-wide">{label}</span>

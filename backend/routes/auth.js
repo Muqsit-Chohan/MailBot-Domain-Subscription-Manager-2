@@ -154,6 +154,9 @@ router.post('/login', async (req, res) => {
         role: user.role,
         webhookUrl: user.webhookUrl,
         webhookEnabled: user.webhookEnabled,
+        whatsappNumber: user.whatsappNumber,
+        whatsappApiKey: user.whatsappApiKey,
+        whatsappEnabled: user.whatsappEnabled,
       },
     });
   } catch (err) {
@@ -235,13 +238,16 @@ router.get('/me', auth, async (req, res) => {
 // PUT /api/auth/profile
 router.put('/profile', auth, async (req, res) => {
   try {
-    const { name, webhookUrl, webhookEnabled } = req.body;
+    const { name, webhookUrl, webhookEnabled, whatsappNumber, whatsappApiKey, whatsappEnabled } = req.body;
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     if (name) user.name = name;
     if (typeof webhookUrl !== 'undefined') user.webhookUrl = webhookUrl;
     if (typeof webhookEnabled !== 'undefined') user.webhookEnabled = webhookEnabled;
+    if (typeof whatsappNumber !== 'undefined') user.whatsappNumber = whatsappNumber;
+    if (typeof whatsappApiKey !== 'undefined') user.whatsappApiKey = whatsappApiKey;
+    if (typeof whatsappEnabled !== 'undefined') user.whatsappEnabled = whatsappEnabled;
 
     await user.save();
     res.json({
@@ -253,6 +259,9 @@ router.put('/profile', auth, async (req, res) => {
         role: user.role,
         webhookUrl: user.webhookUrl,
         webhookEnabled: user.webhookEnabled,
+        whatsappNumber: user.whatsappNumber,
+        whatsappApiKey: user.whatsappApiKey,
+        whatsappEnabled: user.whatsappEnabled,
       },
     });
   } catch (err) {
