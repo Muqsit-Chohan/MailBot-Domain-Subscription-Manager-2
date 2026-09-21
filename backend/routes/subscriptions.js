@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { subscriptionFields } = require('../utils/editableFields');
 const { body, validationResult } = require('express-validator');
 const Subscription = require('../models/Subscription');
 const { auth } = require('../middleware/auth');
@@ -10,7 +11,7 @@ const { sendEmail, isResendEnabled } = require('../services/emailService');
 router.get('/', auth, async (req, res) => {
   try {
     const { status, search, page = 1, limit = 20, sort = '-createdAt' } = req.query;
-    const query = {};
+    const query = { createdBy: req.user._id };
     if (status && status !== 'all') query.status = status;
     if (search) {
       query.$or = [
@@ -51,7 +52,7 @@ router.post('/lookup', auth, async (req, res) => {
 // GET /api/subscriptions/export-csv
 router.get('/export-csv', auth, async (req, res) => {
   try {
-    const subscriptions = await Subscription.find().sort('-createdAt');
+    const subscriptions = await Subscription.find({ createdBy: req.user._id }).sort('-createdAt');
     
     // Build CSV
     const headers = ['Domain', 'Registrar', 'Owner', 'Owner Email', 'Subscription Type', 'Renewal Cycle', 'Expiry Date', 'Cost', 'Currency', 'SSL Valid', 'SSL Expiry', 'Status', 'Auto Renew'];
@@ -145,11 +146,11 @@ router.get('/stats', auth, async (req, res) => {
     const in15Days = new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000);
 
     const [total, active, expired, expiringSoon, allSubs] = await Promise.all([
-      Subscription.countDocuments(),
-      Subscription.countDocuments({ status: 'active' }),
-      Subscription.countDocuments({ status: 'expired' }),
-      Subscription.countDocuments({ status: 'expiring_soon' }),
-      Subscription.find().select('cost currency renewalCycle customCycleMonths sslExpiryDate sslValid'),
+      Subscription.countDocuments({ createdBy: req.user._id }),
+      Subscription.countDocuments({ createdBy: req.user._id, status: 'active' }),
+      Subscription.countDocuments({ createdBy: req.user._id, status: 'expired' }),
+      Subscription.countDocuments({ createdBy: req.user._id, status: 'expiring_soon' }),
+      Subscription.find({ createdBy: req.user._id }).select('cost currency renewalCycle customCycleMonths sslExpiryDate sslValid'),
     ]);
 
     // Financial spend projections
@@ -182,12 +183,13 @@ router.get('/stats', auth, async (req, res) => {
       }
     }
 
-    const recentlyAdded = await Subscription.find()
+    const recentlyAdded = await Subscription.find({ createdBy: req.user._id })
       .sort('-createdAt')
       .limit(5)
       .select('domain expiryDate status owner cost currency');
 
     const upcomingExpiries = await Subscription.find({
+      createdBy: req.user._id,
       expiryDate: { $gte: now, $lte: in30Days },
     }).sort('expiryDate').limit(5).select('domain expiryDate owner ownerEmail status cost currency sslExpiryDate');
 
@@ -215,7 +217,7 @@ router.get('/stats', auth, async (req, res) => {
 // GET /api/subscriptions/:id
 router.get('/:id', auth, async (req, res) => {
   try {
-    const sub = await Subscription.findById(req.params.id).populate('createdBy', 'name email');
+    const sub = await Subscription.findOne({ _id: req.params.id, createdBy: req.user._id }).populate('createdBy', 'name email');
     if (!sub) return res.status(404).json({ message: 'Subscription not found' });
     res.json(sub);
   } catch (err) {
@@ -235,7 +237,7 @@ router.post('/', auth, [
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   try {
-    const sub = await Subscription.create({ ...req.body, createdBy: req.user._id });
+    const sub = await Subscription.create({ ...subscriptionFields(req.body), createdBy: req.user._id });
     res.status(201).json(sub);
   } catch (err) {
     if (err.code === 11000) return res.status(400).json({ message: 'Domain already exists' });
@@ -246,7 +248,7 @@ router.post('/', auth, [
 // PUT /api/subscriptions/:id
 router.put('/:id', auth, async (req, res) => {
   try {
-    const sub = await Subscription.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const sub = await Subscription.findOneAndUpdate({ _id: req.params.id, createdBy: req.user._id }, { $set: subscriptionFields(req.body) }, { new: true, runValidators: true });
     if (!sub) return res.status(404).json({ message: 'Subscription not found' });
     res.json(sub);
   } catch (err) {
@@ -257,7 +259,7 @@ router.put('/:id', auth, async (req, res) => {
 // DELETE /api/subscriptions/:id
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const sub = await Subscription.findByIdAndDelete(req.params.id);
+    const sub = await Subscription.findOneAndDelete({ _id: req.params.id, createdBy: req.user._id });
     if (!sub) return res.status(404).json({ message: 'Subscription not found' });
     res.json({ message: 'Subscription deleted' });
   } catch (err) {
@@ -268,7 +270,7 @@ router.delete('/:id', auth, async (req, res) => {
 // POST /api/subscriptions/:id/send-test (DYNAMIC SMTP)
 router.post('/:id/send-test', auth, async (req, res) => {
   try {
-    const sub = await Subscription.findById(req.params.id);
+    const sub = await Subscription.findOne({ _id: req.params.id, createdBy: req.user._id });
     if (!sub) return res.status(404).json({ message: 'Subscription not found' });
 
     // 1. Load user's saved SMTP settings (if any)
@@ -317,6 +319,7 @@ router.post('/:id/send-test', auth, async (req, res) => {
       text: `Test email for ${sub.domain}. Expires in ${daysUntil} day(s).`,
       subscription: sub,
       triggeredBy: 'test',
+      userId: req.user._id,
       transportOptions: {
         host,
         port,

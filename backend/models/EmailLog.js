@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const emailLogSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
   subscription: { type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' },
   template: { type: mongoose.Schema.Types.ObjectId, ref: 'EmailTemplate' },
   to: { type: String, required: true },

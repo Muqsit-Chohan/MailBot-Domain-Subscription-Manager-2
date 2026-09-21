@@ -4,11 +4,12 @@ const { sendReminderEmail } = require('./emailService');
 
 let cronJob = null;
 
-const processReminders = async () => {
+const processReminders = async ({ userId } = {}) => {
   console.log('[Cron] Running reminder check:', new Date().toISOString());
   try {
     const now = new Date();
     const subscriptions = await Subscription.find({
+      ...(userId ? { createdBy: userId } : {}),
       notificationsEnabled: true,
       expiryDate: { $gt: now },
       status: { $ne: 'expired' },
@@ -98,7 +99,7 @@ const processReminders = async () => {
 const startCron = () => {
   if (cronJob) cronJob.destroy();
   // Run every day at 8:00 AM
-  cronJob = cron.schedule('0 8 * * *', processReminders, {
+  cronJob = cron.schedule('0 8 * * *', () => processReminders(), {
     scheduled: true,
     timezone: 'UTC',
   });

@@ -33,10 +33,11 @@ test('email routes and reminders select the correct transport and recipient', as
   process.env.RESEND_API_KEY = 're_fake_test';
   delete process.env.EMAIL_FROM;
   const sub = { _id: new mongoose.Types.ObjectId(), domain: 'example.com', ownerEmail: 'owner@example.com', expiryDate: new Date(), createdBy: new mongoose.Types.ObjectId() };
-  t.mock.method(Subscription, 'findById', async () => sub);
+  t.mock.method(Subscription, 'findOne', async query => { assert.equal(String(query.createdBy), String(sub.createdBy)); return sub; });
   t.mock.method(EmailLog.prototype, 'save', async function () {
     const error = this.validateSync();
     if (error) throw error;
+    assert.equal(String(this.user), String(sub.createdBy));
     return this;
   });
   const requests = [];
@@ -81,8 +82,8 @@ test('email routes and reminders select the correct transport and recipient', as
 
 test('Run Cron uses the existing cron service', async t => {
   const cron = require('../services/cronService');
-  t.mock.method(cron, 'processReminders', async () => ({ sent: 1, failed: 0 }));
-  const res = await invoke(settingsRoutes, '/run-cron', {});
+  t.mock.method(cron, 'processReminders', async options => { assert.equal(options.userId, 'owner'); return { sent: 1, failed: 0 }; });
+  const res = await invoke(settingsRoutes, '/run-cron', { user: { _id: 'owner' } });
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.sent, 1);
 });

@@ -51,7 +51,7 @@ router.put('/smtp', auth, async (req, res) => {
 // Manually run cron
 router.post('/run-cron', auth, async (req, res) => {
   try {
-    const result = await require('../services/cronService').processReminders();
+    const result = await require('../services/cronService').processReminders({ userId: req.user._id });
     res.json({ sent: result.sent, failed: result.failed, error: result.error || null });
   } catch (err) {
     res.status(500).json({ message: 'Failed to run cron: ' + err.message });
@@ -93,6 +93,7 @@ router.post('/test-email', auth, async (req, res) => {
       html,
       text: 'MailBot SMTP test email – Your configuration is working!',
       triggeredBy: 'test',
+      userId: req.user._id,
       transportOptions: {
         host,
         port: smtpPort,

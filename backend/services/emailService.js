@@ -139,6 +139,7 @@ const sendEmail = async ({ to, from, subject, html, text, subscription, template
   });
   // Create initial log
   const log = new EmailLog({
+    user: subscription?.createdBy || userId,
     subscription: subscription?._id,
     template: template?._id,
     to,

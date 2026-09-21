@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { auth } = require('../middleware/auth');   // ← destructure auth
 const Template = require('../models/Template');
+const { templateFields } = require('../utils/editableFields');
 const { generateTemplateFromPrompt } = require('../services/aiTemplateService');
 
 router.get('/', auth, async (req, res) => {
@@ -37,8 +38,8 @@ router.put('/:id', auth, async (req, res) => {
   try {
     const template = await Template.findOneAndUpdate(
       { _id: req.params.id, user: req.user._id },
-      req.body,
-      { new: true }
+      { $set: templateFields(req.body) },
+      { new: true, runValidators: true }
     );
     if (!template) return res.status(404).json({ message: 'Template not found' });
     res.json(template);

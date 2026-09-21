@@ -13,8 +13,8 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem('mb_token');
     if (token) {
       api.get('/auth/me')
-        .then(r => setUser(r.data.user))
-        .catch(() => { localStorage.removeItem('mb_token'); localStorage.removeItem('mb_user'); })
+        .then(r => { setUser(r.data); localStorage.setItem('mb_user', JSON.stringify(r.data)); })
+        .catch(() => { setUser(null); localStorage.removeItem('mb_token'); localStorage.removeItem('mb_user'); })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
