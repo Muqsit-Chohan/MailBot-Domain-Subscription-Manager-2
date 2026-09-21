@@ -3,6 +3,7 @@ const dns = require('dns');
 const EmailLog = require('../models/EmailLog');
 const EmailTemplate = require('../models/EmailTemplate');
 const Template = require('../models/Template');
+const getClientUrl = require('../utils/clientUrl');
 
 const isResendEnabled = () => Boolean(process.env.RESEND_API_KEY?.trim());
 
@@ -248,7 +249,7 @@ const verifyConnection = async (config = {}) => {
 
 // ========== NEW FUNCTION FOR VERIFICATION EMAIL ==========
 const sendVerificationEmail = async (to, token) => {
-  const clientUrl = process.env.CLIENT_URL || (process.env.FRONTEND_URL || '').split(',')[0] || 'http://localhost:5173';
+  const clientUrl = getClientUrl();
   const verificationUrl = `${clientUrl.replace(/\/$/, '')}/verify-email?token=${token}`;
   console.log('[EmailService] sendVerificationEmail ->', { to });
 
@@ -270,7 +271,7 @@ const sendVerificationEmail = async (to, token) => {
 };
 // ========== NEW FUNCTION FOR PASSWORD RESET EMAIL ==========
 const sendPasswordResetEmail = async (to, token) => {
-  const baseUrl = process.env.CLIENT_URL || (process.env.FRONTEND_URL || '').split(',')[0] || 'http://localhost:5173';
+  const baseUrl = getClientUrl();
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
   console.log('[EmailService] sendPasswordResetEmail ->', { to, token });
 
