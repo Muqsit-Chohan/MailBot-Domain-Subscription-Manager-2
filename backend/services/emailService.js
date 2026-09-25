@@ -33,7 +33,7 @@ const sendWithResend = async ({ to, subject, html, text }) => {
     signal: AbortSignal.timeout(20000),
     body: JSON.stringify({
       // SMTP senders may not be verified in Resend. Use a dedicated sender.
-      from: process.env.EMAIL_FROM?.trim() || 'MailBot <onboarding@resend.dev>',
+      from: process.env.EMAIL_FROM?.trim() || 'MailMate <onboarding@resend.dev>',
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
@@ -104,7 +104,7 @@ const getTransporter = async (userId = null) => {
       }));
       return {
         transporter: nodemailer.createTransport(transportOptions),
-        from: `"${saved.senderName || 'MailBot'}" <${saved.senderEmail || saved.username}>`,
+        from: `"${saved.senderName || 'MailMate'}" <${saved.senderEmail || saved.username}>`,
       };
     }
   } catch (err) {
@@ -114,7 +114,7 @@ const getTransporter = async (userId = null) => {
   const transportOptions = await resolveIpv4TransportOptions(buildTransportOptions());
   return {
     transporter: nodemailer.createTransport(transportOptions),
-    from: `"${process.env.SMTP_FROM_NAME || 'MailBot'}" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'your@yourdomain.com'}>`,
+    from: `"${process.env.SMTP_FROM_NAME || 'MailMate'}" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'your@yourdomain.com'}>`,
   };
 };
 
@@ -254,10 +254,10 @@ const sendVerificationEmail = async (to, token) => {
   const verificationUrl = `${clientUrl.replace(/\/$/, '')}/verify-email?token=${token}`;
   console.log('[EmailService] sendVerificationEmail ->', { to });
 
-  const subject = 'Verify your email - MailBot';
+  const subject = 'Verify your email - MailMate';
   const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Welcome to MailBot!</h2>
+          <h2>Welcome to MailMate!</h2>
           <p>Click the button below to verify your email address:</p>
           <a href="${verificationUrl}" style="display: inline-block; padding: 12px 24px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 6px;">Verify Email</a>
           <p style="margin-top: 20px; color: #6b7280;">Or use this link: ${verificationUrl}</p>
@@ -276,10 +276,10 @@ const sendPasswordResetEmail = async (to, token) => {
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
   console.log('[EmailService] sendPasswordResetEmail ->', { to, token });
 
-  const subject = 'Password Reset Request - MailBot';
+  const subject = 'Password Reset Request - MailMate';
   const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
-          <h2 style="color: #4f46e5;">Reset Your MailBot Password</h2>
+          <h2 style="color: #4f46e5;">Reset Your MailMate Password</h2>
           <p>We received a request to reset your password.</p>
           <div style="margin: 25px 0;">
             <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">Reset Password</a>

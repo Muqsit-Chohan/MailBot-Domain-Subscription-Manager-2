@@ -52,7 +52,7 @@ test('email routes and reminders select the correct transport and recipient', as
   assert.equal((await invoke(settingsRoutes, '/test-email', req)).statusCode, 200);
   assert.equal((await invoke(subscriptionRoutes, '/:id/send-test', req)).body.success, true);
   assert.deepEqual(requests.map(r => r.to), [[sub.ownerEmail], [sub.ownerEmail]]);
-  assert.ok(requests.every(r => r.from === 'MailBot <onboarding@resend.dev>'));
+  assert.ok(requests.every(r => r.from === 'MailMate <onboarding@resend.dev>'));
   t.mock.method(EmailTemplate, 'findOne', async () => ({ subject: '{{domain}} expires', htmlBody: '{{days}} days' }));
   assert.equal((await emailService.sendReminderEmail(sub, 7)).success, true);
   assert.deepEqual(requests.at(-1).to, [sub.ownerEmail]);
@@ -82,8 +82,10 @@ test('email routes and reminders select the correct transport and recipient', as
 
 test('Run Cron uses the existing cron service', async t => {
   const cron = require('../services/cronService');
-  t.mock.method(cron, 'processReminders', async options => { assert.equal(options.userId, 'owner'); return { sent: 1, failed: 0 }; });
+  t.mock.method(cron, 'processReminders', async options => { assert.equal(options.userId, 'owner'); return { sent: 1, failed: 0, webhookSent: 0, webhookFailed: 1, webhookSkipped: 2 }; });
   const res = await invoke(settingsRoutes, '/run-cron', { user: { _id: 'owner' } });
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.sent, 1);
+  assert.equal(res.body.webhookFailed, 1);
+  assert.equal(res.body.webhookSkipped, 2);
 });

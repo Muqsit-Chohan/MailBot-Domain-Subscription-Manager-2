@@ -593,7 +593,7 @@ export default function SettingsPage() {
       {/* About */}
       <Section title="About" icon={Info}>
         <div className="space-y-2 text-sm text-[#6b7280] dark:text-[#a8b0bc]">
-          <p><strong className="text-[#0f1523] dark:text-[#eef0f8]">MailBot Domain Manager</strong></p>
+          <p><strong className="text-[#0f1523] dark:text-[#eef0f8]">MailMate Domain Manager</strong></p>
           <p>Stack: React + Vite, Tailwind CSS, Node.js, Express, MongoDB, Nodemailer, node-cron</p>
           <p className="font-mono text-xs">v1.0.0</p>
         </div>

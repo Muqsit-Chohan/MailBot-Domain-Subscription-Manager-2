@@ -1,6 +1,6 @@
-# MailBot - Domain and Subscription Manager
+# MailMate - Domain and Subscription Manager
 
-MailBot is a full-stack web application for managing domains, hosting services, SSL certificates, email services, SaaS tools, and other digital subscriptions. Users can track expiry dates, configure reminders, and receive automated renewal notifications.
+MailMate is a full-stack web application for managing domains, hosting services, SSL certificates, email services, SaaS tools, and other digital subscriptions. Users can track expiry dates, configure reminders, and receive automated renewal notifications.
 
 ## Features
 
@@ -80,7 +80,7 @@ The scheduler runs every day at **8:00 AM UTC**. It checks configured subscripti
 ## Project Structure
 
 ```text
-MailBot2/
+MailMate/
 ├── backend/
 │   ├── middleware/auth.js
 │   ├── models/
@@ -88,7 +88,7 @@ MailBot2/
 │   ├── services/
 │   └── server.js
 ├── frontend/
-│   ├── public/mailbotLogo.svg
+│   ├── public/mailmateLogo.svg
 │   ├── src/components/
 │   ├── src/context/
 │   ├── src/pages/
@@ -184,7 +184,7 @@ SMTP_PORT=587
 SMTP_SECURE=false
 SMTP_USER=your_email@example.com
 SMTP_PASS=your_smtp_app_password
-SMTP_FROM_NAME=MailBot
+SMTP_FROM_NAME=MailMate
 SMTP_FROM_EMAIL=your_email@example.com
 
 GEMINI_API_KEY=your_gemini_api_key

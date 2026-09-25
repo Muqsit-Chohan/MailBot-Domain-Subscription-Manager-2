@@ -291,7 +291,7 @@ router.post('/:id/send-test', auth, async (req, res) => {
     const user = hasSavedConfig ? saved.username : process.env.SMTP_USER;
     const pass = hasSavedConfig ? saved.password : process.env.SMTP_PASS;
     const fromEmail = hasSavedConfig ? saved.senderEmail : process.env.SMTP_FROM_EMAIL;
-    const fromName = (hasSavedConfig ? saved.senderName : process.env.SMTP_FROM_NAME) || 'MailBot';
+    const fromName = (hasSavedConfig ? saved.senderName : process.env.SMTP_FROM_NAME) || 'MailMate';
 
     if (!isResendEnabled() && (!host || !user || !pass || !fromEmail || !Number.isInteger(port) || port < 1 || port > 65535)) {
       return res.status(400).json({
@@ -304,11 +304,11 @@ router.post('/:id/send-test', auth, async (req, res) => {
     const daysUntil = Math.ceil((new Date(sub.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
     const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>MailBot Test Email</h2>
+          <h2>MailMate Test Email</h2>
           <p>This is a test email for your domain <strong>${sub.domain}</strong>.</p>
           <p>It will expire in <strong>${daysUntil} day(s)</strong> on ${new Date(sub.expiryDate).toLocaleDateString()}.</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
-          <p style="color: #6b7280; font-size: 12px;">Sent by MailBot Domain Manager</p>
+          <p style="color: #6b7280; font-size: 12px;">Sent by MailMate Domain Manager</p>
         </div>`;
 
     const response = await sendEmail({
@@ -339,7 +339,7 @@ router.post('/:id/send-test', auth, async (req, res) => {
     res.json({ success: true, webhook, message: webhook.success
       ? 'Test email and webhook reminder sent!'
       : webhook.skipped ? `Test email sent. Webhook skipped: ${webhook.reason}. Enable webhook notifications and save settings.`
-        : 'Test email sent, but webhook delivery failed. Check your webhook settings.' });
+        : `Test email sent, but webhook delivery failed: ${webhook.error || 'Unknown delivery error'}` });
   } catch (error) {
     console.error('Send test error:', error);
     res.status(502).json({ success: false, error: error.message });

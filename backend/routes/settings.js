@@ -52,7 +52,7 @@ router.put('/smtp', auth, async (req, res) => {
 router.post('/run-cron', auth, async (req, res) => {
   try {
     const result = await require('../services/cronService').processReminders({ userId: req.user._id });
-    res.json({ sent: result.sent, failed: result.failed, error: result.error || null });
+    res.json({ ...result, error: result.error || null });
   } catch (err) {
     res.status(500).json({ message: 'Failed to run cron: ' + err.message });
   }
@@ -78,8 +78,8 @@ router.post('/test-email', auth, async (req, res) => {
 
     const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>✅ MailBot SMTP Test</h2>
-          <p>This is a test email from your MailBot SMTP configuration.</p>
+          <h2>✅ MailMate SMTP Test</h2>
+          <p>This is a test email from your MailMate SMTP configuration.</p>
           <p>If you received this, your settings are correct!</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
           <p style="color: #6b7280; font-size: 12px;">Sent at: ${new Date().toLocaleString()}</p>
@@ -88,10 +88,10 @@ router.post('/test-email', auth, async (req, res) => {
 
     const response = await sendEmail({
       to,
-      from: `"${senderName || 'MailBot'}" <${senderEmail}>`,
-      subject: 'MailBot – Test Email',
+      from: `"${senderName || 'MailMate'}" <${senderEmail}>`,
+      subject: 'MailMate – Test Email',
       html,
-      text: 'MailBot SMTP test email – Your configuration is working!',
+      text: 'MailMate SMTP test email – Your configuration is working!',
       triggeredBy: 'test',
       userId: req.user._id,
       transportOptions: {
@@ -127,8 +127,8 @@ router.post('/test-webhook', auth, async (req, res) => {
 
     const { sendWebhookNotification } = require('../services/webhookService');
     const result = await sendWebhookNotification(webhookUrl, {
-      title: '🔔 MailBot Webhook Test',
-      message: 'This is a test notification from your MailBot Domain Manager. Webhook integration is working successfully!',
+      title: '🔔 MailMate Webhook Test',
+      message: 'This is a test notification from your MailMate Domain Manager. Webhook integration is working successfully!',
       domain: 'test-domain.com',
       daysUntilExpiry: 7,
       expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
@@ -156,7 +156,7 @@ router.post('/test-whatsapp', auth, async (req, res) => {
     const result = await sendWhatsAppNotification(
       whatsappNumber,
       whatsappApiKey,
-      '🔔 MailBot WhatsApp Test\n\nThis is a test notification from your MailBot Domain Manager. WhatsApp integration is working successfully!'
+      '🔔 MailMate WhatsApp Test\n\nThis is a test notification from your MailMate Domain Manager. WhatsApp integration is working successfully!'
     );
 
     if (!result.success) {

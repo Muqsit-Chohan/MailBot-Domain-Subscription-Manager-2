@@ -93,10 +93,10 @@ export default function AuthPage() {
       <div className="relative w-full max-w-sm z-10">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8 text-center">
-          <Link to="/" aria-label="MailBot home">
-            <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-16 h-16 object-contain mb-2" />
+          <Link to="/" aria-label="MailMate home">
+            <img src="/mailmateLogo.svg" alt="MailMate logo" className="w-16 h-16 object-contain mb-2" />
           </Link>
-          <h1 className="text-2xl font-extrabold text-[#111827] dark:text-[#e7e9ed] tracking-tight">MailBot</h1>
+          <h1 className="text-2xl font-extrabold text-[#111827] dark:text-[#e7e9ed] tracking-tight">MailMate</h1>
           <p className="text-xs text-[#6b7280] dark:text-[#a1a1aa] mt-1">Domain, Hosting & Subscription Manager</p>
         </div>
 

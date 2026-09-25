@@ -17,11 +17,11 @@ function Sidebar({ mobile = false, onClose, user, dark, toggle, logout }) {
     <aside className={`${mobile ? 'flex' : 'hidden lg:flex'} flex-col w-[250px] h-full bg-white dark:bg-[#23272d] border-r border-transparent shadow-[0.2rem_0_0.4rem_rgba(0,0,0,0.05)] dark:shadow-[0.2rem_0_0.4rem_rgba(0,0,0,0.2)]`}>
       {/* Logo */}
       <div className="flex items-center gap-1 px-5 h-16 border-b border-transparent">
-        <Link to="/dashboard" aria-label="MailBot dashboard">
-          <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-9 h-9 object-contain" />
+        <Link to="/dashboard" aria-label="MailMate dashboard">
+          <img src="/mailmateLogo.svg" alt="MailMate logo" className="w-9 h-9 object-contain" />
         </Link>
         <div>
-          <span className="font-bold text-[#2c3e50] dark:text-[#e7e9ed] tracking-tight text-[15px]">MailBot</span>
+          <span className="font-bold text-[#2c3e50] dark:text-[#e7e9ed] tracking-tight text-[15px]">MailMate</span>
           <p className="text-[10px] text-[#7f8c8d] dark:text-[#a8b0bc] leading-none -mt-0.5">Subscription Manager</p>
         </div>
       </div>
@@ -107,11 +107,11 @@ export default function Layout({ children }) {
         {/* Mobile topbar */}
         <div className="lg:hidden flex items-center justify-between px-4 h-14 bg-white dark:bg-[#23272d] border-b border-[#dde1e9] dark:border-[#373e47]">
           <div className="flex items-center gap-2">
-            <Link to="/dashboard" aria-label="MailBot dashboard">
-              <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-8 h-8 object-contain" />
+            <Link to="/dashboard" aria-label="MailMate dashboard">
+              <img src="/mailmateLogo.svg" alt="MailMate logo" className="w-8 h-8 object-contain" />
             </Link>
             <div>
-              <span className="font-bold text-sm text-[#111827] dark:text-[#e7e9ed]">MailBot</span>
+              <span className="font-bold text-sm text-[#111827] dark:text-[#e7e9ed]">MailMate</span>
               <p className="text-[10px] text-[#6b7280] dark:text-[#a1a1aa] leading-none -mt-0.5">Domain Manager</p>
             </div>
           </div>

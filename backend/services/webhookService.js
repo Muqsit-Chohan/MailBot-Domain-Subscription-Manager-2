@@ -12,7 +12,7 @@ async function sendWebhookNotification(webhookUrl, { title, message, domain, exp
 
     if (isDiscord) {
       payload = {
-        username: 'MailBot Alert',
+        username: 'MailMate Alert',
         avatar_url: 'https://cdn-icons-png.flaticon.com/512/281/281769.png',
         embeds: [
           {
@@ -25,20 +25,20 @@ async function sendWebhookNotification(webhookUrl, { title, message, domain, exp
               { name: '📅 Expiry Date', value: expiryDate ? new Date(expiryDate).toLocaleDateString() : 'N/A', inline: true },
               ...fields,
             ],
-            footer: { text: 'MailBot Subscription Manager' },
+            footer: { text: 'MailMate Subscription Manager' },
             timestamp: new Date().toISOString(),
           },
         ],
       };
     } else if (isSlack) {
       payload = {
-        text: `*${title || '⚠️ MailBot Alert'}*\n${message}`,
+        text: `*${title || '⚠️ MailMate Alert'}*\n${message}`,
         blocks: [
           {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `*${title || '⚠️ MailBot Expiry Alert'}*\n${message}\n*Domain:* \`${domain}\` | *Expires in:* \`${daysUntilExpiry} days\` (${expiryDate ? new Date(expiryDate).toLocaleDateString() : ''})`,
+              text: `*${title || '⚠️ MailMate Expiry Alert'}*\n${message}\n*Domain:* \`${domain}\` | *Expires in:* \`${daysUntilExpiry} days\` (${expiryDate ? new Date(expiryDate).toLocaleDateString() : ''})`,
             },
           },
         ],

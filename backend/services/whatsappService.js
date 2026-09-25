@@ -36,7 +36,7 @@ async function sendReminderWhatsApp(subscription, daysUntilExpiry, userId = subs
     if (!user.whatsappNumber || !user.whatsappApiKey) return { success: false, skipped: true, reason: 'Owner has no saved WhatsApp number/API key' };
 
     const expiry = subscription.expiryDate ? new Date(subscription.expiryDate).toLocaleDateString() : 'N/A';
-    const message = `⚠️ MailBot Renewal Reminder\n\n${subscription.domain} expires in ${daysUntilExpiry} day(s).\nExpiry date: ${expiry}`;
+    const message = `⚠️ MailMate Renewal Reminder\n\n${subscription.domain} expires in ${daysUntilExpiry} day(s).\nExpiry date: ${expiry}`;
 
     return await sendWhatsAppNotification(user.whatsappNumber, user.whatsappApiKey, message);
   } catch (error) {

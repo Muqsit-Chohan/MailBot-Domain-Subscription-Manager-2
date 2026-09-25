@@ -38,7 +38,7 @@ app.use('/api/templates', require('./routes/templates'));
 app.use('/api/logs', require('./routes/logs'));
 app.use('/api/settings', require('./routes/settings'));
 
-app.get('/', (req, res) => res.json({ status: 'ok', service: 'mailbot-backend' }));
+app.get('/', (req, res) => res.json({ status: 'ok', service: 'mailmate-backend' }));
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() }));
 
 app.use((err, req, res, next) => {

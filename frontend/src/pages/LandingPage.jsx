@@ -113,7 +113,7 @@ const stats = [
 const steps = [
   { step: '01', title: 'Add Domains, Hosting & Assets', desc: 'Add domain names, hosting packages, SSL certificates, email licenses, or software tools with provider info and renewal cycle.' },
   { step: '02', title: 'Set Custom Alert Intervals', desc: 'Configure reminder timelines (e.g. 30 days before for domains, 7 days before for SSL) tailored to each asset and client.' },
-  { step: '03', title: 'Automated Peace of Mind', desc: 'MailBot monitors expiry dates 24/7 and delivers automated email notifications directly to you and your clients.' },
+  { step: '03', title: 'Automated Peace of Mind', desc: 'MailMate monitors expiry dates 24/7 and delivers automated email notifications directly to you and your clients.' },
 ];
 
 const colorMap = {
@@ -153,10 +153,10 @@ function Navbar() {
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
           className="flex items-center gap-1">
-          <Link to="/" aria-label="MailBot home">
-            <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-9 h-9 object-contain" />
+          <Link to="/" aria-label="MailMate home">
+            <img src="/mailmateLogo.svg" alt="MailMate logo" className="w-9 h-9 object-contain" />
           </Link>
-          <span className="font-bold text-[#111827] dark:text-white text-[17px] tracking-tight">MailBot</span>
+          <span className="font-bold text-[#111827] dark:text-white text-[17px] tracking-tight">MailMate</span>
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }}
           className="hidden lg:flex items-center gap-7 text-sm text-[#4b5563] dark:text-white/55 font-medium">
@@ -223,7 +223,7 @@ function HeroCard() {
             <div className="w-3 h-3 rounded-full bg-red-500/80" />
             <div className="w-3 h-3 rounded-full bg-amber-500/80" />
             <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-            <span className="ml-1 sm:ml-2 min-w-0 truncate text-[10px] sm:text-xs text-[#6b7280] dark:text-white/40 font-mono">mailbot — live asset monitor</span>
+            <span className="ml-1 sm:ml-2 min-w-0 truncate text-[10px] sm:text-xs text-[#6b7280] dark:text-white/40 font-mono">mailmate — live asset monitor</span>
           </div>
           <div className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-[10px] text-emerald-700 dark:text-emerald-400 font-medium whitespace-nowrap">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
@@ -358,7 +358,7 @@ export default function LandingPage() {
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
             className="text-base sm:text-lg md:text-xl text-[#4b5563] dark:text-white/50 max-w-2xl mx-auto mb-7 sm:mb-8 leading-relaxed">
-            MailBot is the ultimate control center for developers and agencies. Track domain expiries, web hosting renewals, SSL certificates, business email, and SaaS licenses — with automated reminders before anything goes offline.
+            MailMate is the ultimate control center for developers and agencies. Track domain expiries, web hosting renewals, SSL certificates, business email, and SaaS licenses — with automated reminders before anything goes offline.
           </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
@@ -482,7 +482,7 @@ export default function LandingPage() {
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 text-sky-700 dark:text-sky-300 text-xs font-semibold mb-5">
               <RefreshCw size={11} /> Quick 3-Minute Setup
             </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-[#111827] dark:text-white">How MailBot Works</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-[#111827] dark:text-white">How MailMate Works</h2>
             <p className="text-[#4b5563] dark:text-white/45 text-lg">Three straightforward steps to complete peace of mind.</p>
           </FadeIn>
           <div className="space-y-10">
@@ -508,7 +508,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <FadeIn className="text-center mb-12">
             <p className="text-gray-400 dark:text-white/30 text-xs font-bold uppercase tracking-widest mb-3">Enterprise Grade Reliability</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#111827] dark:text-white">Why Teams Choose MailBot</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#111827] dark:text-white">Why Teams Choose MailMate</h2>
           </FadeIn>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
@@ -559,13 +559,13 @@ export default function LandingPage() {
       <footer className="border-t border-[#dde1e9] dark:border-white/[0.06] py-10 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4 text-sm text-[#6b7280] dark:text-white/30 text-center lg:text-left">
           <div className="flex flex-wrap items-center justify-center gap-2.5">
-            <Link to="/" aria-label="MailBot home">
-              <img src="/mailbotLogo.svg" alt="MailBot logo" className="w-7 h-7 object-contain" />
+            <Link to="/" aria-label="MailMate home">
+              <img src="/mailmateLogo.svg" alt="MailMate logo" className="w-7 h-7 object-contain" />
             </Link>
-            <span className="font-bold text-[#111827] dark:text-white/60">MailBot</span>
+            <span className="font-bold text-[#111827] dark:text-white/60">MailMate</span>
             <span>— Domain, Hosting & Subscription Asset Manager</span>
           </div>
-          <p>© {new Date().getFullYear()} MailBot. Built with care for web professionals.</p>
+          <p>© {new Date().getFullYear()} MailMate. Built with care for web professionals.</p>
           <div className="flex flex-wrap items-center justify-center gap-4 mt-2 md:mt-0">
             <Link to="/privacy-policy" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
               Privacy Policy

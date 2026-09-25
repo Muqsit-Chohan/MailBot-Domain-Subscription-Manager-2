@@ -111,7 +111,7 @@ async function getRdapInfo(domain) {
       const res = await fetch(url, {
         headers: {
           Accept: 'application/rdap+json, application/json',
-          'User-Agent': 'MailBot/2.0 (Domain Manager)',
+          'User-Agent': 'MailMate/2.0 (Domain Manager)',
         },
         signal: controller.signal,
       });

@@ -1,1 +1,1 @@
-# MailBot-Backend
+# MailMate-Backend

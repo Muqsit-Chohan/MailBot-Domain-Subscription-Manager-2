@@ -1,5 +1,5 @@
 {
-  "name": "mailbot",
+  "name": "mailmate",
   "version": "1.0.0",
   "description": "Domain Subscription Manager with Automated Email Reminders",
   "scripts": {
