@@ -14,6 +14,7 @@ import VerifyEmail from './pages/VerifyEmail';
 import ResetPassword from './pages/ResetPassword';
 import EmailSettings from './pages/EmailSettings';
 import LegalPage from './pages/LegalPage';
+import RouteMeta from './components/RouteMeta';
 
 
 
@@ -59,6 +60,7 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
+          <RouteMeta />
           <AppRoutes />
           <Toaster
             position="top-right"

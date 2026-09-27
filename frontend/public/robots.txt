@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /subscriptions
+Disallow: /templates
+Disallow: /logs
+Disallow: /settings
+Disallow: /email-settings
+Disallow: /verify-email
+Disallow: /reset-password
+
+Sitemap: https://www.mailmate.space/sitemap.xml
