@@ -26,4 +26,6 @@ function inlineEntryCss() {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), inlineEntryCss()],
+  // The prerender build runs in Node; bundle deps so their browser-only entry points resolve.
+  ssr: { noExternal: true },
 })

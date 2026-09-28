@@ -4,6 +4,7 @@ const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
   const [dark, setDark] = useState(() => {
+    if (typeof window === 'undefined') return false;
     const stored = localStorage.getItem('mb_theme');
     if (stored) return stored === 'dark';
     return false;
