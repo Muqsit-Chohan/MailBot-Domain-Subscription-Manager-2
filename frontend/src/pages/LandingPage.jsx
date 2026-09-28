@@ -300,39 +300,54 @@ export default function LandingPage() {
   const rootRef = useRef(null);
 
   useEffect(() => {
-    const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
+    let lenis;
+    let ctx;
+    const onTick = (time) => lenis.raf(time * 1000);
 
-    const ctx = gsap.context(() => {
-      gsap.utils.toArray('.step-card').forEach((card, i) => {
-        gsap.fromTo(card,
-          { opacity: 0, x: i % 2 === 0 ? -50 : 50 },
-          { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out',
-            scrollTrigger: { trigger: card, start: 'top 85%', toggleActions: 'play none none reverse' } }
+    // Scroll effects measure layout, so set them up after first paint to keep it off the critical path.
+    const init = () => {
+      lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(onTick);
+      gsap.ticker.lagSmoothing(0);
+
+      ctx = gsap.context(() => {
+        gsap.utils.toArray('.step-card').forEach((card, i) => {
+          gsap.fromTo(card,
+            { opacity: 0, x: i % 2 === 0 ? -50 : 50 },
+            { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out',
+              scrollTrigger: { trigger: card, start: 'top 85%', toggleActions: 'play none none reverse' } }
+          );
+        });
+        gsap.fromTo('.category-card',
+          { opacity: 0, y: 40, scale: 0.96 },
+          { opacity: 1, y: 0, scale: 1, stagger: 0.08, duration: 0.65, ease: 'power3.out',
+            scrollTrigger: { trigger: '.categories-grid', start: 'top 82%' } }
         );
-      });
-      gsap.fromTo('.category-card',
-        { opacity: 0, y: 40, scale: 0.96 },
-        { opacity: 1, y: 0, scale: 1, stagger: 0.08, duration: 0.65, ease: 'power3.out',
-          scrollTrigger: { trigger: '.categories-grid', start: 'top 82%' } }
-      );
-      gsap.fromTo('.feature-card',
-        { opacity: 0, y: 40, scale: 0.96 },
-        { opacity: 1, y: 0, scale: 1, stagger: 0.08, duration: 0.65, ease: 'power3.out',
-          scrollTrigger: { trigger: '.features-grid', start: 'top 82%' } }
-      );
-      gsap.fromTo('.stat-item',
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, stagger: 0.1, duration: 0.6, ease: 'power2.out',
-          scrollTrigger: { trigger: '.stats-row', start: 'top 85%' } }
-      );
-    }, rootRef);
+        gsap.fromTo('.feature-card',
+          { opacity: 0, y: 40, scale: 0.96 },
+          { opacity: 1, y: 0, scale: 1, stagger: 0.08, duration: 0.65, ease: 'power3.out',
+            scrollTrigger: { trigger: '.features-grid', start: 'top 82%' } }
+        );
+        gsap.fromTo('.stat-item',
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, stagger: 0.1, duration: 0.6, ease: 'power2.out',
+            scrollTrigger: { trigger: '.stats-row', start: 'top 85%' } }
+        );
+      }, rootRef);
+    };
+
+    const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 200));
+    const cancelIdle = window.cancelIdleCallback || clearTimeout;
+    const handle = idle(init, { timeout: 1500 });
 
     return () => {
-      lenis.destroy();
-      ctx.revert();
+      cancelIdle(handle);
+      if (lenis) {
+        gsap.ticker.remove(onTick);
+        lenis.destroy();
+      }
+      ctx?.revert();
     };
   }, []);
 
