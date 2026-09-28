@@ -349,13 +349,13 @@ export default function LandingPage() {
             <Sparkles size={12} /> All-in-One Asset & Subscription Manager
           </motion.div>
 
-          <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+          <motion.h1 initial={{ y: 30 }} animate={{ y: 0 }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             className="text-3xl sm:text-6xl md:text-7xl font-extrabold leading-[1.1] tracking-tight mb-5 sm:mb-6 text-[#111827] dark:text-white break-words">
             Track <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-sky-600 dark:from-indigo-400 dark:via-violet-400 dark:to-sky-400 bg-clip-text text-transparent">Domains</span>, Hosting, SSL & Subscriptions
           </motion.h1>
 
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          <motion.p initial={{ y: 20 }} animate={{ y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
             className="text-base sm:text-lg md:text-xl text-[#4b5563] dark:text-white/50 max-w-2xl mx-auto mb-7 sm:mb-8 leading-relaxed">
             MailMate is the ultimate control center for developers and agencies. Track domain expiries, web hosting renewals, SSL certificates, business email, and SaaS licenses — with automated reminders before anything goes offline.

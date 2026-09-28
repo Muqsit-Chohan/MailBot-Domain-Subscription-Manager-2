@@ -1,22 +1,29 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout';
 import LandingPage from './pages/LandingPage';
-import AuthPage from './pages/AuthPage';
-import Dashboard from './pages/Dashboard';
-import SubscriptionsPage from './pages/SubscriptionsPage';
-import TemplatesPage from './pages/TemplatesPage';
-import LogsPage from './pages/LogsPage';
-import SettingsPage from './pages/SettingsPage';
-import VerifyEmail from './pages/VerifyEmail';
-import ResetPassword from './pages/ResetPassword';
-import EmailSettings from './pages/EmailSettings';
-import LegalPage from './pages/LegalPage';
+const AuthPage = lazy(() => import('./pages/AuthPage'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const SubscriptionsPage = lazy(() => import('./pages/SubscriptionsPage'));
+const TemplatesPage = lazy(() => import('./pages/TemplatesPage'));
+const LogsPage = lazy(() => import('./pages/LogsPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const EmailSettings = lazy(() => import('./pages/EmailSettings'));
+const LegalPage = lazy(() => import('./pages/LegalPage'));
 import RouteMeta from './components/RouteMeta';
 
 
+
+const Spinner = () => (
+  <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+    <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -37,6 +44,7 @@ function AppRoutes() {
     </div>
   );
   return (
+    <Suspense fallback={<Spinner />}>
     <Routes>
       <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
       <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
@@ -52,6 +60,7 @@ function AppRoutes() {
       <Route path="/email-settings" element={<EmailSettings />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
   );
 }
 

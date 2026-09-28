@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem('mb_user')); } catch { return null; }
   });
-  const  [loading, setLoading] =  useState(true);
+  const [loading, setLoading] = useState(() => !!localStorage.getItem('mb_token'));
 
   useEffect(() => {
     const token = localStorage.getItem('mb_token');
